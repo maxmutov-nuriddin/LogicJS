@@ -92,6 +92,18 @@ function getExprSource(node: t.Node): string {
   return "[expr]";
 }
 
+/** Returns Monaco 1-based column range from a Babel AST node (Babel is 0-based). */
+function getCol(node: t.Node): { start: number; end: number; endLine?: number } | undefined {
+  if (!node.loc) return undefined;
+  const startLine = node.loc.start.line;
+  const endLine = node.loc.end.line;
+  return {
+    start: node.loc.start.column + 1,
+    end: node.loc.end.column + 1,
+    endLine: endLine !== startLine ? endLine : undefined,
+  };
+}
+
 function cloneState(state: RuntimeState): RuntimeState {
   return {
     variables: { ...state.variables },
@@ -368,6 +380,7 @@ export class ExecutionEngine {
         id: nextId(),
         type: "declare-variable",
         line,
+        col: getCol(declarator),
         name,
         value,
         state,
@@ -535,6 +548,7 @@ export class ExecutionEngine {
       id: nextId(),
       type: "assign-variable",
       line,
+      col: getCol(node),
       name,
       oldValue,
       value: finalValue,
@@ -560,6 +574,7 @@ export class ExecutionEngine {
       id: nextId(),
       type: "update-variable",
       line,
+      col: getCol(node),
       name,
       operator: node.operator as "++" | "--",
       prefix: node.prefix,
@@ -606,6 +621,7 @@ export class ExecutionEngine {
       id: nextId(),
       type: "evaluate-condition",
       line,
+      col: getCol(node.test),
       expression: condSource,
       leftValue,
       rightValue,
@@ -734,6 +750,7 @@ export class ExecutionEngine {
             id: nextId(),
             type: "loop-condition",
             line,
+            col: getCol(node.test),
             expression: condSource,
             result: condResult,
             iteration,
@@ -831,6 +848,7 @@ export class ExecutionEngine {
         id: nextId(),
         type: "loop-condition",
         line,
+        col: getCol(node.test),
         expression: condSource,
         result: condResult,
         iteration,
@@ -1188,6 +1206,7 @@ export class ExecutionEngine {
         id: nextId(),
         type: "console-output",
         line,
+        col: getCol(node),
         value: output,
         state: cloneState({ ...this.baseState, activeCondition: undefined }),
         explanation: this.e.consoleOutput(output, (node.callee.property as t.Identifier).name),
@@ -1208,7 +1227,7 @@ export class ExecutionEngine {
 
       const fn = this.functions.get(fnName);
       if (fn) {
-        return this.invokeFunction(fnName, fn, args, line);
+        return this.invokeFunction(fnName, fn, args, line, getCol(node));
       }
 
       // Unknown function: just skip silently
@@ -1231,7 +1250,8 @@ export class ExecutionEngine {
     name: string,
     fn: t.FunctionDeclaration | t.FunctionExpression | t.ArrowFunctionExpression,
     args: unknown[],
-    line: number
+    line: number,
+    callCol?: { start: number; end: number; endLine?: number }
   ): unknown {
     const params = fn.params
       .filter(t.isIdentifier)
@@ -1241,6 +1261,7 @@ export class ExecutionEngine {
       id: nextId(),
       type: "function-call",
       line,
+      col: callCol,
       name,
       args,
       params,

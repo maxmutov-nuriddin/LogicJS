@@ -24,6 +24,8 @@ export interface RuntimeState {
 export interface BaseStep {
   id: string;
   line: number;
+  /** Monaco 1-based columns for the specific token/expression being executed */
+  col?: { start: number; end: number; endLine?: number };
   state: RuntimeState;
 }
 
