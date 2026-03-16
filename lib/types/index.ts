@@ -173,8 +173,10 @@ export interface PlaygroundStore {
   status: PlaygroundStatus;
   errorMessage: string | null;
   isAutoPlaying: boolean;
+  autoPlaySpeed: number;
 
   setCode: (code: string) => void;
+  setAutoPlaySpeed: (speed: number) => void;
   runCode: () => void;
   resetPlayground: () => void;
   stepForward: () => void;

@@ -22,6 +22,11 @@ export const usePlaygroundStore = create<PlaygroundStore>((set, get) => ({
   status: "idle",
   errorMessage: null,
   isAutoPlaying: false,
+  autoPlaySpeed: 1800,
+
+  setAutoPlaySpeed: (speed: number) => {
+    set({ autoPlaySpeed: speed });
+  },
 
   setCode: (code: string) => {
     set({ code, status: "idle", steps: [], currentStepIndex: -1, errorMessage: null });

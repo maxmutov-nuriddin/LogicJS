@@ -3,10 +3,8 @@
 import { useEffect } from "react";
 import { usePlaygroundStore } from "@/app/playground/store";
 
-const AUTO_PLAY_INTERVAL = 1800; // ms per step
-
 export function AutoPlayController() {
-  const { isAutoPlaying, stepForward, steps, currentStepIndex, stopAutoPlay } =
+  const { isAutoPlaying, stepForward, steps, currentStepIndex, stopAutoPlay, autoPlaySpeed } =
     usePlaygroundStore();
 
   useEffect(() => {
@@ -19,10 +17,10 @@ export function AutoPlayController() {
 
     const timer = setTimeout(() => {
       stepForward();
-    }, AUTO_PLAY_INTERVAL);
+    }, autoPlaySpeed);
 
     return () => clearTimeout(timer);
-  }, [isAutoPlaying, currentStepIndex, steps.length, stepForward, stopAutoPlay]);
+  }, [isAutoPlaying, currentStepIndex, steps.length, stepForward, stopAutoPlay, autoPlaySpeed]);
 
   return null;
 }

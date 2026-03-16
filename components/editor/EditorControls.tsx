@@ -1,6 +1,6 @@
 "use client";
 
-import { Play, SkipBack, SkipForward, ChevronRight, ChevronLeft, RotateCcw, Square } from "lucide-react";
+import { Play, SkipBack, SkipForward, ChevronRight, ChevronLeft, RotateCcw, Square, Gauge } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { usePlaygroundStore, useLangStore } from "@/app/playground/store";
 import { UI } from "@/lib/i18n/ui";
@@ -19,10 +19,17 @@ const PRESET_LABEL_KEYS: Record<string, keyof typeof UI["en"]> = {
 
 export function EditorControls() {
   const {
-    steps, currentStepIndex, status, isAutoPlaying,
+    steps, currentStepIndex, status, isAutoPlaying, autoPlaySpeed,
     runCode, resetPlayground, stepForward, stepBackward,
-    startAutoPlay, stopAutoPlay, setCode,
+    startAutoPlay, stopAutoPlay, setCode, setAutoPlaySpeed,
   } = usePlaygroundStore();
+
+  const SPEED_OPTIONS = [
+    { label: "0.5x", value: 3600 },
+    { label: "1x",   value: 1800 },
+    { label: "2x",   value: 900  },
+    { label: "3x",   value: 600  },
+  ];
   const { lang } = useLangStore();
   const t = UI[lang];
 
@@ -79,6 +86,24 @@ export function EditorControls() {
             title={t.goToStart}
           />
         )}
+
+        {/* Speed selector */}
+        <div className="flex items-center gap-1 ml-1 border-l border-border pl-2">
+          <Gauge size={13} className="text-gray-500" />
+          {SPEED_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setAutoPlaySpeed(opt.value)}
+              className={`text-xs px-2 py-1 rounded-md border transition-colors ${
+                autoPlaySpeed === opt.value
+                  ? "bg-primary text-white border-primary"
+                  : "bg-surface-2 hover:bg-surface-3 text-gray-400 hover:text-gray-200 border-border"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Progress bar */}
