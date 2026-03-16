@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "LogicJS — JavaScript Execution Visualizer",
+  title: "LogicLab — JavaScript & CSS Visualizer",
   description:
-    "Learn how JavaScript works internally. Visualize code execution step by step — variables, conditions, branches, and more.",
-  keywords: ["JavaScript", "learning", "visualizer", "education", "code"],
+    "Learn how JavaScript and CSS work interactively. Visualize JS code execution step by step and explore Flexbox, Grid, and animations visually.",
+  keywords: ["JavaScript", "CSS", "learning", "visualizer", "education", "code", "flexbox", "grid"],
 };
 
 export default function RootLayout({

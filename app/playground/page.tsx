@@ -30,7 +30,7 @@ export default function PlaygroundPage() {
               <Code2 size={12} className="text-white" />
             </div>
             <span className="font-bold text-sm text-white font-mono tracking-tight">
-              Logic<span className="text-primary-light">JS</span>
+              Logic<span className="text-primary-light">Lab</span>
             </span>
           </Link>
 
