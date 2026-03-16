@@ -3,7 +3,10 @@
 import { useState, useId, CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Code2, Layers, LayoutGrid, Sparkles, ChevronRight, Home } from "lucide-react";
+import { Code2, Layers, LayoutGrid, Sparkles, ChevronRight } from "lucide-react";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
+import { useLangStore } from "@/app/playground/store";
+import { CSS_UI, type CSSTranslations } from "@/lib/i18n/css";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -131,22 +134,6 @@ type FW = "nowrap" | "wrap" | "wrap-reverse";
 
 interface FlexState { dir: FD; jc: JC; ai: AI; fw: FW; gap: number }
 
-const FLEX_EXPLAIN: Record<string, string> = {
-  row:             "Elementlar chapdan → o'ngga joylashadi (odatiy tartib)",
-  "row-reverse":   "Elementlar o'ngdan ← chapga — teskari tartibda",
-  column:          "Elementlar yuqoridan ↓ pastga joylashadi",
-  "column-reverse":"Elementlar pastdan ↑ yuqoriga — teskari tartibda",
-  "flex-start":    "Elementlar konteyner boshidan joylashadi (chap yoki yuq)",
-  center:          "Elementlar o'rtaga — markazga to'planadi",
-  "flex-end":      "Elementlar konteyner oxiriga suriladi (o'ng yoki past)",
-  "space-between": "Birinchi/oxirgi chegarada, qolganlari teng bo'shliq bilan",
-  "space-around":  "Har bir elementning ikki tomonida teng bo'shliq",
-  "space-evenly":  "Barcha oraliq bo'shliqlar mutlaqo teng",
-  stretch:         "Elementlar ko'ndalang o'qda to'liq cho'ziladi",
-  nowrap:          "Elementlar bir qatorga sig'masa ham o'tib ketmaydi, qisqaradi",
-  wrap:            "Elementlar sig'masa keyingi qatorga o'tadi",
-  "wrap-reverse":  "Elementlar sig'masa yuqoriga — teskari tartibda o'tadi",
-};
 
 const BOX_COLORS = [
   { bg: "#3b82f6", label: "A", w: 56, h: 56 },
@@ -156,7 +143,7 @@ const BOX_COLORS = [
   { bg: "#ec4899", label: "E", w: 64, h: 64 },
 ];
 
-function FlexSection() {
+function FlexSection({ t }: { t: CSSTranslations }) {
   const [s, setS] = useState<FlexState>({ dir: "row", jc: "flex-start", ai: "flex-start", fw: "nowrap", gap: 8 });
   const [explain, setExplain] = useState("row");
 
@@ -229,7 +216,7 @@ function FlexSection() {
             <p className="text-sm text-gray-300">
               <code className="text-blue-400 font-bold font-mono">{explain}</code>
               {" — "}
-              {FLEX_EXPLAIN[explain] ?? "Qiymatni o'zgartirish uchun chap tomondagi tugmani bosing"}
+              {t.flexExplain[explain] ?? t.flexFallback}
             </p>
           </motion.div>
         </AnimatePresence>
@@ -268,19 +255,19 @@ function FlexSection() {
 
         {/* Axis diagram */}
         <div className="rounded-xl border border-border bg-surface-2 p-4">
-          <p className="text-xs text-gray-500 mb-3 font-semibold uppercase tracking-wider">Flex o'qlari</p>
+          <p className="text-xs text-gray-500 mb-3 font-semibold uppercase tracking-wider">{t.flexAxesTitle}</p>
           <div className="flex gap-4">
             <div className={`flex-1 rounded-lg p-3 border ${isCol ? "border-purple-500/30 bg-purple-500/5" : "border-blue-500/30 bg-blue-500/5"}`}>
               <p className="text-xs font-bold font-mono mb-1 text-blue-400">justify-content</p>
               <p className="text-xs text-gray-500">
-                {isCol ? "↕ vertikal o'q (column holatda)" : "↔ gorizontal o'q (row holatda)"}
+                {isCol ? t.flexAxisJustifyCol : t.flexAxisJustifyRow}
               </p>
               <div className={`mt-2 h-1 rounded-full ${isCol ? "w-1 h-16 mx-auto bg-blue-500/40" : "w-full bg-blue-500/40"}`} />
             </div>
             <div className={`flex-1 rounded-lg p-3 border ${isCol ? "border-emerald-500/30 bg-emerald-500/5" : "border-emerald-500/30 bg-emerald-500/5"}`}>
               <p className="text-xs font-bold font-mono mb-1 text-emerald-400">align-items</p>
               <p className="text-xs text-gray-500">
-                {isCol ? "↔ gorizontal o'q (column holatda)" : "↕ vertikal o'q (row holatda)"}
+                {isCol ? t.flexAxisAlignCol : t.flexAxisAlignRow}
               </p>
               <div className={`mt-2 rounded-full bg-emerald-500/40 ${isCol ? "h-1 w-full" : "w-1 h-10 mx-auto"}`} />
             </div>
@@ -289,10 +276,7 @@ function FlexSection() {
 
         {/* Quick tips */}
         <div className="grid grid-cols-2 gap-2">
-          <InfoCard icon="📦" title="display: flex" desc="Konteynerga qo'llanadi, ichidagi barcha bolalar flex item bo'ladi" />
-          <InfoCard icon="↔️" title="Main axis" desc="justify-content asosiy o'q bo'yicha ishlaydi — flex-direction ga teng" />
-          <InfoCard icon="↕️" title="Cross axis" desc="align-items ko'ndalang o'q bo'yicha — main axis ga 90° perpendikulyar" />
-          <InfoCard icon="🔄" title="flex-wrap: wrap" desc="Kichik ekranlarda elementlar keyingi qatorga o'tsin desangiz" />
+          {t.flexTips.map(tip => <InfoCard key={tip.title} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
         </div>
       </div>
     </div>
@@ -303,28 +287,12 @@ function FlexSection() {
 
 interface GridState { cols: number; rows: number; gap: number; ji: string; ai: string; spanIdx: number | null }
 
-const GRID_EXPLAIN: Record<string, string> = {
-  "1col": "1 ta ustun — elementlar vertikal ravishda joylashadi",
-  "2col": "2 ta teng kenglikdagi ustun — grid 2 ga bo'linadi",
-  "3col": "3 ta teng ustun — har biri flex-1 kabi 1fr kenglikda",
-  "4col": "4 ta ustun — kichik elementlar uchun qulay",
-  "gap0": "Bo'shliqsiz — elementlar bir-biriga yopishadi",
-  "gap8": "8px bo'shliq — kichik, lekin aniq ajratilgan",
-  "gap16": "16px bo'shliq — ko'p foydalaniladigan standart bo'shliq",
-  "gap24": "24px bo'shliq — keng, nafis ko'rinish",
-  "start": "Elementlar katakcha ichida chapga/yuqoriga tortiladi",
-  "center": "Elementlar katakcha ichida markazga joylashadi",
-  "end": "Elementlar katakcha ichida o'ngga/pastga tortiladi",
-  "stretch": "Elementlar katakcha kengligini to'liq egallaydi (odatiy)",
-  "span2": "Bu element 2 ta ustunni egallaydi: grid-column: span 2",
-  "span3": "Bu element 3 ta ustunni egallaydi: grid-column: span 3",
-};
 
 const GRID_COLORS = [
   "#3b82f6","#a855f7","#10b981","#f97316","#ec4899","#eab308","#06b6d4","#f43f5e"
 ];
 
-function GridSection() {
+function GridSection({ t }: { t: CSSTranslations }) {
   const [s, setS] = useState<GridState>({ cols: 3, rows: 0, gap: 16, ji: "stretch", ai: "stretch", spanIdx: null });
   const [explain, setExplain] = useState("3col");
 
@@ -397,7 +365,7 @@ function GridSection() {
             <p className="text-sm text-gray-300">
               <code className="text-purple-400 font-bold font-mono">{explain}</code>
               {" — "}
-              {GRID_EXPLAIN[explain] ?? "Grid xususiyatini o'zgartirish uchun chapdan tanlang"}
+              {t.gridExplain[explain] ?? t.gridFallback}
             </p>
           </motion.div>
         </AnimatePresence>
@@ -436,10 +404,7 @@ function GridSection() {
 
         {/* Grid concepts */}
         <div className="grid grid-cols-2 gap-2">
-          <InfoCard icon="🗂️" title="grid-template-columns" desc="Ustunlar sonini va kengligini belgilaydi. repeat(3, 1fr) = 3 ta teng ustun" />
-          <InfoCard icon="📐" title="1fr (fraction)" desc="Bo'sh joyni teng bo'laklarga bo'ladi. 2fr katta, 1fr kichik ustun" />
-          <InfoCard icon="↔️" title="justify-items" desc="Har bir elementni o'z katakchasi ichida gorizontal tekislaydi" />
-          <InfoCard icon="↕️" title="grid-column: span N" desc="Bir element bir necha ustunni egallashi uchun. Karta/banner uchun qulay" />
+          {t.gridTips.map(tip => <InfoCard key={tip.title} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
         </div>
       </div>
     </div>
@@ -509,27 +474,8 @@ const ANIM_KEYFRAMES: Record<AnimPreset, string[]> = {
   ],
 };
 
-const ANIM_EXPLAIN: Record<AnimPreset, string> = {
-  bounce: "Yuqoriga ko'tarilib pastga tushadi — translateY bilan",
-  spin:   "360° aylanadi — rotate bilan",
-  fade:   "Ko'rinib yo'qoladi — opacity bilan",
-  slide:  "Chapdan o'ngga siljib o'tadi — translateX bilan",
-  pulse:  "Kattayib kichrayadi — scale bilan",
-  shake:  "Chayqaladi — rotate bilan",
-  flip:   "3D aylanadi — perspective + rotateY bilan",
-  swing:  "Arjuza kabi tebranadi — translate + rotate kombinatsiyasi",
-};
 
-const EASING_EXPLAIN: Record<string, string> = {
-  "linear":      "Tezlik o'zgarishsiz — bir xil sur'atda",
-  "ease":        "Sekin boshlaydi, tezlashadi, sekin tugaydi (odatiy)",
-  "ease-in":     "Sekin boshlaydi, tez tugaydi",
-  "ease-out":    "Tez boshlaydi, sekin tugaydi",
-  "ease-in-out": "Sekin boshlaydi va sekin tugaydi",
-  "cubic-bezier(0.68,-0.55,0.27,1.55)": "Spring — ortga qaytirib keladi (elastik)",
-};
-
-function AnimSection() {
+function AnimSection({ t }: { t: CSSTranslations }) {
   const [s, setS] = useState<AnimState>({ preset: "bounce", duration: 1, easing: "ease", delay: 0, iterStr: "infinite" });
   const [key, setKey] = useState(0);
 
@@ -618,10 +564,10 @@ function AnimSection() {
             className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 px-4 py-3">
             <p className="text-sm text-gray-300">
               <code className="text-yellow-400 font-bold font-mono">{s.preset}</code>
-              {" — "}{ANIM_EXPLAIN[s.preset]}
+              {" — "}{t.animExplain[s.preset]}
               <br/>
               <code className="text-purple-400 text-xs font-mono">{s.easing}</code>
-              {" — "}<span className="text-xs text-gray-500">{EASING_EXPLAIN[s.easing]}</span>
+              {" — "}<span className="text-xs text-gray-500">{t.easingExplain[s.easing]}</span>
             </p>
           </motion.div>
         </AnimatePresence>
@@ -632,7 +578,7 @@ function AnimSection() {
             <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">.box — live animation</span>
             <button onClick={trigger}
               className="text-xs px-3 py-1.5 rounded-lg border border-border bg-surface-2 text-gray-400 hover:text-gray-200 hover:bg-surface-3 transition-colors font-mono">
-              ↺ Qayta boshlash
+              {t.animRestartBtn}
             </button>
           </div>
 
@@ -655,7 +601,7 @@ function AnimSection() {
 
           {/* Timing function visual */}
           <div className="rounded-xl bg-surface-2 border border-border p-4">
-            <p className="text-xs text-gray-500 mb-3 font-semibold">animation-timing-function — tezlanish grafigi:</p>
+            <p className="text-xs text-gray-500 mb-3 font-semibold">{t.animTimingTitle}</p>
             <div className="flex gap-2 flex-wrap">
               {Object.entries({
                 "linear": "━━━━━━━", "ease": "⟿━━━━╾", "ease-in": "⟿━━━━━",
@@ -671,24 +617,21 @@ function AnimSection() {
 
         {/* Concepts */}
         <div className="grid grid-cols-2 gap-2">
-          <InfoCard icon="🎬" title="@keyframes" desc="Animatsiyaning har bir kadrini belgilaydi. 0% boshlang'ich, 100% tugash holati" />
-          <InfoCard icon="⏱️" title="animation-duration" desc="Animatsiya necha sekundda bir marta aylanishini belgilaydi" />
-          <InfoCard icon="🔁" title="iteration-count: infinite" desc="Animatsiya to'xtovsiz takrorlanadi. Oddiy number = necha marta" />
-          <InfoCard icon="📈" title="timing-function" desc="Tezlanish egri chizig'i. ease-in-out natija professional ko'rinish beradi" />
+          {t.animTips.map(tip => <InfoCard key={tip.title} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
         </div>
 
         {/* Transition vs Animation */}
         <div className="rounded-xl border border-border bg-surface-2 p-4">
-          <p className="text-xs font-bold text-gray-300 mb-3">transition va animation farqi:</p>
+          <p className="text-xs font-bold text-gray-300 mb-3">{t.animTransitionDiff}</p>
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3">
               <p className="text-xs font-bold text-blue-400 font-mono mb-1">transition</p>
-              <p className="text-xs text-gray-500 leading-relaxed">Hover yoki state o'zganganda ishlaydi. Faqat A → B orasida.</p>
+              <p className="text-xs text-gray-500 leading-relaxed">{t.transitionDesc}</p>
               <code className="text-[10px] text-gray-600 mt-2 block">transition: color 0.3s ease;</code>
             </div>
             <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3">
               <p className="text-xs font-bold text-yellow-400 font-mono mb-1">animation</p>
-              <p className="text-xs text-gray-500 leading-relaxed">O'zi-o'zicha ishlaydi. @keyframes bilan ko'p kadrli.</p>
+              <p className="text-xs text-gray-500 leading-relaxed">{t.animationDesc}</p>
               <code className="text-[10px] text-gray-600 mt-2 block">animation: bounce 1s infinite;</code>
             </div>
           </div>
@@ -700,38 +643,37 @@ function AnimSection() {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: React.ReactNode; desc: string; color: string }[] = [
-  { id: "flex",      label: "Flexbox",    icon: <Layers size={16} />,     desc: "1 o'qli tartib",        color: "blue"    },
-  { id: "grid",      label: "Grid",       icon: <LayoutGrid size={16} />, desc: "2 o'qli jadval",        color: "purple"  },
-  { id: "animation", label: "Animation",  icon: <Sparkles size={16} />,   desc: "CSS animatsiyalar",     color: "yellow"  },
-];
-
 export default function CSSPage() {
   const [tab, setTab] = useState<Tab>("flex");
+  const { lang } = useLangStore();
+  const t = CSS_UI[lang];
+
+  const TABS = [
+    { id: "flex" as Tab,      label: "Flexbox",    icon: <Layers size={16} />,     desc: t.flexDesc, color: "blue"    },
+    { id: "grid" as Tab,      label: "Grid",       icon: <LayoutGrid size={16} />, desc: t.gridDesc, color: "purple"  },
+    { id: "animation" as Tab, label: "Animation",  icon: <Sparkles size={16} />,   desc: t.animDesc, color: "yellow"  },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-surface/80 backdrop-blur-sm sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 h-13 flex items-center justify-between gap-4 py-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0">
               <Code2 size={14} className="text-white" />
             </div>
-            <span className="font-black text-base text-white font-mono">
-              Logic<span className="text-primary-light">JS</span>
+            <span className="font-black text-base text-white font-mono group-hover:opacity-80 transition-opacity">
+              Logic<span className="text-primary-light">Lab</span>
             </span>
             <ChevronRight size={14} className="text-gray-600" />
             <span className="font-bold text-sm text-gray-300">CSS Vizualizator</span>
-          </div>
+          </Link>
           <div className="flex items-center gap-3">
+            <LanguageSwitcher />
             <Link href="/playground"
               className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border bg-surface-2 text-gray-400 hover:text-gray-200 transition-colors font-mono">
               JS Playground
-            </Link>
-            <Link href="/"
-              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors">
-              <Home size={13} />
             </Link>
           </div>
         </div>
@@ -740,12 +682,10 @@ export default function CSSPage() {
       {/* Hero */}
       <div className="max-w-7xl mx-auto px-4 pt-8 pb-4">
         <motion.div initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{duration:0.4}}>
-          <h1 className="text-2xl font-black text-white mb-1">
-            CSS ni ko'rib o'rgan
-          </h1>
+          <h1 className="text-2xl font-black text-white mb-1">{t.pageTitle}</h1>
           <p className="text-sm text-gray-500">
-            Tugmalarni bosib — flex, grid va animatsiyalar qanday ishlashini live ko'ring.
-            <span className="text-primary-light ml-1">Hech narsa yozmasangiz ham bo'ladi — shunchaki bosing!</span>
+            {t.pageSubtitle}
+            <span className="text-primary-light ml-1">{t.pageHint}</span>
           </p>
         </motion.div>
       </div>
@@ -772,9 +712,9 @@ export default function CSSPage() {
       <div className="max-w-7xl mx-auto px-4 pb-16">
         <AnimatePresence mode="wait">
           <motion.div key={tab} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-4}} transition={{duration:0.2}}>
-            {tab === "flex"      && <FlexSection />}
-            {tab === "grid"      && <GridSection />}
-            {tab === "animation" && <AnimSection />}
+            {tab === "flex"      && <FlexSection t={t} />}
+            {tab === "grid"      && <GridSection t={t} />}
+            {tab === "animation" && <AnimSection t={t} />}
           </motion.div>
         </AnimatePresence>
       </div>

@@ -7,6 +7,9 @@ import {
   BookOpen, Layers, LayoutGrid, Sparkles, Zap, Play,
   ChevronRight, Eye,
 } from "lucide-react";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
+import { useLangStore } from "@/app/playground/store";
+import { UI } from "@/lib/i18n/ui";
 
 // ─── Animation variants ───────────────────────────────────────────────────────
 
@@ -121,9 +124,10 @@ interface ToolCardProps {
   tagColor: string;
   btnColor: string;
   delay: number;
+  openLabel: string;
 }
 
-function ToolCard({ href, tag, title, subtitle, chips, preview, gradient, border, shadow, tagColor, btnColor, delay }: ToolCardProps) {
+function ToolCard({ href, tag, title, subtitle, chips, preview, gradient, border, shadow, tagColor, btnColor, delay, openLabel }: ToolCardProps) {
   return (
     <motion.div {...fadeUp(delay)} className="h-full">
       <Link href={href} className="group block h-full">
@@ -150,7 +154,7 @@ function ToolCard({ href, tag, title, subtitle, chips, preview, gradient, border
 
           {/* CTA */}
           <div className={`flex items-center gap-2 text-sm font-semibold ${btnColor} group-hover:gap-3 transition-all duration-200`}>
-            Ochish
+            {openLabel}
             <ArrowRight size={15} className="transition-transform duration-200 group-hover:translate-x-1" />
           </div>
         </div>
@@ -182,6 +186,25 @@ function Feature({ icon, title, desc, color }: { icon: React.ReactNode; color: s
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
+  const { lang } = useLangStore();
+  const t = UI[lang];
+
+  const FEATURE_ICONS = [
+    <Eye size={16} className="text-primary-light" />,
+    <Variable size={16} className="text-accent-light" />,
+    <GitBranch size={16} className="text-success-light" />,
+    <Layers size={16} className="text-orange-400" />,
+    <LayoutGrid size={16} className="text-pink-400" />,
+    <Sparkles size={16} className="text-yellow-400" />,
+    <Terminal size={16} className="text-success-light" />,
+    <BookOpen size={16} className="text-accent-light" />,
+    <ChevronRight size={16} className="text-primary-light" />,
+  ];
+  const FEATURE_COLORS = [
+    "bg-primary/10", "bg-accent/10", "bg-success/10", "bg-orange-500/10",
+    "bg-pink-500/10", "bg-yellow-500/10", "bg-success/10", "bg-accent/10", "bg-primary/10",
+  ];
+
   return (
     <main className="min-h-screen bg-background overflow-x-hidden">
 
@@ -199,6 +222,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <Logo />
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <Link href="/css"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
               <Layers size={13} />
@@ -220,23 +244,21 @@ export default function HomePage() {
           <motion.div {...fadeUp(0)}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/25 bg-primary/5 text-primary-light text-xs font-semibold mb-8 tracking-wide">
             <Zap size={11} />
-            Interaktiv o'rganish platformasi
+            {t.homeBadge}
           </motion.div>
 
           <motion.h1 {...fadeUp(0.08)}
             className="text-5xl md:text-7xl font-black text-white mb-5 leading-[1.05] tracking-tight">
-            Kodni ko'rib
+            {t.homeTitle1}
             <br />
             <span className="bg-gradient-to-r from-primary-light via-accent-light to-success-light bg-clip-text text-transparent">
-              o'rgan
+              {t.homeTitle2}
             </span>
           </motion.h1>
 
           <motion.p {...fadeUp(0.16)}
             className="text-lg text-gray-400 max-w-xl mb-10 leading-relaxed">
-            <span className="text-primary-light font-semibold">JavaScript</span> va{" "}
-            <span className="text-accent-light font-semibold">CSS</span> ni vizual,
-            interaktiv tarzda tushuning. Har bir qadamda nima bo'lishini ko'ring.
+            {t.homeSubtitle}
           </motion.p>
 
           <motion.div {...fadeUp(0.22)} className="flex items-center gap-3 flex-wrap justify-center">
@@ -249,7 +271,7 @@ export default function HomePage() {
             <Link href="/css"
               className="flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-surface-2 hover:bg-surface-3 text-gray-300 font-bold border border-border hover:border-accent/40 transition-all duration-200">
               <Layers size={15} />
-              CSS Vizualizator
+              CSS {t.homeCssTitle}
               <ArrowRight size={14} />
             </Link>
           </motion.div>
@@ -264,7 +286,7 @@ export default function HomePage() {
             delay={0.1}
             tag="JavaScript"
             title="Execution Visualizer"
-            subtitle="Kodingiz qadam-qadam qanday bajarilishini koring. O'zgaruvchilar, shartlar, tsikllar, funksiyalar — barchasi ko'z oldingizda."
+            subtitle={t.homeJsSubtitle}
             chips={["variables", "if/else", "for loop", "functions", "arrays", "objects"]}
             preview={<MiniJSPreview />}
             gradient="from-primary/5 to-primary/0"
@@ -272,13 +294,14 @@ export default function HomePage() {
             shadow="shadow-glow"
             tagColor="border-primary/30 bg-primary/8 text-primary-light"
             btnColor="text-primary-light"
+            openLabel={t.homeOpen}
           />
           <ToolCard
             href="/css"
             delay={0.18}
             tag="CSS"
-            title="Layout Vizualizator"
-            subtitle="Flexbox, Grid va animatsiyalarni bosib-ko'rib o'rganing. Har bir xususiyat live ko'rinadi — hech narsa yozmasangiz ham."
+            title={t.homeCssTitle}
+            subtitle={t.homeCssSubtitle}
             chips={["flexbox", "grid", "animations", "@keyframes", "transitions"]}
             preview={<MiniCSSPreview />}
             gradient="from-accent/5 to-accent/0"
@@ -286,6 +309,7 @@ export default function HomePage() {
             shadow="shadow-glow-accent"
             tagColor="border-accent/30 bg-accent/8 text-accent-light"
             btnColor="text-accent-light"
+            openLabel={t.homeOpen}
           />
         </div>
       </section>
@@ -297,19 +321,21 @@ export default function HomePage() {
           viewport={{ once: true }} transition={{ duration: 0.45 }}
           className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-black text-white mb-3">
-            Nima uchun <span className="text-primary-light">LogicLab</span>?
+            {t.homeFeaturesTitle.split("LogicLab")[0]}
+            <span className="text-primary-light">LogicLab</span>
+            {t.homeFeaturesTitle.split("LogicLab")[1]}
           </h2>
           <p className="text-gray-500 max-w-lg mx-auto text-sm leading-relaxed">
-            Kitob o'qib tushunmadingizmi? Ko'rib o'rganing — tushunish ancha oson.
+            {t.homeFeaturesSubtitle}
           </p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {FEATURES.map((f, i) => (
+          {t.homeFeatures.map((f, i) => (
             <motion.div key={f.title}
               initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ delay: i * 0.07, duration: 0.4 }}>
-              <Feature {...f} />
+              <Feature icon={FEATURE_ICONS[i]} color={FEATURE_COLORS[i]} title={f.title} desc={f.desc} />
             </motion.div>
           ))}
         </div>
@@ -321,16 +347,15 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }} transition={{ duration: 0.45 }}
           className="text-center mb-12">
-          <h2 className="text-3xl font-black text-white mb-3">Qanday ishlaydi?</h2>
-          <p className="text-gray-500 text-sm">3 ta qadam — hammasi shu</p>
+          <h2 className="text-3xl font-black text-white mb-3">{t.homeHowTitle}</h2>
+          <p className="text-gray-500 text-sm">{t.homeHowSubtitle}</p>
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-6 relative">
-          {/* Connecting lines */}
           <div className="absolute top-8 left-[calc(33%-1px)] w-[34%] h-px bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 hidden md:block" />
           <div className="absolute top-8 right-[calc(33%-1px)] w-[34%] h-px bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 hidden md:block" />
 
-          {HOW_IT_WORKS.map((step, i) => (
+          {t.homeSteps.map((step, i) => (
             <motion.div key={step.title}
               initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ delay: i * 0.12, duration: 0.4 }}
@@ -353,12 +378,8 @@ export default function HomePage() {
           className="rounded-3xl border border-border bg-gradient-to-br from-primary/5 via-surface to-accent/5 p-12 text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/3 to-accent/5 pointer-events-none" />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-          <h2 className="text-3xl md:text-4xl font-black text-white mb-4 relative">
-            O'rganishni boshlang
-          </h2>
-          <p className="text-gray-400 mb-8 max-w-sm mx-auto text-sm leading-relaxed relative">
-            JavaScript va CSS ni tushunarli tarzda o'rganish uchun hamma narsa shu yerda.
-          </p>
+          <h2 className="text-3xl md:text-4xl font-black text-white mb-4 relative">{t.homeCtaTitle}</h2>
+          <p className="text-gray-400 mb-8 max-w-sm mx-auto text-sm leading-relaxed relative">{t.homeCtaSubtitle}</p>
           <div className="flex items-center gap-3 justify-center flex-wrap relative">
             <Link href="/playground"
               className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-primary hover:bg-primary-dark text-white font-bold transition-all duration-200 shadow-glow hover:shadow-[0_0_40px_rgba(59,130,246,0.3)]">
@@ -369,7 +390,7 @@ export default function HomePage() {
             <Link href="/css"
               className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-surface-2 hover:bg-surface-3 text-gray-300 font-bold border border-border hover:border-accent/40 transition-all duration-200">
               <Layers size={15} />
-              CSS Vizualizator
+              CSS {t.homeCssTitle}
               <ArrowRight size={14} />
             </Link>
           </div>
@@ -380,10 +401,10 @@ export default function HomePage() {
       <footer className="relative z-10 border-t border-border">
         <div className="max-w-6xl mx-auto px-6 py-8 flex items-center justify-between gap-4 flex-wrap">
           <Logo size="sm" />
-          <p className="text-xs text-gray-600">JavaScript va CSS o'rganuvchilar uchun</p>
+          <p className="text-xs text-gray-600">{t.homeFooterDesc2}</p>
           <div className="flex items-center gap-4 text-xs text-gray-600">
             <Link href="/playground" className="hover:text-gray-400 transition-colors">JS Playground</Link>
-            <Link href="/css" className="hover:text-gray-400 transition-colors">CSS Vizualizator</Link>
+            <Link href="/css" className="hover:text-gray-400 transition-colors">CSS {t.homeCssTitle}</Link>
           </div>
         </div>
       </footer>
@@ -391,76 +412,3 @@ export default function HomePage() {
   );
 }
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
-
-const FEATURES = [
-  {
-    icon: <Eye size={16} className="text-primary-light" />,
-    color: "bg-primary/10",
-    title: "Vizual bajarish",
-    desc: "Kod qanday ishlashini ko'z bilan ko'ring. Har bir qadam animatsiya bilan ko'rsatiladi.",
-  },
-  {
-    icon: <Variable size={16} className="text-accent-light" />,
-    color: "bg-accent/10",
-    title: "Xotira holati",
-    desc: "O'zgaruvchilar xotirada qanday saqlanishini, qiymatlar qanday o'zgarishini koring.",
-  },
-  {
-    icon: <GitBranch size={16} className="text-success-light" />,
-    color: "bg-success/10",
-    title: "Shart va tarmoqlar",
-    desc: "if/else shartlari qanday tekshirilishini va qaysi blok bajarilishini koring.",
-  },
-  {
-    icon: <Layers size={16} className="text-orange-400" />,
-    color: "bg-orange-500/10",
-    title: "Flexbox vizualizator",
-    desc: "flex-direction, justify-content, align-items — tugmani bosib live o'zgaring.",
-  },
-  {
-    icon: <LayoutGrid size={16} className="text-pink-400" />,
-    color: "bg-pink-500/10",
-    title: "Grid vizualizator",
-    desc: "Ustunlar, bo'shliqlar, span — CSS Grid ni interaktiv tarzda tushunib oling.",
-  },
-  {
-    icon: <Sparkles size={16} className="text-yellow-400" />,
-    color: "bg-yellow-500/10",
-    title: "CSS animatsiyalar",
-    desc: "@keyframes, timing-function, duration — real animatsiyalarni ko'rib o'rgan.",
-  },
-  {
-    icon: <Terminal size={16} className="text-success-light" />,
-    color: "bg-success/10",
-    title: "Konsol natijasi",
-    desc: "console.log qachon va qaysi qiymat bilan chaqirilishini aynan shu lahzada koring.",
-  },
-  {
-    icon: <BookOpen size={16} className="text-accent-light" />,
-    color: "bg-accent/10",
-    title: "Oson tushuntirish",
-    desc: "Har bir qadam uchun sodda tilda izoh beriladi — qachon va nima uchun tushuntiriladi.",
-  },
-  {
-    icon: <ChevronRight size={16} className="text-primary-light" />,
-    color: "bg-primary/10",
-    title: "Qadam-qadam boshqaruv",
-    desc: "Oldinga, orqaga, tezlik tanlash — o'z sur'atda o'rgan. Auto-play ham bor.",
-  },
-];
-
-const HOW_IT_WORKS = [
-  {
-    title: "Vositani tanlang",
-    description: "JavaScript playground yoki CSS vizualizatorni oching.",
-  },
-  {
-    title: "Kod yozing yoki tanlang",
-    description: "O'z kodingizni yozing yoki tayyor misolllardan birini tanlang.",
-  },
-  {
-    title: "Vizual koring",
-    description: "Run tugmasi → har bir qadam animatsiya bilan tushuntiriladi.",
-  },
-];

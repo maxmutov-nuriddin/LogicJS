@@ -130,6 +130,25 @@ export interface UITranslations {
 
   // Footer
   footerDesc: string;
+
+  // Home page
+  homeBadge: string;
+  homeTitle1: string;
+  homeTitle2: string;
+  homeSubtitle: string;
+  homeJsSubtitle: string;
+  homeCssTitle: string;
+  homeCssSubtitle: string;
+  homeOpen: string;
+  homeFeaturesTitle: string;
+  homeFeaturesSubtitle: string;
+  homeHowTitle: string;
+  homeHowSubtitle: string;
+  homeCtaTitle: string;
+  homeCtaSubtitle: string;
+  homeFooterDesc2: string;
+  homeFeatures: { title: string; desc: string }[];
+  homeSteps: { title: string; description: string }[];
 }
 
 const en: UITranslations = {
@@ -246,6 +265,38 @@ const en: UITranslations = {
   learnMore: "Learn more",
 
   footerDesc: "Built for JavaScript learners everywhere",
+
+  homeBadge: "Interactive learning platform",
+  homeTitle1: "Learn by",
+  homeTitle2: "seeing code",
+  homeSubtitle: "Understand JavaScript and CSS visually and interactively. See exactly what happens at every single step.",
+  homeJsSubtitle: "Watch your code execute step by step. Variables, conditions, loops, functions — all visible in real time.",
+  homeCssTitle: "Layout Visualizer",
+  homeCssSubtitle: "Learn Flexbox, Grid and animations by clicking buttons. Every property updates live — no setup needed.",
+  homeOpen: "Open",
+  homeFeaturesTitle: "Why LogicLab?",
+  homeFeaturesSubtitle: "Couldn't understand by reading? Learn by seeing — it's much easier.",
+  homeHowTitle: "How does it work?",
+  homeHowSubtitle: "3 steps — that's all",
+  homeCtaTitle: "Start learning",
+  homeCtaSubtitle: "Everything you need to learn JavaScript and CSS in a clear and interactive way is right here.",
+  homeFooterDesc2: "For JavaScript and CSS learners",
+  homeFeatures: [
+    { title: "Visual execution", desc: "See how code works with your own eyes. Every step is shown with animation." },
+    { title: "Memory state", desc: "See how variables are stored in memory and how their values change over time." },
+    { title: "Conditions & branches", desc: "See how if/else conditions are checked and which block gets executed." },
+    { title: "Flexbox visualizer", desc: "flex-direction, justify-content, align-items — change them live with a click." },
+    { title: "Grid visualizer", desc: "Columns, gaps, span — understand CSS Grid by interacting with it." },
+    { title: "CSS animations", desc: "@keyframes, timing-function, duration — learn by watching real animations." },
+    { title: "Console output", desc: "See when and with which value console.log is called, at that exact moment." },
+    { title: "Plain explanations", desc: "Each step has a simple description — what happened, when and why." },
+    { title: "Step-by-step control", desc: "Forward, back, speed control — learn at your own pace. Auto-play included." },
+  ],
+  homeSteps: [
+    { title: "Choose a tool", description: "Open the JavaScript playground or CSS visualizer." },
+    { title: "Write or pick code", description: "Write your own code or choose from ready-made examples." },
+    { title: "See it visually", description: "Press Run → each step is explained with animation." },
+  ],
 };
 
 const uz: UITranslations = {
@@ -362,6 +413,38 @@ const uz: UITranslations = {
   learnMore: "Ko'proq bilish",
 
   footerDesc: "JavaScript o'rganuvchilar uchun yaratilgan",
+
+  homeBadge: "Interaktiv o'rganish platformasi",
+  homeTitle1: "Kodni ko'rib",
+  homeTitle2: "o'rgan",
+  homeSubtitle: "JavaScript va CSS ni vizual, interaktiv tarzda tushuning. Har bir qadamda nima bo'lishini ko'ring.",
+  homeJsSubtitle: "Kodingiz qadam-qadam qanday bajarilishini koring. O'zgaruvchilar, shartlar, tsikllar, funksiyalar — barchasi ko'z oldingizda.",
+  homeCssTitle: "Layout Vizualizator",
+  homeCssSubtitle: "Flexbox, Grid va animatsiyalarni bosib-ko'rib o'rganing. Har bir xususiyat live ko'rinadi — hech narsa yozmasangiz ham.",
+  homeOpen: "Ochish",
+  homeFeaturesTitle: "Nima uchun LogicLab?",
+  homeFeaturesSubtitle: "Kitob o'qib tushunmadingizmi? Ko'rib o'rganing — tushunish ancha oson.",
+  homeHowTitle: "Qanday ishlaydi?",
+  homeHowSubtitle: "3 ta qadam — hammasi shu",
+  homeCtaTitle: "O'rganishni boshlang",
+  homeCtaSubtitle: "JavaScript va CSS ni tushunarli tarzda o'rganish uchun hamma narsa shu yerda.",
+  homeFooterDesc2: "JavaScript va CSS o'rganuvchilar uchun",
+  homeFeatures: [
+    { title: "Vizual bajarish", desc: "Kod qanday ishlashini ko'z bilan ko'ring. Har bir qadam animatsiya bilan ko'rsatiladi." },
+    { title: "Xotira holati", desc: "O'zgaruvchilar xotirada qanday saqlanishini, qiymatlar qanday o'zgarishini koring." },
+    { title: "Shart va tarmoqlar", desc: "if/else shartlari qanday tekshirilishini va qaysi blok bajarilishini koring." },
+    { title: "Flexbox vizualizator", desc: "flex-direction, justify-content, align-items — tugmani bosib live o'zgaring." },
+    { title: "Grid vizualizator", desc: "Ustunlar, bo'shliqlar, span — CSS Grid ni interaktiv tarzda tushunib oling." },
+    { title: "CSS animatsiyalar", desc: "@keyframes, timing-function, duration — real animatsiyalarni ko'rib o'rgan." },
+    { title: "Konsol natijasi", desc: "console.log qachon va qaysi qiymat bilan chaqirilishini aynan shu lahzada koring." },
+    { title: "Oson tushuntirish", desc: "Har bir qadam uchun sodda tilda izoh beriladi — qachon va nima uchun tushuntiriladi." },
+    { title: "Qadam-qadam boshqaruv", desc: "Oldinga, orqaga, tezlik tanlash — o'z sur'atda o'rgan. Auto-play ham bor." },
+  ],
+  homeSteps: [
+    { title: "Vositani tanlang", description: "JavaScript playground yoki CSS vizualizatorni oching." },
+    { title: "Kod yozing yoki tanlang", description: "O'z kodingizni yozing yoki tayyor misollardan birini tanlang." },
+    { title: "Vizual koring", description: "Run tugmasi → har bir qadam animatsiya bilan tushuntiriladi." },
+  ],
 };
 
 const ru: UITranslations = {
@@ -478,6 +561,38 @@ const ru: UITranslations = {
   learnMore: "Узнать больше",
 
   footerDesc: "Создано для изучающих JavaScript",
+
+  homeBadge: "Интерактивная платформа обучения",
+  homeTitle1: "Учись видя",
+  homeTitle2: "код в действии",
+  homeSubtitle: "Понимайте JavaScript и CSS визуально и интерактивно. Смотрите, что происходит на каждом шаге.",
+  homeJsSubtitle: "Смотрите, как ваш код выполняется шаг за шагом. Переменные, условия, циклы, функции — всё на виду.",
+  homeCssTitle: "Визуализатор Layout",
+  homeCssSubtitle: "Изучайте Flexbox, Grid и анимации нажатием кнопок. Каждое свойство обновляется в реальном времени.",
+  homeOpen: "Открыть",
+  homeFeaturesTitle: "Почему LogicLab?",
+  homeFeaturesSubtitle: "Не понимаете по книге? Учитесь видя — так намного проще.",
+  homeHowTitle: "Как это работает?",
+  homeHowSubtitle: "3 шага — и всё",
+  homeCtaTitle: "Начните учиться",
+  homeCtaSubtitle: "Всё необходимое для понятного изучения JavaScript и CSS прямо здесь.",
+  homeFooterDesc2: "Для изучающих JavaScript и CSS",
+  homeFeatures: [
+    { title: "Визуальное выполнение", desc: "Смотрите, как работает код своими глазами. Каждый шаг показан с анимацией." },
+    { title: "Состояние памяти", desc: "Смотрите, как переменные хранятся в памяти и как изменяются их значения." },
+    { title: "Условия и ветки", desc: "Смотрите, как проверяются if/else условия и какой блок выполняется." },
+    { title: "Визуализатор Flexbox", desc: "flex-direction, justify-content, align-items — меняйте в реальном времени." },
+    { title: "Визуализатор Grid", desc: "Колонки, отступы, span — понимайте CSS Grid интерактивно." },
+    { title: "CSS анимации", desc: "@keyframes, timing-function, duration — учитесь на реальных анимациях." },
+    { title: "Вывод консоли", desc: "Смотрите, когда и с каким значением вызывается console.log." },
+    { title: "Простые объяснения", desc: "Каждый шаг имеет простое описание — что произошло, когда и почему." },
+    { title: "Пошаговое управление", desc: "Вперёд, назад, выбор скорости — учитесь в своём темпе. Есть авто-воспроизведение." },
+  ],
+  homeSteps: [
+    { title: "Выберите инструмент", description: "Откройте JavaScript playground или CSS визуализатор." },
+    { title: "Напишите или выберите код", description: "Напишите свой код или выберите из готовых примеров." },
+    { title: "Смотрите визуально", description: "Нажмите Run → каждый шаг объясняется с анимацией." },
+  ],
 };
 
 export const UI: Record<Lang, UITranslations> = { en, uz, ru };
