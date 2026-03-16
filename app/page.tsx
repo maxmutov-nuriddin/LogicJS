@@ -54,7 +54,13 @@ export default function HomePage() {
               Logic<span className="text-primary-light">JS</span>
             </span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/css"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-2 hover:bg-surface-3 text-gray-300 text-sm font-semibold border border-border transition-all duration-200"
+            >
+              CSS Vizualizator
+            </Link>
             <Link
               href="/playground"
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-sm font-semibold transition-all duration-200 shadow-glow"
