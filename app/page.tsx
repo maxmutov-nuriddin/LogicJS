@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
   ArrowRight, Code2, Variable, GitBranch, Terminal,
   BookOpen, Layers, LayoutGrid, Sparkles, Zap, Play,
-  ChevronRight, Eye,
+  ChevronRight, Eye, BarChart3,
 } from "lucide-react";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLangStore } from "@/app/playground/store";
@@ -227,6 +227,11 @@ export default function HomePage() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
               <Layers size={13} />
               CSS
+            </Link>
+            <Link href="/performance"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
+              <BarChart3 size={13} />
+              Resurs
             </Link>
             <Link href="/playground"
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-sm font-semibold transition-all duration-150 shadow-glow">

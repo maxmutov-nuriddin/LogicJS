@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Code2, AlertCircle, Home } from "lucide-react";
+import { Code2, AlertCircle, Home, Layers } from "lucide-react";
 import { usePlaygroundStore, useLangStore } from "./store";
 import { UI } from "@/lib/i18n/ui";
 import { CodeEditor } from "@/components/editor/CodeEditor";
@@ -42,6 +42,13 @@ export default function PlaygroundPage() {
           {/* Right: language switcher + home */}
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
+            <Link
+              href="/css"
+              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"
+            >
+              <Layers size={12} />
+              <span className="hidden sm:block">CSS</span>
+            </Link>
             <Link
               href="/"
               className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"

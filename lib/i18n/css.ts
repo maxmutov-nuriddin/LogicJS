@@ -36,6 +36,23 @@ export interface CSSTranslations {
   gridExplain: Record<string, string>;
   animExplain: Record<string, string>;
   easingExplain: Record<string, string>;
+
+  // New tabs
+  boxDesc: string;
+  posDesc: string;
+  transDesc: string;
+
+  // Box model
+  boxTips: { icon: string; title: string; desc: string }[];
+  boxExplain: Record<string, string>;
+
+  // Position
+  posTips: { icon: string; title: string; desc: string }[];
+  posExplain: Record<string, string>;
+
+  // Transition
+  transTips: { icon: string; title: string; desc: string }[];
+  transExplain: Record<string, string>;
 }
 
 // ─── Uzbek ────────────────────────────────────────────────────────────────────
@@ -131,6 +148,55 @@ const uz: CSSTranslations = {
     "ease-out":  "Tez boshlaydi, sekin tugaydi",
     "ease-in-out": "Sekin boshlaydi va sekin tugaydi",
     "cubic-bezier(0.68,-0.55,0.27,1.55)": "Spring — ortga qaytirib keladi (elastik)",
+  },
+
+  boxDesc: "Quti modeli",
+  posDesc: "Joylashuv",
+  transDesc: "O'tishlar",
+
+  boxTips: [
+    { icon: "📦", title: "box-sizing: border-box", desc: "Kenglik padding va border ni ichiga oladi. Har doim ishlatish tavsiya etiladi" },
+    { icon: "📐", title: "padding vs margin", desc: "Padding ichki bo'shliq (element ichida), margin tashqi bo'shliq (element tashqarisida)" },
+    { icon: "🎨", title: "border", desc: "border-width, border-style, border-color — uchta xususiyat yoki shorthand bilan" },
+    { icon: "🔵", title: "border-radius", desc: "50% yumaloq qiladi, px/% burchaklarni yaxlitlaydi" },
+  ],
+  boxExplain: {
+    "content-box": "Odatiy: kenglik faqat content — padding va border tashqarida hisoblanadi",
+    "border-box": "Zamonaviy: kenglik padding va border ni ichiga oladi — hisoblash osonroq",
+    "padding-0": "Ichki bo'shliq yo'q — content to'g'ridan border ga yopishadi",
+    "padding-16": "16px ichki bo'shliq — eng ko'p ishlatiladigan standart",
+    "padding-32": "32px ichki bo'shliq — keng, havoli ko'rinish",
+    "border-0": "Border yo'q — elementning chegarasi ko'rinmaydi",
+    "border-4": "4px border — qalin, yaqqol ko'rinarli chiziq",
+    "radius-50": "50% border-radius — to'liq yumaloq (circle)",
+  },
+
+  posTips: [
+    { icon: "📍", title: "position: relative", desc: "Normal oqimda qoladi. top/left bilan asl joyidan siljiydi, bo'sh joy saqlanadi" },
+    { icon: "🎯", title: "position: absolute", desc: "Oqimdan chiqadi. Eng yaqin positioned (non-static) parent ga nisbatan joylashadi" },
+    { icon: "📌", title: "position: fixed", desc: "Viewport ga nisbatan joylashadi. Scroll qilganda ham o'rnida qoladi" },
+    { icon: "🔒", title: "position: sticky", desc: "Scroll qilganda belgilangan nuqtada 'yopishib' qoladi — nav bar uchun ideal" },
+  ],
+  posExplain: {
+    static:   "Odatiy. top/left/z-index ta'sir qilmaydi — normal oqimda joylashadi",
+    relative: "Normal oqimda, lekin top/left bilan asl joyidan siljiydi",
+    absolute: "Oqimdan chiqadi. Positioned parent ga nisbatan — yoki viewport ga",
+    fixed:    "Viewport ga mahkam. Scroll qilsa ham joyidan qimirlamaydi",
+    sticky:   "Scroll qilganda belgilangan chegarada 'yopishadi'",
+  },
+
+  transTips: [
+    { icon: "🎭", title: "transition shorthand", desc: "transition: property duration timing delay — barcha 4 ta qiymat bitta xususiyatda" },
+    { icon: "🖱️", title: ":hover triggering", desc: "transition :hover da ishlaydi — faqat sichqoncha ustida bo'lganda o'zgaradi" },
+    { icon: "✨", title: "transition: all", desc: "Barcha o'zgaruvchi xususiyatlarga transition qo'llaydi — lekin sekin bo'lishi mumkin" },
+    { icon: "⚡", title: "vs animation", desc: "Transition A→B: faqat trigger bo'lganda ishlaydi. Animation: o'zi-o'zicha ishlaydi" },
+  ],
+  transExplain: {
+    "background-color": "Fon rangi asta o'zgaradi — color hover effekti uchun eng ko'p ishlatiladi",
+    transform:          "Scale, rotate, translate asta o'zgaradi — button hover uchun",
+    opacity:            "Ko'rinish darajasi asta o'zgaradi — fade in/out effekti",
+    all:                "Barcha o'zgaruvchi xususiyatlar uchun — qulay lekin unumdor emas",
+    "border-radius":    "Burchaklar asta yaxlitlanadi — shaklni o'zgartirish effekti",
   },
 };
 
@@ -228,6 +294,55 @@ const en: CSSTranslations = {
     "ease-in-out": "Starts and ends slowly",
     "cubic-bezier(0.68,-0.55,0.27,1.55)": "Spring — overshoots and snaps back (elastic)",
   },
+
+  boxDesc: "Box Model",
+  posDesc: "Positioning",
+  transDesc: "Transitions",
+
+  boxTips: [
+    { icon: "📦", title: "box-sizing: border-box", desc: "Width includes padding and border. Recommended to always use this" },
+    { icon: "📐", title: "padding vs margin", desc: "Padding is inner spacing (inside element), margin is outer spacing (outside element)" },
+    { icon: "🎨", title: "border", desc: "border-width, border-style, border-color — three properties or shorthand" },
+    { icon: "🔵", title: "border-radius", desc: "50% makes it a circle, px/% rounds the corners" },
+  ],
+  boxExplain: {
+    "content-box": "Default: width is content only — padding and border are added outside",
+    "border-box": "Modern: width includes padding and border — easier calculations",
+    "padding-0": "No inner spacing — content touches border directly",
+    "padding-16": "16px inner spacing — most commonly used standard",
+    "padding-32": "32px inner spacing — wide, spacious appearance",
+    "border-0": "No border — element edge is invisible",
+    "border-4": "4px border — thick, clearly visible line",
+    "radius-50": "50% border-radius — fully round (circle)",
+  },
+
+  posTips: [
+    { icon: "📍", title: "position: relative", desc: "Stays in normal flow. top/left offsets from original position, space is preserved" },
+    { icon: "🎯", title: "position: absolute", desc: "Removed from flow. Positioned relative to nearest positioned (non-static) parent" },
+    { icon: "📌", title: "position: fixed", desc: "Positioned relative to viewport. Stays in place when scrolling" },
+    { icon: "🔒", title: "position: sticky", desc: "Sticks at a specified point when scrolling — ideal for nav bars" },
+  ],
+  posExplain: {
+    static:   "Default. top/left/z-index have no effect — placed in normal flow",
+    relative: "In normal flow, but top/left offset from original position",
+    absolute: "Removed from flow. Relative to positioned parent — or viewport",
+    fixed:    "Fixed to viewport. Stays put even when scrolling",
+    sticky:   "Sticks at specified boundary when scrolling",
+  },
+
+  transTips: [
+    { icon: "🎭", title: "transition shorthand", desc: "transition: property duration timing delay — all 4 values in one property" },
+    { icon: "🖱️", title: ":hover triggering", desc: "transition works on :hover — changes only when mouse is over element" },
+    { icon: "✨", title: "transition: all", desc: "Applies transition to all changing properties — but may be slower" },
+    { icon: "⚡", title: "vs animation", desc: "Transition A→B: only fires when triggered. Animation: runs on its own" },
+  ],
+  transExplain: {
+    "background-color": "Background color changes gradually — most used for color hover effects",
+    transform:          "Scale, rotate, translate change smoothly — for button hover effects",
+    opacity:            "Visibility level changes gradually — fade in/out effect",
+    all:                "All changing properties — convenient but not optimal for performance",
+    "border-radius":    "Corners round gradually — shape changing effect",
+  },
 };
 
 // ─── Russian ──────────────────────────────────────────────────────────────────
@@ -323,6 +438,55 @@ const ru: CSSTranslations = {
     "ease-out":  "Быстрый старт, медленный финиш",
     "ease-in-out": "Медленный старт и медленный финиш",
     "cubic-bezier(0.68,-0.55,0.27,1.55)": "Spring — перебрасывает и возвращает (эластичный)",
+  },
+
+  boxDesc: "Блочная модель",
+  posDesc: "Позиционирование",
+  transDesc: "Переходы",
+
+  boxTips: [
+    { icon: "📦", title: "box-sizing: border-box", desc: "Ширина включает padding и border. Рекомендуется всегда использовать" },
+    { icon: "📐", title: "padding vs margin", desc: "Padding — внутренний отступ (внутри элемента), margin — внешний (снаружи)" },
+    { icon: "🎨", title: "border", desc: "border-width, border-style, border-color — три свойства или shorthand" },
+    { icon: "🔵", title: "border-radius", desc: "50% делает круглым, px/% скругляет углы" },
+  ],
+  boxExplain: {
+    "content-box": "По умолчанию: ширина только контент — padding и border добавляются снаружи",
+    "border-box": "Современный: ширина включает padding и border — проще считать",
+    "padding-0": "Нет внутреннего отступа — контент касается border напрямую",
+    "padding-16": "16px внутренний отступ — самый используемый стандарт",
+    "padding-32": "32px внутренний отступ — широкий, воздушный вид",
+    "border-0": "Нет border — граница элемента невидима",
+    "border-4": "4px border — толстая, хорошо заметная линия",
+    "radius-50": "50% border-radius — полностью круглый (circle)",
+  },
+
+  posTips: [
+    { icon: "📍", title: "position: relative", desc: "Остаётся в потоке. top/left смещают от исходной позиции, место сохраняется" },
+    { icon: "🎯", title: "position: absolute", desc: "Выходит из потока. Позиционируется относительно ближайшего positioned (non-static) родителя" },
+    { icon: "📌", title: "position: fixed", desc: "Позиционируется относительно viewport. Не движется при прокрутке" },
+    { icon: "🔒", title: "position: sticky", desc: "Прилипает в заданной точке при прокрутке — идеально для навигации" },
+  ],
+  posExplain: {
+    static:   "По умолчанию. top/left/z-index не работают — размещается в обычном потоке",
+    relative: "В обычном потоке, но top/left смещают от исходной позиции",
+    absolute: "Выходит из потока. Относительно positioned родителя — или viewport",
+    fixed:    "Прикреплён к viewport. Не двигается при прокрутке",
+    sticky:   "Прилипает в заданной точке при прокрутке",
+  },
+
+  transTips: [
+    { icon: "🎭", title: "transition shorthand", desc: "transition: property duration timing delay — все 4 значения в одном свойстве" },
+    { icon: "🖱️", title: ":hover triggering", desc: "transition работает на :hover — изменяется только когда мышь над элементом" },
+    { icon: "✨", title: "transition: all", desc: "Применяет transition ко всем изменяющимся свойствам — удобно, но может быть медленно" },
+    { icon: "⚡", title: "vs animation", desc: "Transition A→B: срабатывает по триггеру. Animation: запускается сам по себе" },
+  ],
+  transExplain: {
+    "background-color": "Цвет фона меняется плавно — чаще всего для hover эффектов",
+    transform:          "Scale, rotate, translate меняются плавно — для кнопочных hover",
+    opacity:            "Прозрачность меняется плавно — эффект fade in/out",
+    all:                "Все изменяющиеся свойства — удобно, но не оптимально по производительности",
+    "border-radius":    "Углы скругляются плавно — эффект смены формы",
   },
 };
 
