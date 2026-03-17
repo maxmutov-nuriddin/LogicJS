@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { Code2, AlertCircle, Home, Layers } from "lucide-react";
 import { usePlaygroundStore, useLangStore } from "./store";
@@ -13,9 +14,17 @@ import { AutoPlayController } from "@/components/layout/AutoPlayController";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
 export default function PlaygroundPage() {
-  const { status, errorMessage, steps, currentStepIndex } = usePlaygroundStore();
+  const { status, errorMessage, steps, currentStepIndex, setCode } = usePlaygroundStore();
   const { lang } = useLangStore();
   const t = UI[lang];
+
+  useEffect(() => {
+    const preload = sessionStorage.getItem("logiclab:preload");
+    if (preload) {
+      setCode(preload);
+      sessionStorage.removeItem("logiclab:preload");
+    }
+  }, [setCode]);
 
   return (
     <div className="flex flex-col h-screen bg-background overflow-hidden">

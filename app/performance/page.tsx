@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Code2, Home, BarChart3, GitBranch, Repeat, FunctionSquare,
@@ -709,12 +710,18 @@ function VariantCard({
   const t = PERF_UI[lang];
   const c = COLORS[variant.color];
   const peak = extractPeak(steps);
+  const router = useRouter();
 
   function handleCopy() {
     navigator.clipboard.writeText(variant.code).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     });
+  }
+
+  function openInPlayground() {
+    sessionStorage.setItem("logiclab:preload", variant.code);
+    router.push("/playground");
   }
 
   return (
@@ -799,15 +806,24 @@ function VariantCard({
         )}
       </div>
 
-      {/* Code toggle */}
-      <button
-        onClick={() => setShowCode((v) => !v)}
-        className="flex items-center gap-1.5 text-[10px] text-gray-600 hover:text-gray-400 transition-colors mt-1"
-      >
-        <Code2 size={10} />
-        <span>{showCode ? t.hideCode : t.showCode}</span>
-        {showCode ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
-      </button>
+      {/* Bottom row: open in playground + inline code toggle */}
+      <div className="flex items-center gap-2 mt-1">
+        <button
+          onClick={openInPlayground}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/15 border border-primary/30 text-[10px] text-primary-light font-semibold hover:bg-primary/25 transition-colors"
+        >
+          <Code2 size={10} />
+          <span>{t.showCode}</span>
+        </button>
+
+        <button
+          onClick={() => setShowCode((v) => !v)}
+          className="flex items-center gap-1.5 text-[10px] text-gray-600 hover:text-gray-400 transition-colors ml-auto"
+        >
+          <span>{showCode ? t.hideCode : "Kodni ko'rish (inline)"}</span>
+          {showCode ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
+        </button>
+      </div>
 
       <AnimatePresence>
         {showCode && (
