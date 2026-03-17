@@ -7,7 +7,7 @@ import {
   Code2, Home, BarChart3, GitBranch, Repeat, FunctionSquare,
   Layers, Trophy, ChevronDown, ChevronUp, Zap, Activity,
   Database, Target, Info, ArrowRight, CheckCircle2,
-  MemoryStick, Hash, AlignJustify, Copy, Check,
+  MemoryStick, Hash, AlignJustify, Copy, Check, Terminal,
 } from "lucide-react";
 import { runCode } from "@/lib/steps";
 import type { ExecutionStep } from "@/lib/types";
@@ -423,6 +423,210 @@ const METRICS: Array<{
   { key: "maxVars",      labelIdx: 6, icon: <Hash size={12} />,           lowerIsBetter: true, color: "text-emerald-400" },
 ];
 
+// ─── Visual helpers ───────────────────────────────────────────────────────────
+
+function fmtVal(value: unknown): string {
+  if (value === null) return "null";
+  if (value === undefined) return "undef";
+  if (typeof value === "string") {
+    const s = `"${value}"`;
+    return s.length > 12 ? s.slice(0, 11) + '…"' : s;
+  }
+  if (Array.isArray(value)) return `[${value.length}]`;
+  if (typeof value === "object") return `{…}`;
+  return String(value);
+}
+
+function typeColor(value: unknown): string {
+  if (typeof value === "number") return "text-blue-300";
+  if (typeof value === "string") return "text-green-300";
+  if (typeof value === "boolean") return value ? "text-emerald-300" : "text-rose-300";
+  if (Array.isArray(value)) return "text-orange-300";
+  if (typeof value === "object") return "text-violet-300";
+  return "text-gray-300";
+}
+
+interface PeakState {
+  deepestStack: string[];
+  peakVars: Record<string, unknown>;
+  maxIteration: number;
+  consoleOutput: string[];
+}
+
+function extractPeak(steps: ExecutionStep[]): PeakState {
+  let deepestStack: string[] = [];
+  let peakVars: Record<string, unknown> = {};
+  let peakVarCount = 0;
+  let maxIteration = 0;
+  let consoleOutput: string[] = [];
+  for (const s of steps) {
+    const cs = s.state.callStack ?? [];
+    if (cs.length > deepestStack.length) deepestStack = cs;
+    const vc = Object.keys(s.state.variables).length;
+    if (vc > peakVarCount) { peakVarCount = vc; peakVars = s.state.variables; }
+    if (s.type === "loop-iteration" && s.iteration > maxIteration) maxIteration = s.iteration;
+    consoleOutput = s.state.consoleOutput;
+  }
+  return { deepestStack, peakVars, maxIteration, consoleOutput };
+}
+
+// ── Memory panel ──────────────────────────────────────────────────────────────
+
+function MemoryPanel({ vars }: { vars: Record<string, unknown> }) {
+  const entries = Object.entries(vars).filter(([, v]) => typeof v !== "function");
+  return (
+    <div>
+      <div className="flex items-center gap-1.5 mb-2">
+        <MemoryStick size={11} className="text-orange-400" />
+        <span className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Xotira</span>
+        <span className="ml-auto text-[10px] font-mono text-gray-600">{entries.length} ta</span>
+      </div>
+      {entries.length === 0 ? (
+        <p className="text-[10px] text-gray-600 italic">Bo'sh</p>
+      ) : (
+        <div className="flex flex-col gap-1">
+          {entries.map(([name, value]) => {
+            const isArr = Array.isArray(value);
+            const isObj = !isArr && typeof value === "object" && value !== null;
+            return (
+              <motion.div
+                key={name}
+                initial={{ opacity: 0, x: -4 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-start gap-1 px-2 py-1.5 rounded-md border border-orange-500/20 bg-orange-500/5"
+              >
+                <span className="text-orange-300 font-mono text-[10px] font-bold shrink-0">{name}</span>
+                <span className="text-gray-600 text-[10px] shrink-0">=</span>
+                {isArr ? (
+                  <div className="flex flex-wrap gap-0.5 min-w-0">
+                    {(value as unknown[]).slice(0, 12).map((el, i) => (
+                      <span key={i} className="px-1 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 font-mono text-[9px]">
+                        <span className="text-gray-600">[{i}]</span>
+                        <span className={typeColor(el)}>{fmtVal(el)}</span>
+                      </span>
+                    ))}
+                    {(value as unknown[]).length > 12 && (
+                      <span className="text-[9px] text-gray-600">+{(value as unknown[]).length - 12}</span>
+                    )}
+                  </div>
+                ) : isObj ? (
+                  <div className="flex flex-wrap gap-0.5 min-w-0">
+                    {Object.entries(value as Record<string, unknown>).slice(0, 6).map(([k, v]) => (
+                      <span key={k} className="px-1 py-0.5 rounded bg-violet-500/10 border border-violet-500/20 font-mono text-[9px]">
+                        <span className="text-violet-400">{k}:</span>
+                        <span className={typeColor(v)}>{fmtVal(v)}</span>
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className={`font-mono text-[10px] font-bold ${typeColor(value)}`}>{fmtVal(value)}</span>
+                )}
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Call stack panel ──────────────────────────────────────────────────────────
+
+function CallStackPanel({ stack }: { stack: string[] }) {
+  const reversed = [...stack].reverse();
+  return (
+    <div>
+      <div className="flex items-center gap-1.5 mb-2">
+        <AlignJustify size={11} className="text-purple-400" />
+        <span className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Call Stack</span>
+        <span className="ml-auto text-[10px] font-mono text-gray-600">{stack.length} qavat</span>
+      </div>
+      <div className="flex flex-col gap-0.5">
+        {reversed.map((fn, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, x: -4 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.04 }}
+            className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md border font-mono text-[10px] ${
+              i === 0
+                ? "border-purple-500/40 bg-purple-500/15 text-purple-200 font-bold"
+                : "border-purple-500/15 bg-purple-500/5 text-gray-500"
+            }`}
+            style={{ marginLeft: `${i * 6}px` }}
+          >
+            <span className="text-[9px] text-gray-600 w-3 text-right shrink-0">{stack.length - i}</span>
+            <span>{fn}()</span>
+            {i === 0 && <span className="ml-auto text-[9px] text-purple-500">▶ hozir</span>}
+          </motion.div>
+        ))}
+        <div
+          className="flex items-center gap-1.5 px-2 py-1 font-mono text-[10px] text-gray-700"
+          style={{ marginLeft: `${reversed.length * 6}px` }}
+        >
+          <span className="text-[9px] w-3 text-right">0</span>
+          <span>(global scope)</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Loop panel ────────────────────────────────────────────────────────────────
+
+function LoopPanel({ count }: { count: number }) {
+  const MAX = 24;
+  const dots = Math.min(count, MAX);
+  const extra = count > MAX ? count - MAX : 0;
+  return (
+    <div>
+      <div className="flex items-center gap-1.5 mb-2">
+        <Repeat size={11} className="text-yellow-400" />
+        <span className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Loop</span>
+        <span className="ml-auto text-[10px] font-mono text-yellow-600">{count} aylanish</span>
+      </div>
+      <div className="flex flex-wrap gap-1 items-center">
+        {Array.from({ length: dots }, (_, i) => (
+          <motion.div
+            key={i}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: Math.min(i * 0.03, 0.4), type: "spring", stiffness: 400 }}
+            className={`w-2.5 h-2.5 rounded-full ${
+              i === dots - 1
+                ? "bg-yellow-400 shadow-[0_0_5px_rgba(250,204,21,0.6)]"
+                : "bg-yellow-700/50"
+            }`}
+          />
+        ))}
+        {extra > 0 && <span className="text-[10px] text-yellow-700 font-mono">+{extra}</span>}
+      </div>
+    </div>
+  );
+}
+
+// ── Console panel ─────────────────────────────────────────────────────────────
+
+function ConsolePanel({ lines }: { lines: string[] }) {
+  if (lines.length === 0) return null;
+  return (
+    <div>
+      <div className="flex items-center gap-1.5 mb-2">
+        <Terminal size={11} className="text-emerald-400" />
+        <span className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Console</span>
+      </div>
+      <div className="bg-background rounded-md border border-border px-2 py-1.5 flex flex-col gap-0.5">
+        {lines.map((line, i) => (
+          <div key={i} className="flex items-start gap-1.5">
+            <span className="text-emerald-600 text-[10px] shrink-0">›</span>
+            <span className="font-mono text-[10px] text-emerald-300 break-all">{line}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Metric bar ───────────────────────────────────────────────────────────────
 
 function MetricBar({
@@ -489,6 +693,7 @@ function VariantCard({
   bestMetrics,
   isWinner,
   rank,
+  steps,
 }: {
   variant: Variant;
   metrics: Metrics;
@@ -496,12 +701,14 @@ function VariantCard({
   bestMetrics: Partial<Metrics>;
   isWinner: boolean;
   rank: number;
+  steps: ExecutionStep[];
 }) {
   const [showCode, setShowCode] = useState(false);
   const [copied, setCopied] = useState(false);
   const { lang } = useLangStore();
   const t = PERF_UI[lang];
   const c = COLORS[variant.color];
+  const peak = extractPeak(steps);
 
   function handleCopy() {
     navigator.clipboard.writeText(variant.code).then(() => {
@@ -562,6 +769,36 @@ function VariantCard({
         })}
       </div>
 
+      {/* ── Visual panels ── */}
+      <div className="flex flex-col gap-2 rounded-xl border border-border bg-background/40 p-3">
+        {/* Memory */}
+        <MemoryPanel vars={peak.peakVars} />
+
+        {/* Call stack — only if there was recursion */}
+        {peak.deepestStack.length > 0 && (
+          <>
+            <div className="h-px bg-border" />
+            <CallStackPanel stack={peak.deepestStack} />
+          </>
+        )}
+
+        {/* Loop dots — only if there were iterations */}
+        {peak.maxIteration > 0 && (
+          <>
+            <div className="h-px bg-border" />
+            <LoopPanel count={peak.maxIteration} />
+          </>
+        )}
+
+        {/* Console output */}
+        {peak.consoleOutput.length > 0 && (
+          <>
+            <div className="h-px bg-border" />
+            <ConsolePanel lines={peak.consoleOutput} />
+          </>
+        )}
+      </div>
+
       {/* Code toggle */}
       <button
         onClick={() => setShowCode((v) => !v)}
@@ -611,12 +848,15 @@ function ScenarioCard({ scenario, index }: { scenario: Scenario; index: number }
   const { lang } = useLangStore();
   const t = PERF_UI[lang];
 
-  const allMetrics = useMemo(() => {
+  const allResults = useMemo(() => {
     return scenario.variants.map((v) => {
       const result = runCode(v.code, "uz");
-      return analyzeSteps(result.steps);
+      return { metrics: analyzeSteps(result.steps), steps: result.steps };
     });
   }, [scenario]);
+
+  const allMetrics = useMemo(() => allResults.map((r) => r.metrics), [allResults]);
+  const allSteps = useMemo(() => allResults.map((r) => r.steps), [allResults]);
 
   // Compute max per metric across all variants
   const maxMetrics = useMemo(() => {
@@ -730,6 +970,7 @@ function ScenarioCard({ scenario, index }: { scenario: Scenario; index: number }
                     bestMetrics={bestMetrics}
                     isWinner={i === winnerIdx}
                     rank={i}
+                    steps={allSteps[i]}
                   />
                 ))}
               </div>
