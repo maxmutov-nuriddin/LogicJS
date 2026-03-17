@@ -152,6 +152,7 @@ export function MainVisualizer() {
                 loopType={loopIterationStep?.loopType ?? "for"}
                 expression={loopConditionStep?.expression}
                 conditionResult={loopConditionStep?.result}
+                variables={state?.variables}
               />
             </motion.div>
           )}

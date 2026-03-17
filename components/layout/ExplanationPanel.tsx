@@ -5,7 +5,7 @@ import {
   BookOpen, Variable, GitBranch, Terminal, Play, ArrowRight,
   SkipForward, Square, Repeat, CircleDot, FunctionSquare,
   ChevronRight, AlertTriangle, RefreshCw, MapPin, ArrowDown,
-  CheckCircle2, XCircle, HelpCircle, Zap,
+  ArrowUp, CheckCircle2, XCircle, HelpCircle, Zap,
 } from "lucide-react";
 import { usePlaygroundStore, useLangStore } from "@/app/playground/store";
 import type { ExecutionStep } from "@/lib/types";
@@ -78,6 +78,59 @@ function getStepColor(step: ExecutionStep) {
   }
 }
 
+// ─── Inline array/object display for explanation panel ────────────────────────
+
+function InlineArrayDisplay({ arr }: { arr: unknown[] }) {
+  const show = arr.slice(0, 15);
+  const rest = arr.length - show.length;
+  return (
+    <div className="mt-2 rounded-lg border border-orange-500/20 bg-orange-500/5 p-2">
+      <div className="flex items-center gap-1.5 mb-2">
+        <span className="text-[10px] text-orange-400 font-mono font-bold">Array</span>
+        <span className="text-[10px] bg-orange-500/20 text-orange-300 px-1.5 rounded font-mono">{arr.length} ta element</span>
+      </div>
+      <div className="flex flex-wrap gap-1">
+        {show.map((item, i) => (
+          <div key={i} className="flex flex-col items-center rounded border border-border bg-background px-1.5 py-1 min-w-[30px]">
+            <span className="text-[8px] text-gray-600 font-mono leading-none mb-0.5">[{i}]</span>
+            <span className="text-xs font-mono font-bold text-gray-200">
+              {typeof item === "string" ? `"${item}"` : String(item ?? "∅")}
+            </span>
+          </div>
+        ))}
+        {rest > 0 && (
+          <div className="flex items-end pb-0.5">
+            <span className="text-xs text-gray-600 font-mono">+{rest}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function InlineObjectDisplay({ obj }: { obj: Record<string, unknown> }) {
+  const entries = Object.entries(obj);
+  const show = entries.slice(0, 8);
+  const rest = entries.length - show.length;
+  return (
+    <div className="mt-2 rounded-lg border border-violet-500/20 bg-violet-500/5 p-2">
+      <div className="flex items-center gap-1.5 mb-2">
+        <span className="text-[10px] text-violet-400 font-mono font-bold">Object</span>
+        <span className="text-[10px] bg-violet-500/20 text-violet-300 px-1.5 rounded font-mono">{entries.length} kalit</span>
+      </div>
+      <div className="space-y-0.5">
+        {show.map(([k, v]) => (
+          <div key={k} className="flex items-center gap-1.5 font-mono text-xs rounded border border-border bg-background px-2 py-1">
+            <span className="text-violet-400 font-bold shrink-0">{k}:</span>
+            <span className="text-gray-200 flex-1 truncate">{formatValue(v)}</span>
+          </div>
+        ))}
+        {rest > 0 && <p className="text-xs text-gray-600 ml-2">…+{rest} ta</p>}
+      </div>
+    </div>
+  );
+}
+
 // ─── Visual result card per step type ────────────────────────────────────────
 
 function VisualResult({ step }: { step: ExecutionStep }) {
@@ -86,10 +139,13 @@ function VisualResult({ step }: { step: ExecutionStep }) {
     case "declare-variable":
     case "assign-variable": {
       const hasOld = step.type === "assign-variable" && step.oldValue !== undefined;
+      const isArr = Array.isArray(step.value);
+      const isObj = !isArr && typeof step.value === "object" && step.value !== null;
+
       return (
-        <div className="flex items-center gap-2 mt-1">
+        <div className="flex flex-col gap-1.5 mt-1">
           {hasOld && step.type === "assign-variable" ? (
-            <>
+            <div className="flex items-center gap-2">
               <div className="flex-1 rounded-lg border border-border bg-background p-2.5 text-center">
                 <div className="text-[10px] text-gray-600 mb-1 uppercase tracking-wider">Avval</div>
                 <div className="font-mono text-sm text-error-light line-through">{formatValue(step.oldValue)}</div>
@@ -99,19 +155,24 @@ function VisualResult({ step }: { step: ExecutionStep }) {
                 <div className="text-[10px] text-success-light mb-1 uppercase tracking-wider">Yangi</div>
                 <div className="font-mono text-sm text-success-light font-bold">{formatValue(step.value)}</div>
               </div>
-            </>
+            </div>
           ) : (
             <div className="flex items-center gap-2 w-full">
               <div className="rounded-lg border border-border bg-background px-3 py-2 font-mono text-sm text-primary-light font-bold">
                 {step.name}
               </div>
               <span className="text-gray-500">=</span>
-              <div className="rounded-lg border border-success/30 bg-success/5 px-3 py-2 font-mono text-sm text-success-light font-bold">
+              <div className="rounded-lg border border-success/30 bg-success/5 px-3 py-2 font-mono text-sm text-success-light font-bold flex-1">
                 {formatValue(step.value)}
               </div>
-              <span className="text-xs text-gray-600 ml-auto">({typeof step.value === "object" && Array.isArray(step.value) ? "array" : typeof step.value})</span>
+              <span className="text-xs text-gray-600 shrink-0">
+                ({isArr ? "array" : isObj ? "object" : typeof step.value})
+              </span>
             </div>
           )}
+          {/* Show full content for arrays and objects */}
+          {isArr && <InlineArrayDisplay arr={step.value as unknown[]} />}
+          {isObj && <InlineObjectDisplay obj={step.value as Record<string, unknown>} />}
         </div>
       );
     }
@@ -331,6 +392,7 @@ export function ExplanationPanel() {
   const { lang } = useLangStore();
   const t = UI[lang];
   const currentStep = currentStepIndex >= 0 ? steps[currentStepIndex] : null;
+  const prevStep = currentStepIndex > 0 ? steps[currentStepIndex - 1] : null;
   const nextStep = currentStepIndex >= 0 && currentStepIndex < steps.length - 1 ? steps[currentStepIndex + 1] : null;
 
   if (status === "idle") {
@@ -389,6 +451,25 @@ export function ExplanationPanel() {
               transition={{ duration: 0.15 }}
               className="flex flex-col gap-2.5 pb-2"
             >
+              {/* ── 0. AVVALGI QADAM ── */}
+              {prevStep && (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-surface-2 opacity-50">
+                  <ArrowUp size={13} className="text-gray-600 shrink-0" />
+                  <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                    <span className="text-[10px] text-gray-600 uppercase tracking-wider shrink-0">Avvalgi:</span>
+                    <span className="text-xs text-gray-400 font-semibold truncate">
+                      {getStepTypeLabel(prevStep, t)}
+                    </span>
+                  </div>
+                  {prevStep.line > 0 && (
+                    <div className="flex items-center gap-1 shrink-0">
+                      <MapPin size={10} className="text-gray-600" />
+                      <span className="text-[10px] text-gray-600 font-mono">{prevStep.line}-qator</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* ── 1. QAYSI QATOR + NIMA BO'LDI ── */}
               <div className="flex items-stretch gap-2">
                 {/* Line number - big and prominent */}
