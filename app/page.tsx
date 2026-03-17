@@ -109,6 +109,57 @@ function MiniCSSPreview() {
   );
 }
 
+// ─── Mini Performance preview (decorative) ───────────────────────────────────
+
+function MiniPerformancePreview() {
+  const bars = [
+    { label: "for",   a: 100, b: 68,  colorA: "#3b82f6", colorB: "#10b981" },
+    { label: "fib()", a: 100, b: 18,  colorA: "#f43f5e", colorB: "#10b981" },
+    { label: "search",a: 100, b: 44,  colorA: "#f97316", colorB: "#10b981" },
+  ];
+  return (
+    <div className="rounded-xl border border-border bg-[#0d1117] overflow-hidden">
+      <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border/50 bg-surface-2/60">
+        <div className="w-2 h-2 rounded-full bg-rose-500/60" />
+        <div className="w-2 h-2 rounded-full bg-yellow-500/60" />
+        <div className="w-2 h-2 rounded-full bg-green-500/60" />
+        <span className="ml-2 text-[10px] text-gray-600">algorithm benchmark</span>
+      </div>
+      <div className="p-3 flex flex-col gap-2.5">
+        {bars.map((b) => (
+          <div key={b.label} className="flex flex-col gap-1">
+            <span className="text-[10px] text-gray-600 font-mono">{b.label}</span>
+            <div className="flex flex-col gap-0.5">
+              <div className="h-2.5 rounded-full overflow-hidden bg-surface-2">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${b.a}%` }}
+                  transition={{ duration: 0.9, ease: "easeOut", delay: 0.2 }}
+                  style={{ background: b.colorA + "99" }}
+                  className="h-full rounded-full"
+                />
+              </div>
+              <div className="h-2.5 rounded-full overflow-hidden bg-surface-2">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${b.b}%` }}
+                  transition={{ duration: 0.9, ease: "easeOut", delay: 0.5 }}
+                  style={{ background: b.colorB + "cc" }}
+                  className="h-full rounded-full"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+        <div className="flex items-center gap-3 mt-1">
+          <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-rose-500/60" /><span className="text-[10px] text-gray-600">ko'p qadam</span></div>
+          <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500/80" /><span className="text-[10px] text-gray-600">kam qadam ✓</span></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Tool card ────────────────────────────────────────────────────────────────
 
 interface ToolCardProps {
@@ -283,9 +334,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Two tool cards */}
+      {/* Three tool cards */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 py-8">
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           <ToolCard
             href="/playground"
             delay={0.1}
@@ -314,6 +365,21 @@ export default function HomePage() {
             shadow="shadow-glow-accent"
             tagColor="border-accent/30 bg-accent/8 text-accent-light"
             btnColor="text-accent-light"
+            openLabel={t.homeOpen}
+          />
+          <ToolCard
+            href="/performance"
+            delay={0.26}
+            tag="Benchmark"
+            title="Resurs Tahlilchi"
+            subtitle="if/else vs switch, for vs while, rekursiya vs iteratsiya — real executor o'lchovlari bilan solishtiring."
+            chips={["call stack", "xotira", "tsikl", "funksiya", "qidiruv"]}
+            preview={<MiniPerformancePreview />}
+            gradient="from-emerald-500/5 to-emerald-500/0"
+            border="border-emerald-500/20 hover:border-emerald-500/40"
+            shadow="shadow-[0_0_30px_rgba(16,185,129,0.15)]"
+            tagColor="border-emerald-500/30 bg-emerald-500/8 text-emerald-300"
+            btnColor="text-emerald-400"
             openLabel={t.homeOpen}
           />
         </div>
@@ -398,6 +464,12 @@ export default function HomePage() {
               CSS {t.homeCssTitle}
               <ArrowRight size={14} />
             </Link>
+            <Link href="/performance"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-surface-2 hover:bg-surface-3 text-gray-300 font-bold border border-border hover:border-emerald-500/40 transition-all duration-200">
+              <BarChart3 size={15} />
+              Resurs Tahlilchi
+              <ArrowRight size={14} />
+            </Link>
           </div>
         </motion.div>
       </section>
@@ -410,6 +482,7 @@ export default function HomePage() {
           <div className="flex items-center gap-4 text-xs text-gray-600">
             <Link href="/playground" className="hover:text-gray-400 transition-colors">JS Playground</Link>
             <Link href="/css" className="hover:text-gray-400 transition-colors">CSS {t.homeCssTitle}</Link>
+            <Link href="/performance" className="hover:text-gray-400 transition-colors">Resurs Tahlilchi</Link>
           </div>
         </div>
       </footer>

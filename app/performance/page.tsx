@@ -473,15 +473,17 @@ function extractPeak(steps: ExecutionStep[]): PeakState {
 
 // ── Memory panel ──────────────────────────────────────────────────────────────
 
-function MemoryPanel({ vars }: { vars: Record<string, unknown> }) {
+function MemoryPanel({ vars, hideHeader }: { vars: Record<string, unknown>; hideHeader?: boolean }) {
   const entries = Object.entries(vars).filter(([, v]) => typeof v !== "function");
   return (
     <div>
-      <div className="flex items-center gap-1.5 mb-2">
-        <MemoryStick size={11} className="text-orange-400" />
-        <span className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Xotira</span>
-        <span className="ml-auto text-[10px] font-mono text-gray-600">{entries.length} ta</span>
-      </div>
+      {!hideHeader && (
+        <div className="flex items-center gap-1.5 mb-2">
+          <MemoryStick size={11} className="text-orange-400" />
+          <span className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Xotira</span>
+          <span className="ml-auto text-[10px] font-mono text-gray-600">{entries.length} ta</span>
+        </div>
+      )}
       {entries.length === 0 ? (
         <p className="text-[10px] text-gray-600 italic">Bo'sh</p>
       ) : (
@@ -705,6 +707,7 @@ function VariantCard({
   steps: ExecutionStep[];
 }) {
   const [showCode, setShowCode] = useState(false);
+  const [showMemory, setShowMemory] = useState(false);
   const [copied, setCopied] = useState(false);
   const { lang } = useLangStore();
   const t = PERF_UI[lang];
@@ -778,8 +781,29 @@ function VariantCard({
 
       {/* ── Visual panels ── */}
       <div className="flex flex-col gap-2 rounded-xl border border-border bg-background/40 p-3">
-        {/* Memory */}
-        <MemoryPanel vars={peak.peakVars} />
+        {/* Memory — collapsible */}
+        <button
+          onClick={() => setShowMemory((v) => !v)}
+          className="flex items-center gap-1.5 w-full text-left"
+        >
+          <MemoryStick size={11} className="text-orange-400 shrink-0" />
+          <span className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider flex-1">Xotira</span>
+          <span className="text-[10px] font-mono text-gray-600">{Object.keys(peak.peakVars).filter(k => typeof peak.peakVars[k] !== "function").length} ta</span>
+          {showMemory ? <ChevronUp size={10} className="text-gray-600 ml-1" /> : <ChevronDown size={10} className="text-gray-600 ml-1" />}
+        </button>
+        <AnimatePresence>
+          {showMemory && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.18 }}
+              className="overflow-hidden"
+            >
+              <MemoryPanel vars={peak.peakVars} hideHeader />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Call stack — only if there was recursion */}
         {peak.deepestStack.length > 0 && (

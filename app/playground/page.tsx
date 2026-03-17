@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { Code2, AlertCircle, Home, Layers } from "lucide-react";
+import { Code2, AlertCircle, Home, Layers, BarChart3 } from "lucide-react";
 import { usePlaygroundStore, useLangStore } from "./store";
 import { UI } from "@/lib/i18n/ui";
 import { CodeEditor } from "@/components/editor/CodeEditor";
@@ -51,6 +51,13 @@ export default function PlaygroundPage() {
           {/* Right: language switcher + home */}
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
+            <Link
+              href="/performance"
+              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"
+            >
+              <BarChart3 size={12} />
+              <span className="hidden sm:block">Resurs</span>
+            </Link>
             <Link
               href="/css"
               className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"

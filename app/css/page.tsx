@@ -3,7 +3,7 @@
 import { useState, useId, CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Code2, Layers, LayoutGrid, Sparkles, ChevronRight, Square, MapPin, Zap } from "lucide-react";
+import { Code2, Layers, LayoutGrid, Sparkles, ChevronRight, Square, MapPin, Zap, BarChart3 } from "lucide-react";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLangStore } from "@/app/playground/store";
 import { CSS_UI, type CSSTranslations } from "@/lib/i18n/css";
@@ -1161,6 +1161,11 @@ export default function CSSPage() {
           </Link>
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
+            <Link href="/performance"
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border bg-surface-2 text-gray-400 hover:text-gray-200 transition-colors font-mono">
+              <BarChart3 size={12} />
+              Resurs
+            </Link>
             <Link href="/playground"
               className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border bg-surface-2 text-gray-400 hover:text-gray-200 transition-colors font-mono">
               JS Playground
