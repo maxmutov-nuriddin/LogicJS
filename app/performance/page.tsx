@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Code2, Home, BarChart3, GitBranch, Repeat, FunctionSquare,
-  Layers, Trophy, ChevronDown, ChevronUp, Zap, Activity,
+  Layers, Trophy, ChevronDown, ChevronUp, ChevronRight, Zap, Activity,
   Database, Target, Info, ArrowRight, CheckCircle2,
   MemoryStick, Hash, AlignJustify, Copy, Check, Terminal,
 } from "lucide-react";
@@ -1168,19 +1168,16 @@ export default function PerformancePage() {
       {/* Header */}
       <header className="sticky top-0 z-20 border-b border-border bg-surface/80 backdrop-blur-sm">
         <div className="flex items-center justify-between px-4 sm:px-6 h-12 max-w-7xl mx-auto">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 group">
             <div className="w-6 h-6 rounded bg-primary flex items-center justify-center">
               <Code2 size={12} className="text-white" />
             </div>
-            <span className="font-bold text-sm text-white font-mono tracking-tight">
+            <span className="font-bold text-sm text-white font-mono tracking-tight group-hover:opacity-80 transition-opacity">
               Logic<span className="text-primary-light">Lab</span>
             </span>
+            <ChevronRight size={13} className="text-gray-600" />
+            <span className="font-semibold text-sm text-gray-300">{t.resTitle}</span>
           </Link>
-
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-2 border border-border">
-            <BarChart3 size={12} className="text-accent-light" />
-            <span className="text-xs font-semibold text-gray-300 hidden sm:block">{t.resTitle}</span>
-          </div>
 
           <div className="flex items-center gap-3">
             <LanguageSwitcher />

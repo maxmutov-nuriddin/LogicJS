@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { Code2, AlertCircle, Home, Layers, BarChart3 } from "lucide-react";
+import { Code2, AlertCircle, Home, Layers, BarChart3, ChevronRight } from "lucide-react";
 import { usePlaygroundStore, useLangStore } from "./store";
 import { UI } from "@/lib/i18n/ui";
 import { CodeEditor } from "@/components/editor/CodeEditor";
@@ -33,20 +33,17 @@ export default function PlaygroundPage() {
       {/* Header */}
       <header className="shrink-0 border-b border-border bg-surface/80 backdrop-blur-sm z-20">
         <div className="flex items-center justify-between px-4 h-12">
-          {/* Logo */}
+          {/* Logo + breadcrumb */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-6 h-6 rounded bg-primary flex items-center justify-center">
               <Code2 size={12} className="text-white" />
             </div>
-            <span className="font-bold text-sm text-white font-mono tracking-tight">
+            <span className="font-bold text-sm text-white font-mono tracking-tight group-hover:opacity-80 transition-opacity">
               Logic<span className="text-primary-light">Lab</span>
             </span>
+            <ChevronRight size={13} className="text-gray-600" />
+            <span className="font-semibold text-sm text-gray-300">JS Playground</span>
           </Link>
-
-          {/* Center */}
-          <span className="hidden sm:block text-xs text-gray-600 font-mono absolute left-1/2 -translate-x-1/2">
-            {t.heroTag}
-          </span>
 
           {/* Right: language switcher + home */}
           <div className="flex items-center gap-3">
