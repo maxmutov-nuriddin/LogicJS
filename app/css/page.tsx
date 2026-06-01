@@ -3,14 +3,14 @@
 import { useState, useId, CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Code2, Layers, LayoutGrid, Sparkles, ChevronRight, Square, MapPin, Zap, BarChart3 } from "lucide-react";
+import { Code2, Layers, LayoutGrid, Sparkles, ChevronRight, Square, MapPin, Zap, BarChart3, Monitor } from "lucide-react";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLangStore } from "@/app/playground/store";
 import { CSS_UI, type CSSTranslations } from "@/lib/i18n/css";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Tab = "flex" | "grid" | "animation" | "boxmodel" | "position" | "transition";
+type Tab = "flex" | "grid" | "animation" | "boxmodel" | "position" | "transition" | "responsive";
 
 // ─── Shared UI components ────────────────────────────────────────────────────
 
@@ -21,6 +21,7 @@ const COLOR_MAP = {
   orange:  { btn: "border-orange-500/40 bg-orange-500/15 text-orange-300", active: "border-orange-400 bg-orange-500/30 text-orange-200 shadow-[0_0_10px_rgba(249,115,22,0.3)]" },
   pink:    { btn: "border-pink-500/40 bg-pink-500/15 text-pink-300", active: "border-pink-400 bg-pink-500/30 text-pink-200 shadow-[0_0_10px_rgba(236,72,153,0.3)]" },
   yellow:  { btn: "border-yellow-500/40 bg-yellow-500/15 text-yellow-300", active: "border-yellow-400 bg-yellow-500/30 text-yellow-200 shadow-[0_0_10px_rgba(234,179,8,0.3)]" },
+  cyan:    { btn: "border-cyan-500/40 bg-cyan-500/15 text-cyan-300", active: "border-cyan-400 bg-cyan-500/30 text-cyan-200 shadow-[0_0_10px_rgba(6,182,212,0.3)]" },
 };
 type ColorKey = keyof typeof COLOR_MAP;
 
@@ -1128,6 +1129,278 @@ function TransitionSection({ t }: { t: CSSTranslations }) {
   );
 }
 
+// ─── RESPONSIVE SECTION ──────────────────────────────────────────────────────
+
+type WidthPreset = 320 | 480 | 640 | 768 | 1024 | 1280;
+type QueryType = "min-width" | "max-width";
+
+interface ResponsiveState { width: WidthPreset; queryType: QueryType }
+
+const BP_TIERS = [
+  { key: "xs", minW: 0,    hex: "#3b82f6", label: "Mobile",    range: "<640px" },
+  { key: "sm", minW: 640,  hex: "#a855f7", label: "S.Tablet",  range: "640-768px" },
+  { key: "md", minW: 768,  hex: "#10b981", label: "Tablet",    range: "768-1024px" },
+  { key: "lg", minW: 1024, hex: "#f97316", label: "Desktop",   range: "1024-1280px" },
+  { key: "xl", minW: 1280, hex: "#ec4899", label: "L.Desktop", range: "≥1280px" },
+];
+
+const RESP_CARDS = ["#3b82f6","#a855f7","#10b981","#f97316","#ec4899","#eab308"];
+
+function ResponsiveSection({ t }: { t: CSSTranslations }) {
+  const [s, setS] = useState<ResponsiveState>({ width: 320, queryType: "min-width" });
+
+  const tier = s.width >= 1280 ? "xl" : s.width >= 1024 ? "lg" : s.width >= 768 ? "md" : s.width >= 640 ? "sm" : "xs";
+  const cols         = tier === "lg" || tier === "xl" ? 3 : tier === "md" || tier === "sm" ? 2 : 1;
+  const showSidebar  = tier === "lg" || tier === "xl";
+  const showNavLinks = tier !== "xs";
+  const showMoreNav  = tier === "md" || tier === "lg" || tier === "xl";
+  const showNavBtn   = tier === "lg" || tier === "xl";
+  const activeBp     = BP_TIERS.find(b => b.key === tier)!;
+
+  const cssMin = [
+    "/* ✅ Mobile-first (tavsiya) */",
+    ".container {",
+    "  display: grid;",
+    "  grid-template-columns: 1fr;",
+    "}",
+    "",
+    "@media (min-width: 640px) {",
+    "  .container {",
+    "    grid-template-columns: repeat(2, 1fr);",
+    "  }",
+    "}",
+    "",
+    "@media (min-width: 1024px) {",
+    "  .container {",
+    "    grid-template-columns: repeat(3, 1fr);",
+    "  }",
+    "}",
+  ];
+
+  const cssMax = [
+    "/* Desktop-first */",
+    ".container {",
+    "  display: grid;",
+    "  grid-template-columns: repeat(3, 1fr);",
+    "}",
+    "",
+    "@media (max-width: 1023px) {",
+    "  .container {",
+    "    grid-template-columns: repeat(2, 1fr);",
+    "  }",
+    "}",
+    "",
+    "@media (max-width: 639px) {",
+    "  .container {",
+    "    grid-template-columns: 1fr;",
+    "  }",
+    "}",
+  ];
+
+  return (
+    <div className="flex flex-col xl:flex-row gap-6">
+      {/* Controls */}
+      <div className="xl:w-[380px] shrink-0 flex flex-col gap-4">
+        <CtrlGroup title="simulated kenglik" color="cyan">
+          {([
+            { w: 320,  vt: "xs", device: "iPhone SE"       },
+            { w: 480,  vt: "xs", device: "o'rta telefon"   },
+            { w: 640,  vt: "sm", device: "katta telefon"   },
+            { w: 768,  vt: "md", device: "iPad / planshet" },
+            { w: 1024, vt: "lg", device: "noutbuk"         },
+            { w: 1280, vt: "xl", device: "desktop monitor" },
+          ] as { w: WidthPreset; vt: string; device: string }[]).map(({ w, vt, device }) => (
+            <PropBtn key={w} active={s.width === w} color="cyan" onClick={() => setS(p => ({ ...p, width: w }))}>
+              {w}px · {device} <span className="opacity-50">({vt})</span>
+            </PropBtn>
+          ))}
+        </CtrlGroup>
+
+        <CtrlGroup title="media query yondashuvi" color="purple">
+          {(["min-width", "max-width"] as QueryType[]).map(v => (
+            <PropBtn key={v} active={s.queryType === v} color="purple" onClick={() => setS(p => ({ ...p, queryType: v }))}>
+              {v}{v === "min-width" ? " ✓" : ""}
+            </PropBtn>
+          ))}
+        </CtrlGroup>
+
+        <CSSCode lines={s.queryType === "min-width" ? cssMin : cssMax} />
+      </div>
+
+      {/* Preview */}
+      <div className="flex flex-col gap-4 flex-1 min-w-0">
+        {/* Explanation banner */}
+        <AnimatePresence mode="wait">
+          <motion.div key={tier}
+            initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-4 py-3">
+            <p className="text-sm text-gray-300">
+              <code className="text-cyan-400 font-bold font-mono">{tier} — {s.width}px</code>
+              {" — "}{t.responsiveExplain[tier]}
+            </p>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Breakpoint ruler */}
+        <div className="rounded-xl border border-border bg-surface-2 p-4">
+          <p className="text-xs text-gray-500 mb-3 font-semibold uppercase tracking-wider">Breakpoint chizig'i</p>
+          <div className="flex rounded-lg overflow-hidden h-5 mb-1">
+            {[
+              { key: "xs", w: "20%", hex: "#3b82f6" },
+              { key: "sm", w: "8%",  hex: "#a855f7" },
+              { key: "md", w: "17%", hex: "#10b981" },
+              { key: "lg", w: "17%", hex: "#f97316" },
+              { key: "xl", w: "38%", hex: "#ec4899" },
+            ].map(seg => (
+              <div key={seg.key} className="relative flex items-center justify-center"
+                   style={{ width: seg.w, background: seg.hex + (tier === seg.key ? "cc" : "33"), transition: "background 0.2s" }}>
+                <span className="text-[8px] font-mono font-bold text-white/80">{seg.key}</span>
+              </div>
+            ))}
+          </div>
+          <div className="flex text-[9px] font-mono text-gray-600 mb-3">
+            <span style={{ width: "20%" }}>0</span>
+            <span style={{ width: "8%" }}>640</span>
+            <span style={{ width: "17%" }}>768</span>
+            <span style={{ width: "17%" }}>1024</span>
+            <span style={{ width: "38%" }}>1280+</span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {BP_TIERS.map(bp => (
+              <div key={bp.key}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-mono transition-all ${
+                  tier === bp.key ? "border-white/30 bg-white/10 text-white" : "border-border bg-background text-gray-600"
+                }`}>
+                <div className="w-2 h-2 rounded-full shrink-0" style={{ background: bp.hex }} />
+                <span className="font-bold">{bp.key}</span>
+                <span className="opacity-50 text-[9px]">{bp.range}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Simulated browser */}
+        <div className="rounded-2xl border border-border bg-surface p-5 flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">simulated browser — {s.width}px</span>
+            <span className="ml-auto text-[10px] font-mono font-bold" style={{ color: activeBp.hex }}>
+              {tier.toUpperCase()} — {activeBp.label}
+            </span>
+          </div>
+
+          <div className="rounded-xl bg-[#0d1117] border border-border overflow-hidden">
+            {/* Browser chrome */}
+            <div className="flex items-center gap-2 px-3 py-2 bg-surface-2/80 border-b border-border">
+              <div className="flex gap-1">
+                <div className="w-2 h-2 rounded-full bg-rose-500/60" />
+                <div className="w-2 h-2 rounded-full bg-yellow-500/60" />
+                <div className="w-2 h-2 rounded-full bg-emerald-500/60" />
+              </div>
+              <div className="flex-1 mx-2 h-4 rounded-full bg-surface/80 border border-border flex items-center px-2">
+                <span className="text-[9px] text-gray-600 font-mono">logiclab.uz</span>
+              </div>
+              <span className="text-[9px] font-mono font-bold" style={{ color: activeBp.hex }}>{s.width}px</span>
+            </div>
+
+            {/* Simulated page */}
+            <div className="p-3 space-y-2">
+              {/* Navbar */}
+              <motion.div layout className="flex items-center gap-2 px-2.5 py-1.5 bg-surface border border-border rounded-lg min-h-[28px]">
+                <div className="w-3 h-3 rounded-sm bg-blue-500/60 shrink-0" />
+                <span className="text-[9px] font-mono font-bold text-gray-300 shrink-0">Logo</span>
+                <div className="ml-auto flex items-center gap-1">
+                  <AnimatePresence>
+                    {showNavLinks && (
+                      <motion.div key="base-links" initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "auto" }} exit={{ opacity: 0, width: 0 }}
+                        className="flex items-center gap-1 overflow-hidden">
+                        <span className="text-[8px] text-gray-500 font-mono px-1 py-0.5 rounded bg-surface-2 whitespace-nowrap">Home</span>
+                        <span className="text-[8px] text-gray-500 font-mono px-1 py-0.5 rounded bg-surface-2 whitespace-nowrap">About</span>
+                      </motion.div>
+                    )}
+                    {showMoreNav && (
+                      <motion.div key="more-links" initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "auto" }} exit={{ opacity: 0, width: 0 }}
+                        className="flex items-center gap-1 overflow-hidden">
+                        <span className="text-[8px] text-gray-500 font-mono px-1 py-0.5 rounded bg-surface-2 whitespace-nowrap">Services</span>
+                        <span className="text-[8px] text-gray-500 font-mono px-1 py-0.5 rounded bg-surface-2 whitespace-nowrap">Blog</span>
+                      </motion.div>
+                    )}
+                    {showNavBtn && (
+                      <motion.span key="cta-btn" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
+                        className="text-[8px] text-cyan-300 font-mono px-1.5 py-0.5 rounded-lg bg-cyan-500/15 border border-cyan-500/30 whitespace-nowrap">
+                        Sign Up
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                  {!showNavLinks && (
+                    <div className="flex flex-col gap-0.5">
+                      <div className="w-3 h-0.5 bg-gray-400 rounded" />
+                      <div className="w-3 h-0.5 bg-gray-400 rounded" />
+                      <div className="w-3 h-0.5 bg-gray-400 rounded" />
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Cards + sidebar */}
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <motion.div layout className="grid gap-1.5"
+                    style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+                    {RESP_CARDS.slice(0, cols === 1 ? 3 : cols === 2 ? 4 : 6).map((hex, i) => (
+                      <motion.div key={i} layout
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        className="rounded-md p-1.5 border"
+                        style={{ borderColor: hex + "40", background: hex + "15" }}>
+                        <div className="w-full h-1.5 rounded-full mb-1" style={{ background: hex + "50" }} />
+                        <div className="w-3/4 h-1 rounded-full bg-gray-700 mb-0.5" />
+                        <div className="w-1/2 h-1 rounded-full bg-gray-700/50" />
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </div>
+
+                <AnimatePresence>
+                  {showSidebar && (
+                    <motion.div key="sidebar"
+                      initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 68 }} exit={{ opacity: 0, width: 0 }}
+                      className="shrink-0 rounded-md border border-orange-500/30 bg-orange-500/5 p-1.5 overflow-hidden">
+                      <div className="text-[8px] text-orange-400 font-mono font-bold mb-1">Sidebar</div>
+                      {[85, 65, 75, 50].map((w, i) => (
+                        <div key={i} className="h-1 rounded-full bg-orange-500/25 mb-1" style={{ width: `${w}%` }} />
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
+
+          {/* Zone indicator */}
+          <div className="rounded-xl border border-border overflow-hidden">
+            <div className="grid grid-cols-3 text-[10px] font-mono text-center">
+              <div className={`px-2 py-2 ${s.width < 640 ? "bg-blue-500/15 text-blue-300 font-semibold" : "text-gray-600"}`}>
+                &lt;640px<br /><span className="text-[9px]">1 ustun</span>
+              </div>
+              <div className={`px-2 py-2 border-x border-border ${s.width >= 640 && s.width < 1024 ? "bg-purple-500/15 text-purple-300 font-semibold" : "text-gray-600"}`}>
+                640–1024px<br /><span className="text-[9px]">2 ustun</span>
+              </div>
+              <div className={`px-2 py-2 ${s.width >= 1024 ? "bg-orange-500/15 text-orange-300 font-semibold" : "text-gray-600"}`}>
+                &gt;1024px<br /><span className="text-[9px]">3 ustun + sidebar</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tips */}
+        <div className="grid grid-cols-2 gap-2">
+          {t.responsiveTips.map(tip => <InfoCard key={tip.title} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function CSSPage() {
@@ -1136,12 +1409,13 @@ export default function CSSPage() {
   const t = CSS_UI[lang];
 
   const TABS = [
-    { id: "flex" as Tab,       label: "Flexbox",    icon: <Layers size={16} />,     desc: t.flexDesc,  color: "blue"    },
-    { id: "grid" as Tab,       label: "Grid",       icon: <LayoutGrid size={16} />, desc: t.gridDesc,  color: "purple"  },
-    { id: "animation" as Tab,  label: "Animation",  icon: <Sparkles size={16} />,   desc: t.animDesc,  color: "yellow"  },
-    { id: "boxmodel" as Tab,   label: "Box Model",  icon: <Square size={16} />,     desc: t.boxDesc,   color: "orange"  },
-    { id: "position" as Tab,   label: "Position",   icon: <MapPin size={16} />,     desc: t.posDesc,   color: "emerald" },
-    { id: "transition" as Tab, label: "Transition", icon: <Zap size={16} />,        desc: t.transDesc, color: "pink"    },
+    { id: "flex" as Tab,        label: "Flexbox",    icon: <Layers size={16} />,     desc: t.flexDesc,        color: "blue"    },
+    { id: "grid" as Tab,        label: "Grid",       icon: <LayoutGrid size={16} />, desc: t.gridDesc,        color: "purple"  },
+    { id: "animation" as Tab,   label: "Animation",  icon: <Sparkles size={16} />,   desc: t.animDesc,        color: "yellow"  },
+    { id: "boxmodel" as Tab,    label: "Box Model",  icon: <Square size={16} />,     desc: t.boxDesc,         color: "orange"  },
+    { id: "position" as Tab,    label: "Position",   icon: <MapPin size={16} />,     desc: t.posDesc,         color: "emerald" },
+    { id: "transition" as Tab,  label: "Transition", icon: <Zap size={16} />,        desc: t.transDesc,       color: "pink"    },
+    { id: "responsive" as Tab,  label: "Responsive", icon: <Monitor size={16} />,    desc: t.responsiveDesc,  color: "cyan"    },
   ];
 
   return (
@@ -1207,12 +1481,13 @@ export default function CSSPage() {
       <div className="max-w-7xl mx-auto px-4 pb-16">
         <AnimatePresence mode="wait">
           <motion.div key={tab} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-4}} transition={{duration:0.2}}>
-            {tab === "flex"       && <FlexSection t={t} />}
-            {tab === "grid"       && <GridSection t={t} />}
-            {tab === "animation"  && <AnimSection t={t} />}
-            {tab === "boxmodel"   && <BoxModelSection t={t} />}
-            {tab === "position"   && <PositionSection t={t} />}
-            {tab === "transition" && <TransitionSection t={t} />}
+            {tab === "flex"        && <FlexSection t={t} />}
+            {tab === "grid"        && <GridSection t={t} />}
+            {tab === "animation"   && <AnimSection t={t} />}
+            {tab === "boxmodel"    && <BoxModelSection t={t} />}
+            {tab === "position"    && <PositionSection t={t} />}
+            {tab === "transition"  && <TransitionSection t={t} />}
+            {tab === "responsive"  && <ResponsiveSection t={t} />}
           </motion.div>
         </AnimatePresence>
       </div>

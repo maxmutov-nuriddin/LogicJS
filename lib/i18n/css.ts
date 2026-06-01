@@ -53,6 +53,11 @@ export interface CSSTranslations {
   // Transition
   transTips: { icon: string; title: string; desc: string }[];
   transExplain: Record<string, string>;
+
+  // Responsive
+  responsiveDesc: string;
+  responsiveTips: { icon: string; title: string; desc: string }[];
+  responsiveExplain: Record<string, string>;
 }
 
 // ─── Uzbek ────────────────────────────────────────────────────────────────────
@@ -197,6 +202,21 @@ const uz: CSSTranslations = {
     opacity:            "Ko'rinish darajasi asta o'zgaradi — fade in/out effekti",
     all:                "Barcha o'zgaruvchi xususiyatlar uchun — qulay lekin unumdor emas",
     "border-radius":    "Burchaklar asta yaxlitlanadi — shaklni o'zgartirish effekti",
+  },
+
+  responsiveDesc: "Moslashuvchan",
+  responsiveTips: [
+    { icon: "📱", title: "@media query",  desc: "Ekran o'lchamiga qarab turli CSS qoidalarini qo'llash imkonini beradi" },
+    { icon: "📐", title: "Mobile-first",  desc: "min-width bilan boshlash — kichik ekranlar asosiy, kattalar uchun qo'shimcha CSS yoziladi" },
+    { icon: "🖥️", title: "Breakpoint",   desc: "Layout o'zgaradigan nuqtalar. sm=640px, md=768px, lg=1024px, xl=1280px" },
+    { icon: "📏", title: "viewport meta", desc: 'width=device-width — mobil ekranda to\'g\'ri o\'lchovni ta\'minlaydi' },
+  ],
+  responsiveExplain: {
+    xs: "< 640px — mobil qurilma. 1 ustunli tartib. Hamburger menyu. Sidebar yashirin",
+    sm: "640-768px — kichik planshet yoki katta telefon. 2 ustun paydo bo'ladi",
+    md: "768-1024px — planshet. 2 ustunli tartib. Nav linklari ko'rinadi",
+    lg: "1024-1280px — noutbuk. 3 ustun va sidebar paydo bo'ladi",
+    xl: "≥ 1280px — katta monitor. To'liq interfeys ko'rinadi",
   },
 };
 
@@ -343,6 +363,21 @@ const en: CSSTranslations = {
     all:                "All changing properties — convenient but not optimal for performance",
     "border-radius":    "Corners round gradually — shape changing effect",
   },
+
+  responsiveDesc: "Responsive",
+  responsiveTips: [
+    { icon: "📱", title: "@media query",  desc: "Apply different CSS rules based on screen size or device characteristics" },
+    { icon: "📐", title: "Mobile-first",  desc: "Start with min-width — mobile is the base, larger screens get extra CSS on top" },
+    { icon: "🖥️", title: "Breakpoints",  desc: "Points where layout changes. sm=640px, md=768px, lg=1024px, xl=1280px" },
+    { icon: "📏", title: "viewport meta", desc: "width=device-width — ensures correct scaling on mobile devices" },
+  ],
+  responsiveExplain: {
+    xs: "< 640px — mobile device. 1-column layout. Hamburger menu. Sidebar hidden",
+    sm: "640-768px — small tablet or large phone. 2 columns appear",
+    md: "768-1024px — tablet. 2-column layout. Nav links visible",
+    lg: "1024-1280px — laptop. 3 columns and sidebar appear",
+    xl: "≥ 1280px — large monitor. Full interface visible",
+  },
 };
 
 // ─── Russian ──────────────────────────────────────────────────────────────────
@@ -487,6 +522,21 @@ const ru: CSSTranslations = {
     opacity:            "Прозрачность меняется плавно — эффект fade in/out",
     all:                "Все изменяющиеся свойства — удобно, но не оптимально по производительности",
     "border-radius":    "Углы скругляются плавно — эффект смены формы",
+  },
+
+  responsiveDesc: "Адаптивность",
+  responsiveTips: [
+    { icon: "📱", title: "@media query",  desc: "Позволяет применять разные CSS правила в зависимости от размера экрана" },
+    { icon: "📐", title: "Mobile-first",  desc: "Начинать с min-width — мобильная версия за основу, больший экран получает доп. CSS" },
+    { icon: "🖥️", title: "Breakpoints",  desc: "Точки смены макета. sm=640px, md=768px, lg=1024px, xl=1280px" },
+    { icon: "📏", title: "viewport meta", desc: "width=device-width — обеспечивает правильный масштаб на мобильных устройствах" },
+  ],
+  responsiveExplain: {
+    xs: "< 640px — мобильное устройство. 1 столбец. Гамбургер меню. Sidebar скрыт",
+    sm: "640-768px — небольшой планшет или большой телефон. Появляется 2 столбца",
+    md: "768-1024px — планшет. 2 столбца. Видны ссылки навигации",
+    lg: "1024-1280px — ноутбук. 3 столбца и sidebar появляется",
+    xl: "≥ 1280px — большой монитор. Полный интерфейс виден",
   },
 };
 
