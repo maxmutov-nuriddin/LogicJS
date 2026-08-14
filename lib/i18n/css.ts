@@ -58,6 +58,12 @@ export interface CSSTranslations {
   responsiveDesc: string;
   responsiveTips: { icon: string; title: string; desc: string }[];
   responsiveExplain: Record<string, string>;
+  displayDesc: string;
+  boxShadowDesc: string;
+  displayTips: { icon: string; title: string; desc: string }[];
+  boxShadowTips: { icon: string; title: string; desc: string }[];
+  displayExplain: Record<string, string>;
+  boxShadowExplain: Record<string, string>;
 }
 
 // ─── Uzbek ────────────────────────────────────────────────────────────────────
@@ -217,6 +223,29 @@ const uz: CSSTranslations = {
     md: "768-1024px — planshet. 2 ustunli tartib. Nav linklari ko'rinadi",
     lg: "1024-1280px — noutbuk. 3 ustun va sidebar paydo bo'ladi",
     xl: "≥ 1280px — katta monitor. To'liq interfeys ko'rinadi",
+  },
+  displayDesc: "Ko'rinish turi",
+  boxShadowDesc: "Element soyasi",
+  displayTips: [
+    { icon: "👁️", title: "display: block", desc: "Yangi qatordan boshlanadi va to'liq kenglikni egallaydi." },
+    { icon: "🔗", title: "display: inline", desc: "Matn ichida joylashadi, width va height xususiyatlari ta'sir qilmaydi." },
+    { icon: "📦", title: "display: inline-block", desc: "Matn oqimida joylashadi, lekin width/height o'lchamlarini oladi." },
+    { icon: "👻", title: "display: none", desc: "Element sahifadan butunlay o'chiriladi, joyi saqlanib qolmaydi." }
+  ],
+  boxShadowTips: [
+    { icon: "🫥", title: "Offset (siljish)", desc: "Soya siljish yo'nalishi. Musbat qiymatlar o'ngga/pastga, manfiy chapga/yuqoriga." },
+    { icon: "🌫️", title: "Blur radius", desc: "Soya xiralik darajasi. Qanchalik katta bo'lsa, shunchalik tarqaladi." },
+    { icon: "📐", title: "Spread radius", desc: "Soyaning kattaligi. Musbat qiymatlar kattalashtiradi, manfiylar kichiklashtiradi." },
+    { icon: "📥", title: "inset", desc: "Soyani tashqariga emas, elementning ichki tomoniga yo'naltiradi." }
+  ],
+  displayExplain: {
+    block: "block — element yangi qatorga tushadi, eniga 100% egallaydi.",
+    inline: "inline — element yonma-yon turadi, eni va bo'yi ta'sir qilmaydi.",
+    "inline-block": "inline-block — element yonma-yon turadi, lekin eni va bo'yini oladi.",
+    none: "none — element butunlay yashiriladi va oqimdan chiqib ketadi."
+  },
+  boxShadowExplain: {
+    shadow: "box-shadow: element atrofida yoki ichida soya hosil qiladi."
   },
 };
 
@@ -378,6 +407,29 @@ const en: CSSTranslations = {
     lg: "1024-1280px — laptop. 3 columns and sidebar appear",
     xl: "≥ 1280px — large monitor. Full interface visible",
   },
+  displayDesc: "Display layout",
+  boxShadowDesc: "Element shadow",
+  displayTips: [
+    { icon: "👁️", title: "display: block", desc: "Starts on a new line and takes up the full width." },
+    { icon: "🔗", title: "display: inline", desc: "Flows inline with text, ignores width and height." },
+    { icon: "📦", title: "display: inline-block", desc: "Flows inline, but respects width and height." },
+    { icon: "👻", title: "display: none", desc: "Completely removes the element from the layout." }
+  ],
+  boxShadowTips: [
+    { icon: "🫥", title: "Offset", desc: "Shadow offset. Positive values go right/down, negative go left/up." },
+    { icon: "🌫️", title: "Blur radius", desc: "Fuzziness of the shadow. Higher values mean softer shadows." },
+    { icon: "📐", title: "Spread radius", desc: "Size of the shadow. Positive expands, negative shrinks." },
+    { icon: "📥", title: "inset", desc: "Changes the shadow from outer to inner shadow." }
+  ],
+  displayExplain: {
+    block: "block — starts on a new line, takes 100% container width.",
+    inline: "inline — fits on the same line, width/height are ignored.",
+    "inline-block": "inline-block — fits on the same line, respects width/height.",
+    none: "none — completely hides the element from the layout."
+  },
+  boxShadowExplain: {
+    shadow: "box-shadow: creates soft or hard shadows around or inside an element."
+  },
 };
 
 // ─── Russian ──────────────────────────────────────────────────────────────────
@@ -537,6 +589,29 @@ const ru: CSSTranslations = {
     md: "768-1024px — планшет. 2 столбца. Видны ссылки навигации",
     lg: "1024-1280px — ноутбук. 3 столбца и sidebar появляется",
     xl: "≥ 1280px — большой монитор. Полный интерфейс виден",
+  },
+  displayDesc: "Тип отображения",
+  boxShadowDesc: "Тень элемента",
+  displayTips: [
+    { icon: "👁️", title: "display: block", desc: "Начинается с новой строки и занимает всю ширину." },
+    { icon: "🔗", title: "display: inline", desc: "Располагается в строке с текстом, игнорирует ширину и высоту." },
+    { icon: "📦", title: "display: inline-block", desc: "Располагается в строке, но поддерживает ширину и высоту." },
+    { icon: "👻", title: "display: none", desc: "Полностью скрывает элемент со страницы." }
+  ],
+  boxShadowTips: [
+    { icon: "🫥", title: "Смещение", desc: "Смещение тени. Положительные сдвигают вправо/вниз, отрицательные влево/вверх." },
+    { icon: "🌫️", title: "Размытие (Blur)", desc: "Степень размытия тени. Чем больше, тем мягче тень." },
+    { icon: "📐", title: "Растяжение (Spread)", desc: "Размер тени. Положительные увеличивают тень, отрицательные уменьшают." },
+    { icon: "📥", title: "inset", desc: "Направляет тень внутрь элемента вместо наружной." }
+  ],
+  displayExplain: {
+    block: "block — начинается с новой строки, занимает 100% ширины.",
+    inline: "inline — располагается в одной строке, ширина/высота игнорируются.",
+    "inline-block": "inline-block — в одной строке, но с поддержкой размеров.",
+    none: "none — полностью убирает элемент из разметки."
+  },
+  boxShadowExplain: {
+    shadow: "box-shadow: создает мягкие или жесткие тени вокруг или внутри элемента."
   },
 };
 

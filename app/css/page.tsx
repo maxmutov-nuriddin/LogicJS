@@ -10,7 +10,7 @@ import { CSS_UI, type CSSTranslations } from "@/lib/i18n/css";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Tab = "flex" | "grid" | "animation" | "boxmodel" | "position" | "transition" | "responsive";
+type Tab = "flex" | "grid" | "animation" | "boxmodel" | "position" | "transition" | "responsive" | "display" | "boxshadow";
 
 // ─── Shared UI components ────────────────────────────────────────────────────
 
@@ -1669,6 +1669,279 @@ function ResponsiveSection({ t }: { t: CSSTranslations }) {
   );
 }
 
+// ─── DISPLAY SECTION ──────────────────────────────────────────────────────────
+
+interface DisplayState {
+  display: "block" | "inline" | "inline-block" | "none";
+  hasSize: boolean;
+  hasSpacing: boolean;
+}
+
+function DisplaySection({ t }: { t: CSSTranslations }) {
+  const [s, setS] = useState<DisplayState>({ display: "block", hasSize: true, hasSpacing: true });
+  const [explain, setExplain] = useState("block");
+
+  const upd = (patch: Partial<DisplayState>, e: string) => {
+    setS(p => ({ ...p, ...patch }));
+    setExplain(e);
+  };
+
+  const css = [
+    ".element-2 {",
+    `  display: ${s.display};`,
+    ...(s.hasSize ? [
+      "  width: 110px;",
+      "  height: 50px;"
+    ] : []),
+    ...(s.hasSpacing ? [
+      "  margin: 12px;",
+      "  padding: 8px;"
+    ] : []),
+    "}",
+  ];
+
+  return (
+    <div className="flex flex-col xl:flex-row gap-6">
+      {/* Controls */}
+      <div className="xl:w-[380px] shrink-0 flex flex-col gap-4">
+        <CtrlGroup title="display" color="emerald">
+          {(["block", "inline", "inline-block", "none"] as const).map(v => (
+            <PropBtn key={v} active={s.display === v} color="emerald" onClick={() => upd({ display: v }, v)}>{v}</PropBtn>
+          ))}
+        </CtrlGroup>
+
+        <CtrlGroup title="o'lchamlar (width / height)" color="blue">
+          <PropBtn active={s.hasSize} color="blue" onClick={() => upd({ hasSize: true }, s.display)}>
+            110px × 50px
+          </PropBtn>
+          <PropBtn active={!s.hasSize} color="blue" onClick={() => upd({ hasSize: false }, s.display)}>
+            auto (content)
+          </PropBtn>
+        </CtrlGroup>
+
+        <CtrlGroup title="bo'shliqlar (margin / padding)" color="orange">
+          <PropBtn active={s.hasSpacing} color="orange" onClick={() => upd({ hasSpacing: true }, s.display)}>
+            Faol (12px / 8px)
+          </PropBtn>
+          <PropBtn active={!s.hasSpacing} color="orange" onClick={() => upd({ hasSpacing: false }, s.display)}>
+            Faolsiz (0px)
+          </PropBtn>
+        </CtrlGroup>
+
+        <CSSCode lines={css} />
+      </div>
+
+      {/* Preview */}
+      <div className="flex flex-col gap-4 flex-1 min-w-0">
+        <AnimatePresence mode="wait">
+          <motion.div key={explain} initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+            className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+            <p className="text-sm text-gray-300">
+              <code className="text-emerald-400 font-bold font-mono">{explain}</code>
+              {" — "}
+              {t.displayExplain[explain]}
+            </p>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Live preview */}
+        <div className="rounded-2xl border border-border bg-surface p-5 flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">display preview</span>
+          </div>
+
+          <div className="rounded-xl bg-[#0d1117] border border-border flex flex-col justify-center min-h-[220px] p-4">
+            <div className="text-[10px] text-gray-600 font-mono mb-2">oqim boshlanishi (flow start)</div>
+            
+            <motion.div
+              layout
+              transition={{ type: "spring", stiffness: 350, damping: 28 }}
+              className="border border-white/5 rounded-lg p-3 bg-black/20"
+            >
+              {/* Element 1 */}
+              <motion.div
+                layout
+                transition={{ type: "spring", stiffness: 350, damping: 28 }}
+                className="inline-block bg-blue-500/80 border border-white/10 text-white rounded-lg text-xs font-mono font-bold px-3 py-2 mr-2"
+              >
+                1-element
+              </motion.div>
+
+              {/* Element 2 (Target) */}
+              <AnimatePresence>
+                {s.display !== "none" && (
+                  <motion.div
+                    layout
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 350, damping: 28 }}
+                    style={{
+                      display: s.display === "inline" ? "inline-block" : s.display,
+                      width: s.display === "inline" ? undefined : (s.hasSize ? 110 : undefined),
+                      height: s.display === "inline" ? undefined : (s.hasSize ? 50 : undefined),
+                      margin: s.hasSpacing ? 12 : undefined,
+                      padding: s.hasSpacing ? 8 : undefined,
+                    }}
+                    className="bg-emerald-500/90 border border-white/20 text-white rounded-lg text-xs font-mono font-bold items-center justify-center inline-flex"
+                  >
+                    <span className="text-center w-full">2-element ({s.display})</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Element 3 */}
+              <motion.div
+                layout
+                transition={{ type: "spring", stiffness: 350, damping: 28 }}
+                className="inline-block bg-purple-500/80 border border-white/10 text-white rounded-lg text-xs font-mono font-bold px-3 py-2 ml-2"
+              >
+                3-element
+              </motion.div>
+            </motion.div>
+
+            <div className="text-[10px] text-gray-600 font-mono mt-2">oqim yakuni (flow end)</div>
+          </div>
+        </div>
+
+        {/* Display concepts */}
+        <div className="grid grid-cols-2 gap-2">
+          {t.displayTips.map(tip => <InfoCard key={tip.title} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── BOX SHADOW SECTION ───────────────────────────────────────────────────────
+
+interface BoxShadowState {
+  h: number;
+  v: number;
+  blur: number;
+  spread: number;
+  color: string;
+  colorName: string;
+  inset: boolean;
+}
+
+function BoxShadowSection({ t }: { t: CSSTranslations }) {
+  const [s, setS] = useState<BoxShadowState>({
+    h: 8,
+    v: 8,
+    blur: 16,
+    spread: 0,
+    color: "rgba(0, 0, 0, 0.55)",
+    colorName: "black",
+    inset: false,
+  });
+
+  const upd = (patch: Partial<BoxShadowState>) => {
+    setS(p => ({ ...p, ...patch }));
+  };
+
+  const shadowVal = `${s.inset ? "inset " : ""}${s.h}px ${s.v}px ${s.blur}px ${s.spread}px ${s.color}`;
+
+  const css = [
+    ".box {",
+    "  width: 140px;",
+    "  height: 140px;",
+    "  background: #1e293b;",
+    "  border-radius: 16px;",
+    `  box-shadow: ${shadowVal};`,
+    "}",
+  ];
+
+  return (
+    <div className="flex flex-col xl:flex-row gap-6">
+      {/* Controls */}
+      <div className="xl:w-[380px] shrink-0 flex flex-col gap-4">
+        <CtrlGroup title="horizontal offset (h-offset)" color="blue">
+          {[-15, -8, 0, 8, 15].map(v => (
+            <PropBtn key={v} active={s.h === v} color="blue" onClick={() => upd({ h: v })}>{v}px</PropBtn>
+          ))}
+        </CtrlGroup>
+
+        <CtrlGroup title="vertical offset (v-offset)" color="purple">
+          {[-15, -8, 0, 8, 15].map(v => (
+            <PropBtn key={v} active={s.v === v} color="purple" onClick={() => upd({ v: v })}>{v}px</PropBtn>
+          ))}
+        </CtrlGroup>
+
+        <CtrlGroup title="blur-radius" color="emerald">
+          {[0, 4, 8, 16, 24].map(v => (
+            <PropBtn key={v} active={s.blur === v} color="emerald" onClick={() => upd({ blur: v })}>{v}px</PropBtn>
+          ))}
+        </CtrlGroup>
+
+        <CtrlGroup title="spread-radius" color="orange">
+          {[-8, 0, 4, 8, 12].map(v => (
+            <PropBtn key={v} active={s.spread === v} color="orange" onClick={() => upd({ spread: v })}>{v}px</PropBtn>
+          ))}
+        </CtrlGroup>
+
+        <CtrlGroup title="shadow color" color="pink">
+          {[
+            { name: "black", val: "rgba(0, 0, 0, 0.55)" },
+            { name: "blue", val: "rgba(59, 130, 246, 0.55)" },
+            { name: "purple", val: "rgba(168, 85, 247, 0.55)" },
+            { name: "pink", val: "rgba(236, 72, 153, 0.55)" },
+          ].map(c => (
+            <PropBtn key={c.name} active={s.colorName === c.name} color="pink" onClick={() => upd({ color: c.val, colorName: c.name })}>{c.name}</PropBtn>
+          ))}
+        </CtrlGroup>
+
+        <CtrlGroup title="shadow style (inset)" color="yellow">
+          <PropBtn active={!s.inset} color="yellow" onClick={() => upd({ inset: false })}>tashqi (outer)</PropBtn>
+          <PropBtn active={s.inset} color="yellow" onClick={() => upd({ inset: true })}>ichki (inset)</PropBtn>
+        </CtrlGroup>
+
+        <CSSCode lines={css} />
+      </div>
+
+      {/* Preview */}
+      <div className="flex flex-col gap-4 flex-1 min-w-0">
+        <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 px-4 py-3">
+          <p className="text-sm text-gray-300">
+            <code className="text-purple-400 font-bold font-mono">box-shadow</code>
+            {" — "}
+            {t.boxShadowExplain.shadow}
+          </p>
+        </div>
+
+        {/* Live preview */}
+        <div className="rounded-2xl border border-border bg-surface p-5 flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">shadow live preview</span>
+          </div>
+
+          <div className="rounded-xl bg-[#0d1117] border border-border flex items-center justify-center overflow-hidden p-6" style={{ minHeight: 260 }}>
+            <div
+              style={{
+                width: 140,
+                height: 140,
+                background: "#1e293b",
+                borderRadius: 16,
+                boxShadow: shadowVal,
+                border: "1px solid rgba(255,255,255,0.05)",
+                transition: "box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s ease"
+              }}
+              className="flex items-center justify-center text-xs font-mono text-gray-400 font-bold"
+            >
+              Box
+            </div>
+          </div>
+        </div>
+
+        {/* Shadow concepts */}
+        <div className="grid grid-cols-2 gap-2">
+          {t.boxShadowTips.map(tip => <InfoCard key={tip.title} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function CSSPage() {
@@ -1679,6 +1952,8 @@ export default function CSSPage() {
   const TABS = [
     { id: "flex" as Tab,        label: "Flexbox",    icon: <Layers size={16} />,     desc: t.flexDesc,        color: "blue"    },
     { id: "grid" as Tab,        label: "Grid",       icon: <LayoutGrid size={16} />, desc: t.gridDesc,        color: "purple"  },
+    { id: "display" as Tab,     label: "Display",    icon: <Monitor size={16} />,    desc: t.displayDesc,     color: "emerald" },
+    { id: "boxshadow" as Tab,   label: "Box Shadow", icon: <Square size={16} />,     desc: t.boxShadowDesc,   color: "pink"    },
     { id: "animation" as Tab,   label: "Animation",  icon: <Sparkles size={16} />,   desc: t.animDesc,        color: "yellow"  },
     { id: "boxmodel" as Tab,    label: "Box Model",  icon: <Square size={16} />,     desc: t.boxDesc,         color: "orange"  },
     { id: "position" as Tab,    label: "Position",   icon: <MapPin size={16} />,     desc: t.posDesc,         color: "emerald" },
@@ -1751,6 +2026,8 @@ export default function CSSPage() {
           <motion.div key={tab} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-4}} transition={{duration:0.2}}>
             {tab === "flex"        && <FlexSection t={t} />}
             {tab === "grid"        && <GridSection t={t} />}
+            {tab === "display"     && <DisplaySection t={t} />}
+            {tab === "boxshadow"   && <BoxShadowSection t={t} />}
             {tab === "animation"   && <AnimSection t={t} />}
             {tab === "boxmodel"    && <BoxModelSection t={t} />}
             {tab === "position"    && <PositionSection t={t} />}
