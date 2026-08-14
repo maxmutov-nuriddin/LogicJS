@@ -136,17 +136,49 @@ type FW = "nowrap" | "wrap" | "wrap-reverse";
 interface FlexState { dir: FD; jc: JC; ai: AI; fw: FW; gap: number }
 
 
-const BOX_COLORS = [
-  { bg: "#3b82f6", label: "A", w: 56, h: 56 },
-  { bg: "#a855f7", label: "B", w: 80, h: 72 },
-  { bg: "#10b981", label: "C", w: 56, h: 48 },
-  { bg: "#f97316", label: "D", w: 96, h: 48 },
-  { bg: "#ec4899", label: "E", w: 64, h: 64 },
-];
+interface FlexItem {
+  id: string;
+  label: string;
+  bg: string;
+  w: number;
+  h: number;
+  flexGrow: number;
+  flexShrink: number;
+  alignSelf: "auto" | "flex-start" | "center" | "flex-end" | "stretch";
+}
 
 function FlexSection({ t }: { t: CSSTranslations }) {
   const [s, setS] = useState<FlexState>({ dir: "row", jc: "flex-start", ai: "flex-start", fw: "nowrap", gap: 8 });
   const [explain, setExplain] = useState("row");
+  const [items, setItems] = useState<FlexItem[]>([
+    { id: "1", label: "A", bg: "#3b82f6", w: 56, h: 56, flexGrow: 0, flexShrink: 1, alignSelf: "auto" },
+    { id: "2", label: "B", bg: "#a855f7", w: 80, h: 72, flexGrow: 0, flexShrink: 1, alignSelf: "auto" },
+    { id: "3", label: "C", bg: "#10b981", w: 56, h: 48, flexGrow: 0, flexShrink: 1, alignSelf: "auto" },
+    { id: "4", label: "D", bg: "#f97316", w: 96, h: 48, flexGrow: 0, flexShrink: 1, alignSelf: "auto" },
+    { id: "5", label: "E", bg: "#ec4899", w: 64, h: 64, flexGrow: 0, flexShrink: 1, alignSelf: "auto" },
+  ]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const addItem = () => {
+    const nextLabel = String.fromCharCode(65 + (items.length % 26));
+    const colors = ["#3b82f6", "#a855f7", "#10b981", "#f97316", "#ec4899", "#eab308", "#06b6d4", "#f43f5e"];
+    const nextColor = colors[items.length % colors.length];
+    const newId = Math.random().toString(36).substr(2, 9);
+    const w = 56 + (items.length % 4) * 8;
+    const h = 56 + (items.length % 3) * 8;
+    setItems([...items, { id: newId, label: nextLabel, bg: nextColor, w, h, flexGrow: 0, flexShrink: 1, alignSelf: "auto" }]);
+  };
+
+  const removeItem = (id: string) => {
+    setItems(items.filter(item => item.id !== id));
+    if (selectedId === id) setSelectedId(null);
+  };
+
+  const updateItem = (id: string, patch: Partial<FlexItem>) => {
+    setItems(items.map(item => item.id === id ? { ...item, ...patch } : item));
+  };
+
+  const selectedItem = items.find(item => item.id === selectedId);
 
   const set = <K extends keyof FlexState>(k: K, v: FlexState[K], e: string) => { setS(p => ({ ...p, [k]: v })); setExplain(e); };
 
@@ -162,6 +194,21 @@ function FlexSection({ t }: { t: CSSTranslations }) {
     `  gap: ${s.gap}px;`,
     "}",
   ];
+
+  items.forEach(item => {
+    const hasGrow = item.flexGrow !== 0;
+    const hasShrink = item.flexShrink !== 1;
+    const hasAlign = item.alignSelf !== "auto";
+    
+    if (hasGrow || hasShrink || hasAlign) {
+      css.push("");
+      css.push(`.item-${item.label} {`);
+      if (hasGrow) css.push(`  flex-grow: ${item.flexGrow};`);
+      if (hasShrink) css.push(`  flex-shrink: ${item.flexShrink};`);
+      if (hasAlign) css.push(`  align-self: ${item.alignSelf};`);
+      css.push("}");
+    }
+  });
 
   const containerStyle: CSSProperties = {
     display: "flex", flexDirection: s.dir, justifyContent: s.jc,
@@ -205,6 +252,57 @@ function FlexSection({ t }: { t: CSSTranslations }) {
           ))}
         </CtrlGroup>
 
+        {selectedItem && (
+          <div className="border border-blue-500/30 bg-blue-500/5 rounded-xl p-3.5 flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-mono font-bold text-blue-400 uppercase tracking-wider">
+                Tanlangan element: {selectedItem.label}
+              </span>
+              <button
+                onClick={() => removeItem(selectedItem.id)}
+                className="text-[10px] px-2 py-1 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-semibold font-mono transition-colors"
+              >
+                O'chirish
+              </button>
+            </div>
+            
+            <div className="flex flex-col gap-2">
+              <div>
+                <p className="text-[9px] font-mono text-gray-500 mb-1">flex-grow</p>
+                <div className="flex gap-1.5">
+                  {[0, 1, 2, 3].map(v => (
+                    <PropBtn key={v} active={selectedItem.flexGrow === v} color="blue" onClick={() => updateItem(selectedItem.id, { flexGrow: v })}>
+                      {v}
+                    </PropBtn>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-[9px] font-mono text-gray-500 mb-1">flex-shrink</p>
+                <div className="flex gap-1.5">
+                  {[0, 1, 2].map(v => (
+                    <PropBtn key={v} active={selectedItem.flexShrink === v} color="blue" onClick={() => updateItem(selectedItem.id, { flexShrink: v })}>
+                      {v}
+                    </PropBtn>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-[9px] font-mono text-gray-500 mb-1">align-self</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {(["auto", "flex-start", "center", "flex-end", "stretch"] as const).map(v => (
+                    <PropBtn key={v} active={selectedItem.alignSelf === v} color="blue" onClick={() => updateItem(selectedItem.id, { alignSelf: v })}>
+                      {v}
+                    </PropBtn>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <CSSCode lines={css} />
       </div>
 
@@ -226,28 +324,48 @@ function FlexSection({ t }: { t: CSSTranslations }) {
         <div className="rounded-2xl border border-border bg-surface p-5 flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">.container — live preview</span>
+            <button
+              onClick={addItem}
+              className="text-[10px] px-2.5 py-1 rounded bg-blue-500/15 border border-blue-500/30 text-blue-300 hover:bg-blue-500/25 transition-colors font-mono ml-2 font-semibold"
+            >
+              + Element qo'shish
+            </button>
             <span className="ml-auto text-[10px] text-gray-700 font-mono">display: flex</span>
           </div>
 
           <div className="rounded-xl border-2 border-dashed border-border bg-[#0d1117] overflow-hidden"
                style={{ height: isCol ? 420 : 200 }}>
             <div style={containerStyle} className="p-3 h-full w-full">
-              {BOX_COLORS.map((box, i) => (
+              {items.map((box, i) => (
                 <motion.div
-                  key={box.label}
+                  key={box.id}
                   layout
                   transition={{ type: "spring", stiffness: 350, damping: 28 }}
-                  className="rounded-xl flex items-center justify-center font-mono font-black text-white text-base select-none border border-white/20"
+                  className={`rounded-xl flex items-center justify-center font-mono font-black text-white text-base select-none border relative group cursor-pointer ${
+                    selectedId === box.id ? "border-blue-400 ring-2 ring-blue-400/50" : "border-white/20"
+                  }`}
                   style={{
                     background: box.bg + "cc",
                     minWidth: isCol ? undefined : box.w,
                     minHeight: isCol ? 44 : box.h,
                     width: isCol ? "100%" : box.w,
                     height: s.ai === "stretch" ? undefined : (isCol ? box.h : box.h),
-                    flexShrink: s.fw === "nowrap" ? 1 : 0,
+                    flexGrow: box.flexGrow,
+                    flexShrink: s.fw === "nowrap" ? box.flexShrink : 0,
+                    alignSelf: box.alignSelf === "auto" ? undefined : box.alignSelf,
                   }}
+                  onClick={() => setSelectedId(box.id === selectedId ? null : box.id)}
                 >
                   {box.label}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeItem(box.id);
+                    }}
+                    className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-rose-500 text-[10px] flex items-center justify-center cursor-pointer text-white font-bold opacity-0 group-hover:opacity-100 hover:scale-110 transition-all shadow-md"
+                  >
+                    ×
+                  </button>
                 </motion.div>
               ))}
             </div>
@@ -284,22 +402,56 @@ function FlexSection({ t }: { t: CSSTranslations }) {
   );
 }
 
-// ─── GRID SECTION ─────────────────────────────────────────────────────────────
-
 interface GridState { cols: number; rows: number; gap: number; ji: string; ai: string; spanIdx: number | null }
-
 
 const GRID_COLORS = [
   "#3b82f6","#a855f7","#10b981","#f97316","#ec4899","#eab308","#06b6d4","#f43f5e"
 ];
 
+interface GridItem {
+  id: string;
+  label: string;
+  bg: string;
+  gridColumn: string;
+  gridRow: string;
+  justifySelf: "auto" | "start" | "center" | "end" | "stretch";
+  alignSelf: "auto" | "start" | "center" | "end" | "stretch";
+}
+
 function GridSection({ t }: { t: CSSTranslations }) {
   const [s, setS] = useState<GridState>({ cols: 3, rows: 0, gap: 16, ji: "stretch", ai: "stretch", spanIdx: null });
   const [explain, setExplain] = useState("3col");
+  const [items, setItems] = useState<GridItem[]>([
+    { id: "1", label: "1", bg: GRID_COLORS[0], gridColumn: "auto", gridRow: "auto", justifySelf: "stretch", alignSelf: "stretch" },
+    { id: "2", label: "2", bg: GRID_COLORS[1], gridColumn: "auto", gridRow: "auto", justifySelf: "stretch", alignSelf: "stretch" },
+    { id: "3", label: "3", bg: GRID_COLORS[2], gridColumn: "auto", gridRow: "auto", justifySelf: "stretch", alignSelf: "stretch" },
+    { id: "4", label: "4", bg: GRID_COLORS[3], gridColumn: "auto", gridRow: "auto", justifySelf: "stretch", alignSelf: "stretch" },
+    { id: "5", label: "5", bg: GRID_COLORS[4], gridColumn: "auto", gridRow: "auto", justifySelf: "stretch", alignSelf: "stretch" },
+    { id: "6", label: "6", bg: GRID_COLORS[5], gridColumn: "auto", gridRow: "auto", justifySelf: "stretch", alignSelf: "stretch" },
+    { id: "7", label: "7", bg: GRID_COLORS[6], gridColumn: "auto", gridRow: "auto", justifySelf: "stretch", alignSelf: "stretch" },
+    { id: "8", label: "8", bg: GRID_COLORS[7], gridColumn: "auto", gridRow: "auto", justifySelf: "stretch", alignSelf: "stretch" },
+  ]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const addItem = () => {
+    const nextNum = items.length > 0 ? Math.max(...items.map(item => parseInt(item.label) || 0)) + 1 : 1;
+    const nextColor = GRID_COLORS[items.length % GRID_COLORS.length];
+    const newId = Math.random().toString(36).substr(2, 9);
+    setItems([...items, { id: newId, label: String(nextNum), bg: nextColor, gridColumn: "auto", gridRow: "auto", justifySelf: "stretch", alignSelf: "stretch" }]);
+  };
+
+  const removeItem = (id: string) => {
+    setItems(items.filter(item => item.id !== id));
+    if (selectedId === id) setSelectedId(null);
+  };
+
+  const updateItem = (id: string, patch: Partial<GridItem>) => {
+    setItems(items.map(item => item.id === id ? { ...item, ...patch } : item));
+  };
+
+  const selectedItem = items.find(item => item.id === selectedId);
 
   const upd = <K extends keyof GridState>(k: K, v: GridState[K], e: string) => { setS(p => ({...p,[k]:v})); setExplain(e); };
-
-  const cells = Array.from({ length: 8 }, (_, i) => ({ id: i, label: String(i+1) }));
 
   const css = [
     ".grid-container {",
@@ -309,12 +461,31 @@ function GridSection({ t }: { t: CSSTranslations }) {
     `  justify-items: ${s.ji};`,
     `  align-items: ${s.ai};`,
     "}",
-    "",
-    s.spanIdx !== null ? `/* .item-${s.spanIdx! + 1} */` : "/* span: emas */",
-    s.spanIdx !== null ? `.item-${s.spanIdx! + 1} {` : "/* hech bir element */",
-    s.spanIdx !== null ? "  grid-column: span 2;" : "/* span ishlatilmagan */",
-    s.spanIdx !== null ? "}" : "",
-  ].filter((l,i,a) => !(l === "" && a[i-1] === ""));
+  ];
+
+  if (s.spanIdx !== null) {
+    css.push("");
+    css.push(`.item-${s.spanIdx + 1} {`);
+    css.push("  grid-column: span 2;");
+    css.push("}");
+  }
+
+  items.forEach(item => {
+    const hasCol = item.gridColumn !== "auto";
+    const hasRow = item.gridRow !== "auto";
+    const hasJustify = item.justifySelf !== "stretch" && item.justifySelf !== "auto";
+    const hasAlign = item.alignSelf !== "stretch" && item.alignSelf !== "auto";
+    
+    if (hasCol || hasRow || hasJustify || hasAlign) {
+      css.push("");
+      css.push(`.item-${item.label} {`);
+      if (hasCol) css.push(`  grid-column: ${item.gridColumn};`);
+      if (hasRow) css.push(`  grid-row: ${item.gridRow};`);
+      if (hasJustify) css.push(`  justify-self: ${item.justifySelf};`);
+      if (hasAlign) css.push(`  align-self: ${item.alignSelf};`);
+      css.push("}");
+    }
+  });
 
   return (
     <div className="flex flex-col xl:flex-row gap-6">
@@ -348,12 +519,74 @@ function GridSection({ t }: { t: CSSTranslations }) {
 
         <CtrlGroup title="grid-column: span 2 (bitta element)" color="pink">
           <PropBtn active={s.spanIdx===null} color="pink" onClick={()=>upd("spanIdx",null,"span-none")}>Yo'q</PropBtn>
-          {cells.slice(0,4).map(c => (
-            <PropBtn key={c.id} active={s.spanIdx===c.id} color="pink" onClick={()=>upd("spanIdx",c.id,`span2`)}>
+          {items.slice(0,4).map((c, i) => (
+            <PropBtn key={c.id} active={s.spanIdx===i} color="pink" onClick={()=>upd("spanIdx",i,`span2`)}>
               {c.label}-element
             </PropBtn>
           ))}
         </CtrlGroup>
+
+        {selectedItem && (
+          <div className="border border-purple-500/30 bg-purple-500/5 rounded-xl p-3.5 flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-mono font-bold text-purple-400 uppercase tracking-wider">
+                Tanlangan element: {selectedItem.label}
+              </span>
+              <button
+                onClick={() => removeItem(selectedItem.id)}
+                className="text-[10px] px-2 py-1 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-semibold font-mono transition-colors"
+              >
+                O'chirish
+              </button>
+            </div>
+            
+            <div className="flex flex-col gap-2">
+              <div>
+                <p className="text-[9px] font-mono text-gray-500 mb-1">grid-column</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {["auto", "span 2", "span 3", "1 / 3", "2 / 4"].map(v => (
+                    <PropBtn key={v} active={selectedItem.gridColumn === v} color="purple" onClick={() => updateItem(selectedItem.id, { gridColumn: v })}>
+                      {v}
+                    </PropBtn>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-[9px] font-mono text-gray-500 mb-1">grid-row</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {["auto", "span 2", "span 3", "1 / 3", "2 / 4"].map(v => (
+                    <PropBtn key={v} active={selectedItem.gridRow === v} color="purple" onClick={() => updateItem(selectedItem.id, { gridRow: v })}>
+                      {v}
+                    </PropBtn>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-[9px] font-mono text-gray-500 mb-1">justify-self</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {(["auto", "start", "center", "end", "stretch"] as const).map(v => (
+                    <PropBtn key={v} active={selectedItem.justifySelf === v} color="purple" onClick={() => updateItem(selectedItem.id, { justifySelf: v })}>
+                      {v}
+                    </PropBtn>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-[9px] font-mono text-gray-500 mb-1">align-self</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {(["auto", "start", "center", "end", "stretch"] as const).map(v => (
+                    <PropBtn key={v} active={selectedItem.alignSelf === v} color="purple" onClick={() => updateItem(selectedItem.id, { alignSelf: v })}>
+                      {v}
+                    </PropBtn>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <CSSCode lines={css} />
       </div>
@@ -375,30 +608,65 @@ function GridSection({ t }: { t: CSSTranslations }) {
         <div className="rounded-2xl border border-border bg-surface p-5 flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">.grid-container — live preview</span>
+            <button
+              onClick={addItem}
+              className="text-[10px] px-2.5 py-1 rounded bg-purple-500/15 border border-purple-500/30 text-purple-300 hover:bg-purple-500/25 transition-colors font-mono ml-2 font-semibold"
+            >
+              + Element qo'shish
+            </button>
             <span className="ml-auto text-[10px] text-gray-700 font-mono">display: grid</span>
           </div>
 
           <div className="rounded-xl border-2 border-dashed border-border bg-[#0d1117] p-3 min-h-[200px]">
             <div style={{ display:"grid", gridTemplateColumns:`repeat(${s.cols},1fr)`, gap:s.gap, justifyItems:s.ji, alignItems:s.ai }}>
-              {cells.map((cell, i) => (
-                <motion.div
-                  key={cell.id}
-                  layout
-                  transition={{ type: "spring", stiffness: 350, damping: 28 }}
-                  className="rounded-xl flex items-center justify-center font-mono font-black text-white text-base border border-white/15 select-none"
-                  style={{
-                    background: GRID_COLORS[i % GRID_COLORS.length] + "bb",
-                    height: s.ai === "stretch" ? 72 : 56,
-                    gridColumn: s.spanIdx === i ? "span 2" : undefined,
-                    width: s.ji === "stretch" ? "100%" : s.ji === "center" ? 64 : s.ji === "start" ? 64 : 64,
-                  }}
-                >
-                  {cell.label}
-                  {s.spanIdx === i && (
-                    <span className="ml-1 text-[10px] bg-white/20 rounded px-1">span 2</span>
-                  )}
-                </motion.div>
-              ))}
+              {items.map((cell, i) => {
+                const isGlobalSpan = s.spanIdx === i;
+                const gridColumn = cell.gridColumn !== "auto" 
+                  ? cell.gridColumn 
+                  : (isGlobalSpan ? "span 2" : undefined);
+                const gridRow = cell.gridRow !== "auto" ? cell.gridRow : undefined;
+                const justifySelf = cell.justifySelf !== "auto" ? cell.justifySelf : undefined;
+                const alignSelf = cell.alignSelf !== "auto" ? cell.alignSelf : undefined;
+
+                return (
+                  <motion.div
+                    key={cell.id}
+                    layout
+                    transition={{ type: "spring", stiffness: 350, damping: 28 }}
+                    className={`rounded-xl flex flex-col items-center justify-center font-mono font-black text-white text-base border relative group cursor-pointer ${
+                      selectedId === cell.id ? "border-purple-400 ring-2 ring-purple-400/50" : "border-white/15"
+                    }`}
+                    style={{
+                      background: cell.bg + "bb",
+                      height: s.ai === "stretch" && alignSelf !== "start" && alignSelf !== "center" && alignSelf !== "end" ? 72 : 56,
+                      gridColumn,
+                      gridRow,
+                      justifySelf,
+                      alignSelf,
+                      width: s.ji === "stretch" && justifySelf !== "start" && justifySelf !== "center" && justifySelf !== "end" ? "100%" : 64,
+                    }}
+                    onClick={() => setSelectedId(cell.id === selectedId ? null : cell.id)}
+                  >
+                    <span>{cell.label}</span>
+                    {isGlobalSpan && cell.gridColumn === "auto" && (
+                      <span className="text-[8px] bg-white/20 rounded px-1 mt-0.5">span 2 (global)</span>
+                    )}
+                    {cell.gridColumn !== "auto" && (
+                      <span className="text-[8px] bg-white/20 rounded px-1 mt-0.5">{cell.gridColumn}</span>
+                    )}
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeItem(cell.id);
+                      }}
+                      className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-rose-500 text-[10px] flex items-center justify-center cursor-pointer text-white font-bold opacity-0 group-hover:opacity-100 hover:scale-110 transition-all shadow-md"
+                    >
+                      ×
+                    </button>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </div>
