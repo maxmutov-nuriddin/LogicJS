@@ -12,6 +12,87 @@ import { CSS_UI, type CSSTranslations } from "@/lib/i18n/css";
 
 type Tab = "flex" | "grid" | "animation" | "boxmodel" | "position" | "transition" | "responsive" | "display" | "boxshadow";
 
+const LOCAL_TEXTS: Record<string, Record<string, string>> = {
+  uz: {
+    selectedItem: "Tanlangan element",
+    delete: "O'chirish",
+    addItem: "+ Element qo'shish",
+    none: "Yo'q",
+    element: "element",
+    active: "Faol (12px / 8px)",
+    inactive: "Faolsiz (0px)",
+    autoContent: "auto",
+    flowStart: "oqim boshlanishi",
+    flowEnd: "oqim yakuni",
+    outer: "tashqi",
+    inset: "ichki",
+    ustun: "ustun",
+    livePreview: "jonli ko'rinish",
+    displayPreview: "display ko'rinishi",
+    shadowPreview: "soya ko'rinishi",
+    el1: "1-element",
+    el2: "2-element",
+    el3: "3-element",
+    colorBlack: "black",
+    colorBlue: "blue",
+    colorPurple: "purple",
+    colorPink: "pink",
+    boxLabel: "Box",
+  },
+  en: {
+    selectedItem: "Selected item",
+    delete: "Delete",
+    addItem: "+ Add Element",
+    none: "None",
+    element: "element",
+    active: "Active (12px / 8px)",
+    inactive: "Inactive (0px)",
+    autoContent: "auto",
+    flowStart: "flow start",
+    flowEnd: "flow end",
+    outer: "outer",
+    inset: "inset",
+    ustun: "column",
+    livePreview: "live preview",
+    displayPreview: "display preview",
+    shadowPreview: "shadow preview",
+    el1: "1-element",
+    el2: "2-element",
+    el3: "3-element",
+    colorBlack: "black",
+    colorBlue: "blue",
+    colorPurple: "purple",
+    colorPink: "pink",
+    boxLabel: "Box",
+  },
+  ru: {
+    selectedItem: "Выбранный элемент",
+    delete: "Удалить",
+    addItem: "+ Добавить элемент",
+    none: "Нет",
+    element: "элемент",
+    active: "Активно (12px / 8px)",
+    inactive: "Неактивно (0px)",
+    autoContent: "auto",
+    flowStart: "начало потока",
+    flowEnd: "конец потока",
+    outer: "внешняя",
+    inset: "внутренняя",
+    ustun: "колонка",
+    livePreview: "живой просмотр",
+    displayPreview: "предпросмотр display",
+    shadowPreview: "предпросмотр тени",
+    el1: "1-element",
+    el2: "2-element",
+    el3: "3-element",
+    colorBlack: "black",
+    colorBlue: "blue",
+    colorPurple: "purple",
+    colorPink: "pink",
+    boxLabel: "Box",
+  }
+};
+
 // ─── Shared UI components ────────────────────────────────────────────────────
 
 const COLOR_MAP = {
@@ -61,6 +142,7 @@ function parseCSSLines(raw: string[]): CSSLine[][] {
     if (t.startsWith("/*")) return [{ type: "comment", text: line }];
     if (t.startsWith("@keyframes") || t.startsWith("@")) return [{ type: "at", text: line }];
     if (t === "{" || t === "}" || t.endsWith("{")) {
+      if (t === "}") return [{ type: "bracket", text: line }];
       const sel = t.replace("{", "").trim();
       if (sel) return [{ type: "selector", text: line.replace("{", "").replace(/\S.*$/, m => m) }, { type: "bracket", text: " {" }];
       return [{ type: "bracket", text: line }];
@@ -147,7 +229,8 @@ interface FlexItem {
   alignSelf: "auto" | "flex-start" | "center" | "flex-end" | "stretch";
 }
 
-function FlexSection({ t }: { t: CSSTranslations }) {
+function FlexSection({ t, lang }: { t: CSSTranslations; lang: string }) {
+  const lt = LOCAL_TEXTS[lang] || LOCAL_TEXTS.uz;
   const [s, setS] = useState<FlexState>({ dir: "row", jc: "flex-start", ai: "flex-start", fw: "nowrap", gap: 8 });
   const [explain, setExplain] = useState("row");
   const [items, setItems] = useState<FlexItem[]>([
@@ -256,13 +339,13 @@ function FlexSection({ t }: { t: CSSTranslations }) {
           <div className="border border-blue-500/30 bg-blue-500/5 rounded-xl p-3.5 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-mono font-bold text-blue-400 uppercase tracking-wider">
-                Tanlangan element: {selectedItem.label}
+                {lt.selectedItem}: {selectedItem.label}
               </span>
               <button
                 onClick={() => removeItem(selectedItem.id)}
                 className="text-[10px] px-2 py-1 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-semibold font-mono transition-colors"
               >
-                O'chirish
+                {lt.delete}
               </button>
             </div>
             
@@ -323,12 +406,12 @@ function FlexSection({ t }: { t: CSSTranslations }) {
         {/* Live preview */}
         <div className="rounded-2xl border border-border bg-surface p-5 flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">.container — live preview</span>
+            <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">.container — {lt.livePreview}</span>
             <button
               onClick={addItem}
               className="text-[10px] px-2.5 py-1 rounded bg-blue-500/15 border border-blue-500/30 text-blue-300 hover:bg-blue-500/25 transition-colors font-mono ml-2 font-semibold"
             >
-              + Element qo'shish
+              {lt.addItem}
             </button>
             <span className="ml-auto text-[10px] text-gray-700 font-mono">display: flex</span>
           </div>
@@ -418,7 +501,8 @@ interface GridItem {
   alignSelf: "auto" | "start" | "center" | "end" | "stretch";
 }
 
-function GridSection({ t }: { t: CSSTranslations }) {
+function GridSection({ t, lang }: { t: CSSTranslations; lang: string }) {
+  const lt = LOCAL_TEXTS[lang] || LOCAL_TEXTS.uz;
   const [s, setS] = useState<GridState>({ cols: 3, rows: 0, gap: 16, ji: "stretch", ai: "stretch", spanIdx: null });
   const [explain, setExplain] = useState("3col");
   const [items, setItems] = useState<GridItem[]>([
@@ -494,7 +578,7 @@ function GridSection({ t }: { t: CSSTranslations }) {
         <CtrlGroup title="grid-template-columns" color="blue">
           {[1,2,3,4].map(v => (
             <PropBtn key={v} active={s.cols===v} color="blue" onClick={()=>upd("cols",v,`${v}col`)}>
-              {v} ustun{v===1?" (1fr)":v===2?" (2x)":v===3?" (3x)":" (4x)"}
+              {v} {lt.ustun}{v===1?" (1fr)":v===2?" (2x)":v===3?" (3x)":" (4x)"}
             </PropBtn>
           ))}
         </CtrlGroup>
@@ -518,7 +602,7 @@ function GridSection({ t }: { t: CSSTranslations }) {
         </CtrlGroup>
 
         <CtrlGroup title="grid-column: span 2 (bitta element)" color="pink">
-          <PropBtn active={s.spanIdx===null} color="pink" onClick={()=>upd("spanIdx",null,"span-none")}>Yo'q</PropBtn>
+          <PropBtn active={s.spanIdx===null} color="pink" onClick={()=>upd("spanIdx",null,"span-none")}>{lt.none}</PropBtn>
           {items.slice(0,4).map((c, i) => (
             <PropBtn key={c.id} active={s.spanIdx===i} color="pink" onClick={()=>upd("spanIdx",i,`span2`)}>
               {c.label}-element
@@ -530,13 +614,13 @@ function GridSection({ t }: { t: CSSTranslations }) {
           <div className="border border-purple-500/30 bg-purple-500/5 rounded-xl p-3.5 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-mono font-bold text-purple-400 uppercase tracking-wider">
-                Tanlangan element: {selectedItem.label}
+                {lt.selectedItem}: {selectedItem.label}
               </span>
               <button
                 onClick={() => removeItem(selectedItem.id)}
                 className="text-[10px] px-2 py-1 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-semibold font-mono transition-colors"
               >
-                O'chirish
+                {lt.delete}
               </button>
             </div>
             
@@ -607,12 +691,12 @@ function GridSection({ t }: { t: CSSTranslations }) {
         {/* Grid preview */}
         <div className="rounded-2xl border border-border bg-surface p-5 flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">.grid-container — live preview</span>
+            <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">.grid-container — {lt.livePreview}</span>
             <button
               onClick={addItem}
               className="text-[10px] px-2.5 py-1 rounded bg-purple-500/15 border border-purple-500/30 text-purple-300 hover:bg-purple-500/25 transition-colors font-mono ml-2 font-semibold"
             >
-              + Element qo'shish
+              {lt.addItem}
             </button>
             <span className="ml-auto text-[10px] text-gray-700 font-mono">display: grid</span>
           </div>
@@ -1677,7 +1761,8 @@ interface DisplayState {
   hasSpacing: boolean;
 }
 
-function DisplaySection({ t }: { t: CSSTranslations }) {
+function DisplaySection({ t, lang }: { t: CSSTranslations; lang: string }) {
+  const lt = LOCAL_TEXTS[lang] || LOCAL_TEXTS.uz;
   const [s, setS] = useState<DisplayState>({ display: "block", hasSize: true, hasSpacing: true });
   const [explain, setExplain] = useState("block");
 
@@ -1710,21 +1795,21 @@ function DisplaySection({ t }: { t: CSSTranslations }) {
           ))}
         </CtrlGroup>
 
-        <CtrlGroup title="o'lchamlar (width / height)" color="blue">
+        <CtrlGroup title="dimensions (width / height)" color="blue">
           <PropBtn active={s.hasSize} color="blue" onClick={() => upd({ hasSize: true }, s.display)}>
             110px × 50px
           </PropBtn>
           <PropBtn active={!s.hasSize} color="blue" onClick={() => upd({ hasSize: false }, s.display)}>
-            auto (content)
+            {lt.autoContent}
           </PropBtn>
         </CtrlGroup>
 
-        <CtrlGroup title="bo'shliqlar (margin / padding)" color="orange">
+        <CtrlGroup title="margin / padding" color="orange">
           <PropBtn active={s.hasSpacing} color="orange" onClick={() => upd({ hasSpacing: true }, s.display)}>
-            Faol (12px / 8px)
+            {lt.active}
           </PropBtn>
           <PropBtn active={!s.hasSpacing} color="orange" onClick={() => upd({ hasSpacing: false }, s.display)}>
-            Faolsiz (0px)
+            {lt.inactive}
           </PropBtn>
         </CtrlGroup>
 
@@ -1747,11 +1832,11 @@ function DisplaySection({ t }: { t: CSSTranslations }) {
         {/* Live preview */}
         <div className="rounded-2xl border border-border bg-surface p-5 flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">display preview</span>
+            <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">{lt.displayPreview}</span>
           </div>
 
           <div className="rounded-xl bg-[#0d1117] border border-border flex flex-col justify-center min-h-[220px] p-4">
-            <div className="text-[10px] text-gray-600 font-mono mb-2">oqim boshlanishi (flow start)</div>
+            <div className="text-[10px] text-gray-600 font-mono mb-2">{lt.flowStart}</div>
             
             <motion.div
               layout
@@ -1764,7 +1849,7 @@ function DisplaySection({ t }: { t: CSSTranslations }) {
                 transition={{ type: "spring", stiffness: 350, damping: 28 }}
                 className="inline-block bg-blue-500/80 border border-white/10 text-white rounded-lg text-xs font-mono font-bold px-3 py-2 mr-2"
               >
-                1-element
+                {lt.el1}
               </motion.div>
 
               {/* Element 2 (Target) */}
@@ -1785,7 +1870,7 @@ function DisplaySection({ t }: { t: CSSTranslations }) {
                     }}
                     className="bg-emerald-500/90 border border-white/20 text-white rounded-lg text-xs font-mono font-bold items-center justify-center inline-flex"
                   >
-                    <span className="text-center w-full">2-element ({s.display})</span>
+                  <span className="text-center w-full">{lt.el2} ({s.display})</span>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -1796,11 +1881,11 @@ function DisplaySection({ t }: { t: CSSTranslations }) {
                 transition={{ type: "spring", stiffness: 350, damping: 28 }}
                 className="inline-block bg-purple-500/80 border border-white/10 text-white rounded-lg text-xs font-mono font-bold px-3 py-2 ml-2"
               >
-                3-element
+                {lt.el3}
               </motion.div>
             </motion.div>
 
-            <div className="text-[10px] text-gray-600 font-mono mt-2">oqim yakuni (flow end)</div>
+            <div className="text-[10px] text-gray-600 font-mono mt-2">{lt.flowEnd}</div>
           </div>
         </div>
 
@@ -1825,7 +1910,8 @@ interface BoxShadowState {
   inset: boolean;
 }
 
-function BoxShadowSection({ t }: { t: CSSTranslations }) {
+function BoxShadowSection({ t, lang }: { t: CSSTranslations; lang: string }) {
+  const lt = LOCAL_TEXTS[lang] || LOCAL_TEXTS.uz;
   const [s, setS] = useState<BoxShadowState>({
     h: 8,
     v: 8,
@@ -1882,18 +1968,18 @@ function BoxShadowSection({ t }: { t: CSSTranslations }) {
 
         <CtrlGroup title="shadow color" color="pink">
           {[
-            { name: "black", val: "rgba(0, 0, 0, 0.55)" },
-            { name: "blue", val: "rgba(59, 130, 246, 0.55)" },
-            { name: "purple", val: "rgba(168, 85, 247, 0.55)" },
-            { name: "pink", val: "rgba(236, 72, 153, 0.55)" },
+            { key: "black",  name: lt.colorBlack,  val: "rgba(0, 0, 0, 0.55)" },
+            { key: "blue",   name: lt.colorBlue,   val: "rgba(59, 130, 246, 0.55)" },
+            { key: "purple", name: lt.colorPurple, val: "rgba(168, 85, 247, 0.55)" },
+            { key: "pink",   name: lt.colorPink,   val: "rgba(236, 72, 153, 0.55)" },
           ].map(c => (
-            <PropBtn key={c.name} active={s.colorName === c.name} color="pink" onClick={() => upd({ color: c.val, colorName: c.name })}>{c.name}</PropBtn>
+            <PropBtn key={c.key} active={s.colorName === c.key} color="pink" onClick={() => upd({ color: c.val, colorName: c.key })}>{c.name}</PropBtn>
           ))}
         </CtrlGroup>
 
-        <CtrlGroup title="shadow style (inset)" color="yellow">
-          <PropBtn active={!s.inset} color="yellow" onClick={() => upd({ inset: false })}>tashqi (outer)</PropBtn>
-          <PropBtn active={s.inset} color="yellow" onClick={() => upd({ inset: true })}>ichki (inset)</PropBtn>
+        <CtrlGroup title="inset" color="yellow">
+          <PropBtn active={!s.inset} color="yellow" onClick={() => upd({ inset: false })}>{lt.outer}</PropBtn>
+          <PropBtn active={s.inset} color="yellow" onClick={() => upd({ inset: true })}>{lt.inset}</PropBtn>
         </CtrlGroup>
 
         <CSSCode lines={css} />
@@ -1912,7 +1998,7 @@ function BoxShadowSection({ t }: { t: CSSTranslations }) {
         {/* Live preview */}
         <div className="rounded-2xl border border-border bg-surface p-5 flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">shadow live preview</span>
+            <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">{lt.shadowPreview}</span>
           </div>
 
           <div className="rounded-xl bg-[#0d1117] border border-border flex items-center justify-center overflow-hidden p-6" style={{ minHeight: 260 }}>
@@ -1928,7 +2014,7 @@ function BoxShadowSection({ t }: { t: CSSTranslations }) {
               }}
               className="flex items-center justify-center text-xs font-mono text-gray-400 font-bold"
             >
-              Box
+              {lt.boxLabel}
             </div>
           </div>
         </div>
@@ -2024,10 +2110,10 @@ export default function CSSPage() {
       <div className="max-w-7xl mx-auto px-4 pb-16">
         <AnimatePresence mode="wait">
           <motion.div key={tab} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-4}} transition={{duration:0.2}}>
-            {tab === "flex"        && <FlexSection t={t} />}
-            {tab === "grid"        && <GridSection t={t} />}
-            {tab === "display"     && <DisplaySection t={t} />}
-            {tab === "boxshadow"   && <BoxShadowSection t={t} />}
+            {tab === "flex"        && <FlexSection t={t} lang={lang} />}
+            {tab === "grid"        && <GridSection t={t} lang={lang} />}
+            {tab === "display"     && <DisplaySection t={t} lang={lang} />}
+            {tab === "boxshadow"   && <BoxShadowSection t={t} lang={lang} />}
             {tab === "animation"   && <AnimSection t={t} />}
             {tab === "boxmodel"    && <BoxModelSection t={t} />}
             {tab === "position"    && <PositionSection t={t} />}
