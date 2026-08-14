@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
   ArrowRight, Code2, Variable, GitBranch, Terminal,
   BookOpen, Layers, LayoutGrid, Sparkles, Zap, Play,
-  ChevronRight, Eye, BarChart3,
+  ChevronRight, Eye, BarChart3, Server,
 } from "lucide-react";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLangStore } from "@/app/playground/store";
@@ -71,38 +71,58 @@ function MiniJSPreview() {
 
 function MiniCSSPreview() {
   const boxes = [
-    { color: "#3b82f6", label: "A", w: 48, h: 48 },
-    { color: "#a855f7", label: "B", w: 64, h: 64 },
-    { color: "#10b981", label: "C", w: 48, h: 40 },
-    { color: "#f97316", label: "D", w: 56, h: 52 },
+    { color: "#3b82f6", label: "A" },
+    { color: "#a855f7", label: "B" },
+    { color: "#10b981", label: "C" },
+    { color: "#f97316", label: "D" },
   ];
   return (
-    <div className="rounded-xl border border-border bg-[#0d1117] overflow-hidden">
-      <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border/50 bg-surface-2/60">
-        <div className="w-2 h-2 rounded-full bg-rose-500/60" />
-        <div className="w-2 h-2 rounded-full bg-yellow-500/60" />
-        <div className="w-2 h-2 rounded-full bg-green-500/60" />
-        <span className="ml-2 text-[10px] text-gray-600">style.css · live preview</span>
-      </div>
-      {/* Flex preview */}
-      <div className="p-3">
-        <div className="flex items-center justify-center gap-2 py-2 rounded-lg border border-dashed border-border/60 bg-surface-2/30">
-          {boxes.map(b => (
+    <div className="flex flex-col gap-2">
+      {/* Live preview */}
+      <div className="rounded-xl border border-border bg-[#0d1117] overflow-hidden">
+        <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border/50 bg-surface-2/60">
+          <div className="w-2 h-2 rounded-full bg-rose-500/60" />
+          <div className="w-2 h-2 rounded-full bg-yellow-500/60" />
+          <div className="w-2 h-2 rounded-full bg-green-500/60" />
+          <span className="ml-2 text-[10px] text-gray-600">live preview</span>
+        </div>
+        <div className="p-3 flex items-end justify-center gap-2 py-4">
+          {boxes.map((b, i) => (
             <motion.div
               key={b.label}
-              animate={{ y: [0, -6, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, delay: boxes.indexOf(b) * 0.3, ease: "easeInOut" }}
-              className="rounded-lg flex items-center justify-center font-mono font-black text-white text-sm border border-white/20"
-              style={{ background: b.color + "cc", width: b.w * 0.7, height: b.h * 0.7 }}
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: 1.8, repeat: Infinity, delay: i * 0.3, ease: "easeInOut" }}
+              className="rounded-lg flex items-center justify-center font-mono font-black text-white text-xs border border-white/20"
+              style={{ background: b.color + "cc", width: 28, height: 28 + i * 6 }}
             >
               {b.label}
             </motion.div>
           ))}
         </div>
-        <div className="mt-2 font-mono text-[10px] text-gray-600 space-y-0.5">
-          <div><span className="text-blue-400">display</span><span className="text-gray-600">: </span><span className="text-orange-300">flex</span><span className="text-gray-600">;</span></div>
-          <div><span className="text-blue-400">justify-content</span><span className="text-gray-600">: </span><span className="text-orange-300">center</span><span className="text-gray-600">;</span></div>
-          <div><span className="text-blue-400">align-items</span><span className="text-gray-600">: </span><span className="text-orange-300">flex-end</span><span className="text-gray-600">;</span></div>
+      </div>
+      {/* CSS + HTML panels */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="rounded-lg border border-border bg-[#0d1117] overflow-hidden">
+          <div className="px-2 py-1 border-b border-border/50 bg-surface-2/40">
+            <span className="text-[9px] text-gray-600 font-mono">style.css</span>
+          </div>
+          <div className="p-2 font-mono text-[9px] space-y-0.5 leading-4">
+            <div><span className="text-purple-400">.box</span><span className="text-gray-600"> {"{ "}</span></div>
+            <div className="pl-2"><span className="text-blue-400">display</span><span className="text-gray-600">: </span><span className="text-orange-300">flex</span><span className="text-gray-600">;</span></div>
+            <div className="pl-2"><span className="text-blue-400">gap</span><span className="text-gray-600">: </span><span className="text-orange-300">8px</span><span className="text-gray-600">;</span></div>
+            <div><span className="text-gray-600">{" }"}</span></div>
+          </div>
+        </div>
+        <div className="rounded-lg border border-border bg-[#0d1117] overflow-hidden">
+          <div className="px-2 py-1 border-b border-border/50 bg-surface-2/40">
+            <span className="text-[9px] text-gray-600 font-mono">index.html</span>
+          </div>
+          <div className="p-2 font-mono text-[9px] space-y-0.5 leading-4">
+            <div><span className="text-blue-400 font-semibold">&lt;div</span><span className="text-yellow-300"> class</span><span className="text-gray-500">=</span><span className="text-orange-300">"box"</span><span className="text-blue-400 font-semibold">&gt;</span></div>
+            <div className="pl-2"><span className="text-blue-400 font-semibold">&lt;div</span><span className="text-blue-400 font-semibold">&gt;</span><span className="text-gray-300">A</span><span className="text-blue-400 font-semibold">&lt;/div&gt;</span></div>
+            <div className="pl-2"><span className="text-blue-400 font-semibold">&lt;div</span><span className="text-blue-400 font-semibold">&gt;</span><span className="text-gray-300">B</span><span className="text-blue-400 font-semibold">&lt;/div&gt;</span></div>
+            <div><span className="text-blue-400 font-semibold">&lt;/div&gt;</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -154,6 +174,62 @@ function MiniPerformancePreview() {
         <div className="flex items-center gap-3 mt-1">
           <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-rose-500/60" /><span className="text-[10px] text-gray-600">ko'p qadam</span></div>
           <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500/80" /><span className="text-[10px] text-gray-600">kam qadam ✓</span></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Mini Backend preview (decorative) ───────────────────────────────────────
+
+function MiniBackendPreview() {
+  const steps = [
+    { label: "Client",   color: "#3b82f6", icon: "🖥️" },
+    { label: "Server",   color: "#10b981", icon: "⚡" },
+    { label: "Database", color: "#a855f7", icon: "🗄️" },
+  ];
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="rounded-xl border border-border bg-[#0d1117] overflow-hidden">
+        <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border/50 bg-surface-2/60">
+          <div className="w-2 h-2 rounded-full bg-rose-500/60" />
+          <div className="w-2 h-2 rounded-full bg-yellow-500/60" />
+          <div className="w-2 h-2 rounded-full bg-green-500/60" />
+          <span className="ml-2 text-[10px] text-gray-600">HTTP flow · live</span>
+        </div>
+        <div className="p-3 flex items-center justify-center gap-2 py-4">
+          {steps.map((s, i) => (
+            <div key={s.label} className="flex items-center gap-1.5">
+              <motion.div
+                animate={{ scale: [1, 1.1, 1], opacity: [0.7, 1, 0.7] }}
+                transition={{ duration: 2, repeat: Infinity, delay: i * 0.6, ease: "easeInOut" }}
+                className="flex flex-col items-center gap-1">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base border border-white/10"
+                  style={{ background: s.color + "22" }}>{s.icon}</div>
+                <span className="text-[9px] text-gray-600">{s.label}</span>
+              </motion.div>
+              {i < steps.length - 1 && (
+                <div className="flex flex-col gap-0.5 mb-3">
+                  <motion.div animate={{ x: [0, 3, 0] }} transition={{ duration: 1, repeat: Infinity, delay: i * 0.4 }}
+                    className="text-[10px] text-emerald-600">→</motion.div>
+                  <motion.div animate={{ x: [0, -3, 0] }} transition={{ duration: 1, repeat: Infinity, delay: i * 0.4 + 0.5 }}
+                    className="text-[10px] text-blue-600">←</motion.div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="rounded-lg border border-border bg-[#0d1117] overflow-hidden">
+        <div className="px-2 py-1 border-b border-border/50 bg-surface-2/40">
+          <span className="text-[9px] text-gray-600 font-mono">server.js</span>
+        </div>
+        <div className="p-2 font-mono text-[9px] space-y-0.5 leading-4">
+          <div><span className="text-blue-400 font-semibold">const</span><span className="text-gray-300"> app </span><span className="text-gray-500">= express();</span></div>
+          <div><span className="text-gray-500">app.</span><span className="text-yellow-300">get</span><span className="text-gray-500">{'(\'/api/users\', '}</span><span className="text-blue-400 font-semibold">async</span><span className="text-gray-300"> (req, res) </span><span className="text-gray-500">{"=> {"}</span></div>
+          <div className="pl-2"><span className="text-blue-400 font-semibold">const</span><span className="text-gray-300"> users </span><span className="text-gray-500">= </span><span className="text-blue-400 font-semibold">await</span><span className="text-gray-300"> db.</span><span className="text-yellow-300">query</span><span className="text-gray-500">(...);</span></div>
+          <div className="pl-2"><span className="text-gray-300">res.</span><span className="text-yellow-300">json</span><span className="text-gray-500">(users);</span></div>
+          <div><span className="text-gray-500">{"});"}</span></div>
         </div>
       </div>
     </div>
@@ -270,7 +346,7 @@ export default function HomePage() {
 
       {/* Nav */}
       <nav className="z-10 border-b border-border/50 backdrop-blur-sm bg-background/80 sticky top-0">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="max-w-7xl xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-6 h-14 flex items-center justify-between">
           <Logo />
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
@@ -278,6 +354,11 @@ export default function HomePage() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
               <Layers size={13} />
               CSS
+            </Link>
+            <Link href="/backend"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
+              <Server size={13} />
+              Backend
             </Link>
             <Link href="/performance"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
@@ -294,7 +375,47 @@ export default function HomePage() {
       </nav>
 
       {/* Hero */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 pt-20 pb-10">
+      <section className="relative z-10 max-w-7xl xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-6 pt-20 pb-10">
+        {/* Left Floating Code Block */}
+        <div className="hidden xl:block absolute left-4 2xl:left-12 top-[12%] w-72 rounded-2xl border border-border/40 bg-[#0d1117]/85 backdrop-blur-md p-4 shadow-2xl rotate-[-3deg] opacity-45 hover:opacity-100 hover:rotate-[0deg] transition-all duration-300 font-mono text-[11px] select-none pointer-events-auto text-left">
+          <div className="flex items-center gap-1.5 pb-2 mb-2 border-b border-border/40">
+            <div className="w-2 h-2 rounded-full bg-rose-500/60" />
+            <div className="w-2 h-2 rounded-full bg-yellow-500/60" />
+            <div className="w-2 h-2 rounded-full bg-green-500/60" />
+            <span className="text-[10px] text-gray-500 ml-2">bubbleSort.js</span>
+          </div>
+          <div className="space-y-0.5 leading-5">
+            <div><span className="text-blue-400">async function</span> <span className="text-yellow-300">sort</span><span className="text-gray-400">(arr) {"{"}</span></div>
+            <div className="pl-3"><span className="text-blue-400">for</span> <span className="text-gray-400">(</span><span className="text-blue-400">let</span> <span className="text-gray-300">i</span> <span className="text-gray-400">= </span><span className="text-orange-400">0</span><span className="text-gray-400">; i &lt; arr.length; i++) {"{"}</span></div>
+            <div className="pl-6"><span className="text-blue-400">for</span> <span className="text-gray-400">(</span><span className="text-blue-400">let</span> <span className="text-gray-300">j</span> <span className="text-gray-400">= </span><span className="text-orange-400">0</span><span className="text-gray-400">; j &lt; arr.length - i - </span><span className="text-orange-400">1</span><span className="text-gray-400">; j++) {"{"}</span></div>
+            <div className="pl-9"><span className="text-yellow-400">if</span> <span className="text-gray-400">(arr[j] &gt; arr[j+</span><span className="text-orange-400">1</span><span className="text-gray-400">]) {"{"}</span></div>
+            <div className="pl-12"><span className="text-blue-400">await</span> <span className="text-yellow-300">swap</span><span className="text-gray-400">(arr, j, j+</span><span className="text-orange-400">1</span><span className="text-gray-400">);</span></div>
+            <div className="pl-9"><span className="text-gray-400">{"}"}</span></div>
+            <div className="pl-6"><span className="text-gray-400">{"}"}</span></div>
+            <div className="pl-3"><span className="text-gray-400">{"}"}</span></div>
+            <div><span className="text-gray-400">{"}"}</span></div>
+          </div>
+        </div>
+
+        {/* Right Floating Code Block */}
+        <div className="hidden xl:block absolute right-4 2xl:right-12 top-[18%] w-72 rounded-2xl border border-border/40 bg-[#0d1117]/85 backdrop-blur-md p-4 shadow-2xl rotate-[3deg] opacity-45 hover:opacity-100 hover:rotate-[0deg] transition-all duration-300 font-mono text-[11px] select-none pointer-events-auto text-left">
+          <div className="flex items-center gap-1.5 pb-2 mb-2 border-b border-border/40">
+            <div className="w-2 h-2 rounded-full bg-rose-500/60" />
+            <div className="w-2 h-2 rounded-full bg-yellow-500/60" />
+            <div className="w-2 h-2 rounded-full bg-green-500/60" />
+            <span className="text-[10px] text-gray-500 ml-2">responsive.css</span>
+          </div>
+          <div className="space-y-0.5 leading-5">
+            <div><span className="text-blue-400">@media</span> <span className="text-gray-400">(</span><span className="text-blue-400">max-width</span><span className="text-gray-400">: </span><span className="text-orange-400">1024px</span><span className="text-gray-400">) {"{"}</span></div>
+            <div className="pl-3"><span className="text-purple-400">.container</span> <span className="text-gray-400">{"{"}</span></div>
+            <div className="pl-6"><span className="text-blue-400">display</span><span className="text-gray-400">: </span><span className="text-orange-300">grid</span><span className="text-gray-400">;</span></div>
+            <div className="pl-6"><span className="text-blue-400">grid-template-columns</span><span className="text-gray-400">: </span><span className="text-orange-300">repeat(2, 1fr)</span><span className="text-gray-400">;</span></div>
+            <div className="pl-6"><span className="text-blue-400">gap</span><span className="text-gray-400">: </span><span className="text-orange-300">20px</span><span className="text-gray-400">;</span></div>
+            <div className="pl-3"><span className="text-gray-400">{"}"}</span></div>
+            <div><span className="text-gray-400">{"}"}</span></div>
+          </div>
+        </div>
+
         <div className="flex flex-col items-center text-center">
 
           <motion.div {...fadeUp(0)}
@@ -334,9 +455,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Three tool cards */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 py-8">
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Four tool cards */}
+      <section className="relative z-10 max-w-7xl xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-6 py-8">
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
           <ToolCard
             href="/playground"
             delay={0.1}
@@ -358,7 +479,7 @@ export default function HomePage() {
             tag="CSS"
             title={t.homeCssTitle}
             subtitle={t.homeCssSubtitle}
-            chips={["flexbox", "grid", "animations", "@keyframes", "transitions"]}
+            chips={["flexbox", "grid", "display", "box-shadow", "animations", "transitions", "position", "responsive", ":hover", "::before"]}
             preview={<MiniCSSPreview />}
             gradient="from-accent/5 to-accent/0"
             border="border-accent/20 hover:border-accent/40"
@@ -382,11 +503,26 @@ export default function HomePage() {
             btnColor="text-emerald-400"
             openLabel={t.homeOpen}
           />
+          <ToolCard
+            href="/backend"
+            delay={0.34}
+            tag="Backend"
+            title={t.homeBackendTitle}
+            subtitle={t.homeBackendSubtitle}
+            chips={["HTTP", "REST API", "JWT", "middleware", "WebSocket", "CORS"]}
+            preview={<MiniBackendPreview />}
+            gradient="from-teal-500/5 to-teal-500/0"
+            border="border-teal-500/20 hover:border-teal-500/40"
+            shadow="shadow-[0_0_30px_rgba(20,184,166,0.15)]"
+            tagColor="border-teal-500/30 bg-teal-500/8 text-teal-300"
+            btnColor="text-teal-400"
+            openLabel={t.homeOpen}
+          />
         </div>
       </section>
 
       {/* Features */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 py-16">
+      <section className="relative z-10 max-w-7xl xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-6 py-16">
         <motion.div
           initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }} transition={{ duration: 0.45 }}
@@ -413,7 +549,7 @@ export default function HomePage() {
       </section>
 
       {/* How it works */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 py-12">
+      <section className="relative z-10 max-w-7xl xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-6 py-12">
         <motion.div
           initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }} transition={{ duration: 0.45 }}
@@ -442,7 +578,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 py-16">
+      <section className="relative z-10 max-w-7xl xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-6 py-16">
         <motion.div
           initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }} transition={{ duration: 0.5 }}
@@ -464,6 +600,12 @@ export default function HomePage() {
               CSS {t.homeCssTitle}
               <ArrowRight size={14} />
             </Link>
+            <Link href="/backend"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-surface-2 hover:bg-surface-3 text-gray-300 font-bold border border-border hover:border-teal-500/40 transition-all duration-200">
+              <Server size={15} />
+              Backend Visualizer
+              <ArrowRight size={14} />
+            </Link>
             <Link href="/performance"
               className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-surface-2 hover:bg-surface-3 text-gray-300 font-bold border border-border hover:border-emerald-500/40 transition-all duration-200">
               <BarChart3 size={15} />
@@ -476,12 +618,13 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-border">
-        <div className="max-w-6xl mx-auto px-6 py-8 flex items-center justify-between gap-4 flex-wrap">
+        <div className="max-w-7xl xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-6 py-8 flex items-center justify-between gap-4 flex-wrap">
           <Logo size="sm" />
           <p className="text-xs text-gray-600">{t.homeFooterDesc2}</p>
           <div className="flex items-center gap-4 text-xs text-gray-600">
             <Link href="/playground" className="hover:text-gray-400 transition-colors">JS Playground</Link>
             <Link href="/css" className="hover:text-gray-400 transition-colors">CSS {t.homeCssTitle}</Link>
+            <Link href="/backend" className="hover:text-gray-400 transition-colors">Backend Visualizer</Link>
             <Link href="/performance" className="hover:text-gray-400 transition-colors">Resurs Tahlilchi</Link>
           </div>
         </div>

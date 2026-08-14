@@ -149,6 +149,8 @@ export interface UITranslations {
   homeFooterDesc2: string;
   homeFeatures: { title: string; desc: string }[];
   homeSteps: { title: string; description: string }[];
+  homeBackendTitle: string;
+  homeBackendSubtitle: string;
 }
 
 const en: UITranslations = {
@@ -272,7 +274,7 @@ const en: UITranslations = {
   homeSubtitle: "Understand JavaScript and CSS visually and interactively. See exactly what happens at every single step.",
   homeJsSubtitle: "Watch your code execute step by step. Variables, conditions, loops, functions — all visible in real time.",
   homeCssTitle: "Layout Visualizer",
-  homeCssSubtitle: "Learn Flexbox, Grid and animations by clicking buttons. Every property updates live — no setup needed.",
+  homeCssSubtitle: "Learn Flexbox, Grid, Display, Box Shadow, Animations, Position, Responsive design, Pseudo-classes and Pseudo-elements — all interactively with live CSS + HTML code.",
   homeOpen: "Open",
   homeFeaturesTitle: "Why LogicLab?",
   homeFeaturesSubtitle: "Couldn't understand by reading? Learn by seeing — it's much easier.",
@@ -284,19 +286,21 @@ const en: UITranslations = {
   homeFeatures: [
     { title: "Visual execution", desc: "See how code works with your own eyes. Every step is shown with animation." },
     { title: "Memory state", desc: "See how variables are stored in memory and how their values change over time." },
-    { title: "Conditions & branches", desc: "See how if/else conditions are checked and which block gets executed." },
-    { title: "Flexbox visualizer", desc: "flex-direction, justify-content, align-items — change them live with a click." },
-    { title: "Grid visualizer", desc: "Columns, gaps, span — understand CSS Grid by interacting with it." },
-    { title: "CSS animations", desc: "@keyframes, timing-function, duration — learn by watching real animations." },
-    { title: "Console output", desc: "See when and with which value console.log is called, at that exact moment." },
-    { title: "Plain explanations", desc: "Each step has a simple description — what happened, when and why." },
-    { title: "Step-by-step control", desc: "Forward, back, speed control — learn at your own pace. Auto-play included." },
+    { title: "Flexbox & Grid", desc: "flex-direction, justify-content, grid-template-columns — change them live with a click." },
+    { title: "Display & Box Model", desc: "block, inline, inline-block, margin, padding, border — see them side by side." },
+    { title: "Animations & Transitions", desc: "@keyframes, timing-function, duration — learn by watching real animations." },
+    { title: "Box Shadow", desc: "h-offset, v-offset, blur, spread, inset — build any shadow visually." },
+    { title: "Pseudo-classes", desc: ":hover, :focus, :active, :nth-child, :not — interact to see each effect live." },
+    { title: "Pseudo-elements", desc: "::before, ::after, ::first-letter, ::placeholder, ::selection — see how they work visually." },
+    { title: "CSS + HTML code", desc: "Every simulator shows both the CSS style and the HTML markup side by side." },
   ],
   homeSteps: [
     { title: "Choose a tool", description: "Open the JavaScript playground or CSS visualizer." },
     { title: "Write or pick code", description: "Write your own code or choose from ready-made examples." },
     { title: "See it visually", description: "Press Run → each step is explained with animation." },
   ],
+  homeBackendTitle: "Backend Visualizer",
+  homeBackendSubtitle: "Learn HTTP, REST API, databases, JWT auth, middleware, WebSocket and CORS — all visually with real Node.js code.",
 };
 
 const uz: UITranslations = {
@@ -420,7 +424,7 @@ const uz: UITranslations = {
   homeSubtitle: "JavaScript va CSS ni vizual, interaktiv tarzda tushuning. Har bir qadamda nima bo'lishini ko'ring.",
   homeJsSubtitle: "Kodingiz qadam-qadam qanday bajarilishini koring. O'zgaruvchilar, shartlar, tsikllar, funksiyalar — barchasi ko'z oldingizda.",
   homeCssTitle: "Layout Vizualizator",
-  homeCssSubtitle: "Flexbox, Grid va animatsiyalarni bosib-ko'rib o'rganing. Har bir xususiyat live ko'rinadi — hech narsa yozmasangiz ham.",
+  homeCssSubtitle: "Flexbox, Grid, Display, Box Shadow, Animatsiyalar, Position, Responsive, Psevdo-klasslar va Psevdo-elementlarni bosib-ko'rib o'rganing — har birida CSS va HTML kodi bilan.",
   homeOpen: "Ochish",
   homeFeaturesTitle: "Nima uchun LogicLab?",
   homeFeaturesSubtitle: "Kitob o'qib tushunmadingizmi? Ko'rib o'rganing — tushunish ancha oson.",
@@ -432,19 +436,21 @@ const uz: UITranslations = {
   homeFeatures: [
     { title: "Vizual bajarish", desc: "Kod qanday ishlashini ko'z bilan ko'ring. Har bir qadam animatsiya bilan ko'rsatiladi." },
     { title: "Xotira holati", desc: "O'zgaruvchilar xotirada qanday saqlanishini, qiymatlar qanday o'zgarishini koring." },
-    { title: "Shart va tarmoqlar", desc: "if/else shartlari qanday tekshirilishini va qaysi blok bajarilishini koring." },
-    { title: "Flexbox vizualizator", desc: "flex-direction, justify-content, align-items — tugmani bosib live o'zgaring." },
-    { title: "Grid vizualizator", desc: "Ustunlar, bo'shliqlar, span — CSS Grid ni interaktiv tarzda tushunib oling." },
-    { title: "CSS animatsiyalar", desc: "@keyframes, timing-function, duration — real animatsiyalarni ko'rib o'rgan." },
-    { title: "Konsol natijasi", desc: "console.log qachon va qaysi qiymat bilan chaqirilishini aynan shu lahzada koring." },
-    { title: "Oson tushuntirish", desc: "Har bir qadam uchun sodda tilda izoh beriladi — qachon va nima uchun tushuntiriladi." },
-    { title: "Qadam-qadam boshqaruv", desc: "Oldinga, orqaga, tezlik tanlash — o'z sur'atda o'rgan. Auto-play ham bor." },
+    { title: "Flexbox & Grid", desc: "flex-direction, justify-content, grid-template-columns — tugmani bosib live o'zgaring." },
+    { title: "Display & Box Model", desc: "block, inline, inline-block, margin, padding, border — ularni yonma-yon ko'ring." },
+    { title: "Animatsiyalar & Transition", desc: "@keyframes, timing-function, duration — real animatsiyalarni ko'rib o'rgan." },
+    { title: "Box Shadow", desc: "h-offset, v-offset, blur, spread, inset — har qanday soya vizual tarzda yarating." },
+    { title: "Psevdo-klasslar", desc: ":hover, :focus, :active, :nth-child, :not — bosib har birining effektini live ko'ring." },
+    { title: "Psevdo-elementlar", desc: "::before, ::after, ::first-letter, ::placeholder, ::selection — vizual tarzda tushunib oling." },
+    { title: "CSS + HTML kodi", desc: "Har bir simulator CSS uslubi va HTML belgilashini yonma-yon ko'rsatadi." },
   ],
   homeSteps: [
     { title: "Vositani tanlang", description: "JavaScript playground yoki CSS vizualizatorni oching." },
     { title: "Kod yozing yoki tanlang", description: "O'z kodingizni yozing yoki tayyor misollardan birini tanlang." },
     { title: "Vizual koring", description: "Run tugmasi → har bir qadam animatsiya bilan tushuntiriladi." },
   ],
+  homeBackendTitle: "Backend Vizualizator",
+  homeBackendSubtitle: "HTTP, REST API, ma'lumotlar bazasi, JWT auth, middleware, WebSocket va CORS — barchasini vizual tarzda real Node.js kodi bilan o'rganing.",
 };
 
 const ru: UITranslations = {
@@ -568,7 +574,7 @@ const ru: UITranslations = {
   homeSubtitle: "Понимайте JavaScript и CSS визуально и интерактивно. Смотрите, что происходит на каждом шаге.",
   homeJsSubtitle: "Смотрите, как ваш код выполняется шаг за шагом. Переменные, условия, циклы, функции — всё на виду.",
   homeCssTitle: "Визуализатор Layout",
-  homeCssSubtitle: "Изучайте Flexbox, Grid и анимации нажатием кнопок. Каждое свойство обновляется в реальном времени.",
+  homeCssSubtitle: "Изучайте Flexbox, Grid, Display, Box Shadow, Анимации, Position, Responsive, Псевдо-классы и Псевдо-элементы — интерактивно с живым CSS + HTML кодом.",
   homeOpen: "Открыть",
   homeFeaturesTitle: "Почему LogicLab?",
   homeFeaturesSubtitle: "Не понимаете по книге? Учитесь видя — так намного проще.",
@@ -580,19 +586,21 @@ const ru: UITranslations = {
   homeFeatures: [
     { title: "Визуальное выполнение", desc: "Смотрите, как работает код своими глазами. Каждый шаг показан с анимацией." },
     { title: "Состояние памяти", desc: "Смотрите, как переменные хранятся в памяти и как изменяются их значения." },
-    { title: "Условия и ветки", desc: "Смотрите, как проверяются if/else условия и какой блок выполняется." },
-    { title: "Визуализатор Flexbox", desc: "flex-direction, justify-content, align-items — меняйте в реальном времени." },
-    { title: "Визуализатор Grid", desc: "Колонки, отступы, span — понимайте CSS Grid интерактивно." },
-    { title: "CSS анимации", desc: "@keyframes, timing-function, duration — учитесь на реальных анимациях." },
-    { title: "Вывод консоли", desc: "Смотрите, когда и с каким значением вызывается console.log." },
-    { title: "Простые объяснения", desc: "Каждый шаг имеет простое описание — что произошло, когда и почему." },
-    { title: "Пошаговое управление", desc: "Вперёд, назад, выбор скорости — учитесь в своём темпе. Есть авто-воспроизведение." },
+    { title: "Flexbox & Grid", desc: "flex-direction, justify-content, grid-template-columns — меняйте в реальном времени." },
+    { title: "Display & Box Model", desc: "block, inline, inline-block, margin, padding, border — смотрите рядом." },
+    { title: "Анимации & Transition", desc: "@keyframes, timing-function, duration — учитесь на реальных анимациях." },
+    { title: "Box Shadow", desc: "h-offset, v-offset, blur, spread, inset — создавайте любую тень визуально." },
+    { title: "Псевдо-классы", desc: ":hover, :focus, :active, :nth-child, :not — нажмите, чтобы увидеть эффект." },
+    { title: "Псевдо-элементы", desc: "::before, ::after, ::first-letter, ::placeholder, ::selection — поймите визуально." },
+    { title: "CSS + HTML код", desc: "Каждый симулятор показывает CSS стиль и HTML разметку рядом." },
   ],
   homeSteps: [
     { title: "Выберите инструмент", description: "Откройте JavaScript playground или CSS визуализатор." },
     { title: "Напишите или выберите код", description: "Напишите свой код или выберите из готовых примеров." },
     { title: "Смотрите визуально", description: "Нажмите Run → каждый шаг объясняется с анимацией." },
   ],
+  homeBackendTitle: "Визуализатор Backend",
+  homeBackendSubtitle: "Изучайте HTTP, REST API, базы данных, JWT auth, middleware, WebSocket и CORS — всё визуально с реальным кодом Node.js.",
 };
 
 export const UI: Record<Lang, UITranslations> = { en, uz, ru };
