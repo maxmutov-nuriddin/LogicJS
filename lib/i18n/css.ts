@@ -279,12 +279,12 @@ const uz: CSSTranslations = {
     checked:       ":checked — belgilangan checkbox yoki radio input bilan yonidagi elementni stillashtiradi.",
   },
   pseudoElementExplain: {
-    before:         "::before — elementdan oldin virtual content qo'shadi. HTMLda ko'rinmaydi, faqat CSSda.",
-    after:          "::after — elementdan keyin virtual content qo'shadi. Dekorativ belgilar va effektlar uchun.",
-    "first-letter": "::first-letter — birinchi harfni alohida stillashtiradi. Kitob uslubidagi Drop Cap effekti.",
-    "first-line":   "::first-line — birinchi qatorni alohida stillashtiradi. Faqat blok elementlarga ta'sir qiladi.",
-    placeholder:    "::placeholder — input/textarea ichidagi ko'rsatma matnni stillashtiradi.",
-    selection:      "::selection — foydalanuvchi tomonidan belgilangan (highlight) matnni stillashtiradi.",
+    before:         "::before — tanlangan elementning boshiga (oldiga) virtual element (kontent) qo'shadi. HTMLda bu kontent mavjud bo'lmaydi, faqat CSS orqali qo'shiladi.",
+    after:          "::after — tanlangan elementning oxiriga (keyin) virtual element (kontent) qo'shadi. Dekorativ belgilar, strelkalar yoki effektlar uchun ishlatiladi.",
+    "first-letter": "::first-letter — matn (paragraf) ichidagi eng birinchi harfni alohida stillaydi. Masalan, kitoblardagi kabi matnning birinchi harfini juda katta qilish (Drop Cap) uchun.",
+    "first-line":   "::first-line — matn blokining faqat eng birinchi qatorini stillaydi. Agar brauzer oynasi kichrayib/kattalashib birinchi qatordagi so'zlar o'zgarsa ham, faqat o'sha birinchi qatordagi so'zlarni stillangan holatda ushlab turadi.",
+    placeholder:    "::placeholder — input yoki textarea (matn yozish maydonlari) ichidagi vaqtinchalik yordamchi matnni (placeholder) rangini, shriftini yoki uslubini stillaydi.",
+    selection:      "::selection — foydalanuvchi sahifadagi matnni sichqoncha bilan belgilaganda (ko'k rang bilan bo'yaganda), o'sha belgilangan matnning fon rangi va matn rangini o'zgartiradi.",
   },
 };
 
@@ -495,12 +495,12 @@ const en: CSSTranslations = {
     checked:       ":checked — targets a checked checkbox or radio, and can style adjacent siblings.",
   },
   pseudoElementExplain: {
-    before:         "::before — inserts virtual content before the element. Not visible in HTML, only in CSS.",
-    after:          "::after — inserts virtual content after the element. Great for decorative markers and effects.",
-    "first-letter": "::first-letter — styles only the first letter. Creates a Drop Cap effect like in books.",
-    "first-line":   "::first-line — styles just the first line. Only affects block-level elements.",
-    placeholder:    "::placeholder — styles the hint text inside input and textarea elements.",
-    selection:      "::selection — styles highlighted text selected by the user.",
+    before:         "::before — inserts virtual content at the very beginning of the selected element. This content is not in the HTML markup, it is injected dynamically via CSS.",
+    after:          "::after — inserts virtual content at the very end of the selected element. Widely used for decorative markers, icons, arrows, or clearfix hacks.",
+    "first-letter": "::first-letter — styles only the very first character of the first line of a block container. Perfect for creating editorial 'drop cap' styles.",
+    "first-line":   "::first-line — styles only the first line of text within a block container. The styling automatically adapts as the screen resizes and the text wraps.",
+    placeholder:    "::placeholder — styles the styling (color, font, opacity) of placeholder text inside input or textarea elements.",
+    selection:      "::selection — styles the background and text color of any portion of the page that is highlighted or selected by the user's cursor.",
   },
 };
 
@@ -711,12 +711,12 @@ const ru: CSSTranslations = {
     checked:       ":checked — нацеливается на отмеченный checkbox или radio, может стилизовать соседей.",
   },
   pseudoElementExplain: {
-    before:         "::before — вставляет виртуальный контент перед элементом. В HTML не виден, только в CSS.",
-    after:          "::after — вставляет виртуальный контент после элемента. Для декоративных маркеров и эффектов.",
-    "first-letter": "::first-letter — стилизует только первую букву. Создаёт эффект Drop Cap, как в книгах.",
-    "first-line":   "::first-line — стилизует только первую строку. Работает только с блочными элементами.",
-    placeholder:    "::placeholder — стилизует текст-подсказку внутри input и textarea.",
-    selection:      "::selection — стилизует текст, выделенный пользователем.",
+    before:         "::before — вставляет виртуальный контент в самое начало выбранного элемента. Этот контент создается динамически через CSS и отсутствует в исходной HTML-разметке.",
+    after:          "::after — вставляет виртуальный контент в самый конец выбранного элемента. Широко используется для иконок, стрелочек, декоративных элементов или очистки потока.",
+    "first-letter": "::first-letter — стилизует только первый символ первой строки текстового блока. Идеально для создания крупных буквиц (Drop Cap) в статьях.",
+    "first-line":   "::first-line — стилизует только самую первую строку текстового блока. Стилизация автоматически пересчитывается при изменении размера экрана и переносе текста.",
+    placeholder:    "::placeholder — стилизует цвет, шрифт и прозрачность временного текста-подсказки (placeholder) внутри полей ввода (input, textarea).",
+    selection:      "::selection — стилизует цвет фона и цвет текста любого фрагмента страницы, который выделяется курсором мыши или пальцем.",
   },
 };
 

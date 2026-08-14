@@ -2423,8 +2423,7 @@ function PseudoElementSection({ t, lang }: { t: CSSTranslations; lang: string })
           {selected === "placeholder" && (
             <div className="flex flex-col gap-3">
               <input
-                className="w-full max-w-xs px-4 py-3 rounded-xl bg-[#0d1117] border border-white/10 text-gray-200 font-mono text-sm outline-none focus:border-purple-500 transition-colors"
-                style={{ "--placeholder-color": "#a855f7" } as React.CSSProperties}
+                className="pseudo-ph w-full max-w-xs px-4 py-3 rounded-xl bg-[#0d1117] border border-white/10 text-gray-200 font-mono text-sm outline-none focus:border-purple-500 transition-colors"
                 placeholder={lt.phPlaceholder}
               />
               <style>{`input.pseudo-ph::placeholder { color: #a855f7; font-style: italic; }`}</style>
