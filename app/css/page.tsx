@@ -272,6 +272,62 @@ function CSSCode({ lines }: { lines: string[] }) {
   );
 }
 
+function tokenizeHTML(line: string) {
+  const regex = /(<\/?[a-zA-Z0-9:-]+)|(\s+[a-zA-Z0-9:-]+(?==))|("[^"]*")|(\/?>)|([^<>\s]+)/g;
+  const tokens: { text: string; cls: string }[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(line)) !== null) {
+    const matchIndex = match.index;
+    if (matchIndex > lastIndex) {
+      tokens.push({ text: line.substring(lastIndex, matchIndex), cls: "text-gray-500" });
+    }
+
+    const [full, tag, attr, val, close] = match;
+    if (tag) {
+      tokens.push({ text: tag, cls: "text-blue-400 font-semibold" });
+    } else if (attr) {
+      tokens.push({ text: attr, cls: "text-yellow-300" });
+    } else if (val) {
+      tokens.push({ text: val, cls: "text-orange-300" });
+    } else if (close) {
+      tokens.push({ text: close, cls: "text-blue-400 font-semibold" });
+    } else {
+      tokens.push({ text: full, cls: "text-gray-300" });
+    }
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < line.length) {
+    tokens.push({ text: line.substring(lastIndex), cls: "text-gray-300" });
+  }
+
+  return tokens;
+}
+
+function HTMLCode({ code }: { code: string[] }) {
+  return (
+    <div className="rounded-xl bg-[#0d1117] border border-border overflow-hidden mt-3">
+      <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border/50 bg-surface-2/40">
+        <div className="w-2 h-2 rounded-full bg-rose-500/60" />
+        <div className="w-2 h-2 rounded-full bg-yellow-500/60" />
+        <div className="w-2 h-2 rounded-full bg-emerald-500/60" />
+        <span className="ml-2 text-[10px] text-gray-600 font-mono">index.html</span>
+      </div>
+      <div className="p-4 font-mono text-[13px] leading-5 overflow-x-auto text-gray-400">
+        {code.map((line, i) => (
+          <div key={i} className="whitespace-pre">
+            {tokenizeHTML(line).map((tok, j) => (
+              <span key={j} className={tok.cls}>{tok.text}</span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Info card ────────────────────────────────────────────────────────────────
 
 function InfoCard({ icon, title, desc }: { icon: string; title: string; desc: string }) {
@@ -371,6 +427,12 @@ function FlexSection({ t, lang }: { t: CSSTranslations; lang: string }) {
     }
   });
 
+  const htmlCode = [
+    '<div class="container">',
+    ...items.map(item => `  <div class="item-${item.label}">${item.label}</div>`),
+    '</div>'
+  ];
+
   const containerStyle: CSSProperties = {
     display: "flex", flexDirection: s.dir, justifyContent: s.jc,
     alignItems: s.ai, flexWrap: s.fw, gap: s.gap,
@@ -465,6 +527,7 @@ function FlexSection({ t, lang }: { t: CSSTranslations; lang: string }) {
         )}
 
         <CSSCode lines={css} />
+        <HTMLCode code={htmlCode} />
       </div>
 
       {/* Preview + explanation */}
@@ -649,6 +712,12 @@ function GridSection({ t, lang }: { t: CSSTranslations; lang: string }) {
     }
   });
 
+  const htmlCode = [
+    '<div class="grid-container">',
+    ...items.map(item => `  <div class="item-${item.label}">${item.label}</div>`),
+    '</div>'
+  ];
+
   return (
     <div className="flex flex-col xl:flex-row gap-6">
       {/* Controls */}
@@ -751,6 +820,7 @@ function GridSection({ t, lang }: { t: CSSTranslations; lang: string }) {
         )}
 
         <CSSCode lines={css} />
+        <HTMLCode code={htmlCode} />
       </div>
 
       {/* Preview */}
@@ -935,6 +1005,7 @@ function AnimSection({ t }: { t: CSSTranslations }) {
     "",
     ...ANIM_KEYFRAMES[s.preset],
   ];
+  const htmlCode = ['<div class="box"></div>'];
 
   return (
     <div className="flex flex-col xl:flex-row gap-6">
@@ -973,6 +1044,7 @@ function AnimSection({ t }: { t: CSSTranslations }) {
         </CtrlGroup>
 
         <CSSCode lines={cssFull} />
+        <HTMLCode code={htmlCode} />
       </div>
 
       {/* Preview */}
@@ -1100,6 +1172,11 @@ function BoxModelSection({ t }: { t: CSSTranslations }) {
     `  /* total width: ${totalW}px */`,
     "}",
   ];
+  const htmlCode = [
+    '<div class="box">',
+    '  Content',
+    '</div>'
+  ];
 
   return (
     <div className="flex flex-col xl:flex-row gap-6">
@@ -1138,6 +1215,7 @@ function BoxModelSection({ t }: { t: CSSTranslations }) {
         </CtrlGroup>
 
         <CSSCode lines={css} />
+        <HTMLCode code={htmlCode} />
       </div>
 
       {/* Preview */}
@@ -1273,6 +1351,12 @@ function PositionSection({ t }: { t: CSSTranslations }) {
     "}",
   ];
 
+  const htmlCode = [
+    '<div class="parent">',
+    '  <div class="box">Box</div>',
+    '</div>'
+  ];
+
   return (
     <div className="flex flex-col xl:flex-row gap-6">
       {/* Controls */}
@@ -1306,6 +1390,7 @@ function PositionSection({ t }: { t: CSSTranslations }) {
         )}
 
         <CSSCode lines={css} />
+        <HTMLCode code={htmlCode} />
       </div>
 
       {/* Preview */}
@@ -1445,6 +1530,8 @@ function TransitionSection({ t }: { t: CSSTranslations }) {
     "}",
   ];
 
+  const htmlCode = ['<div class="box">Hover Me</div>'];
+
   return (
     <div className="flex flex-col xl:flex-row gap-6">
       {/* Controls */}
@@ -1468,6 +1555,7 @@ function TransitionSection({ t }: { t: CSSTranslations }) {
         </CtrlGroup>
 
         <CSSCode lines={css} />
+        <HTMLCode code={htmlCode} />
       </div>
 
       {/* Preview */}
@@ -1626,6 +1714,13 @@ function ResponsiveSection({ t }: { t: CSSTranslations }) {
     "  }",
     "}",
   ];
+  const htmlCode = [
+    '<div class="container">',
+    '  <header class="header">Header</header>',
+    '  <div class="main">Main Content</div>',
+    '  <aside class="sidebar">Sidebar</aside>',
+    '</div>'
+  ];
 
   return (
     <div className="flex flex-col xl:flex-row gap-6">
@@ -1655,6 +1750,7 @@ function ResponsiveSection({ t }: { t: CSSTranslations }) {
         </CtrlGroup>
 
         <CSSCode lines={s.queryType === "min-width" ? cssMin : cssMax} />
+        <HTMLCode code={htmlCode} />
       </div>
 
       {/* Preview */}
@@ -1863,6 +1959,14 @@ function DisplaySection({ t, lang }: { t: CSSTranslations; lang: string }) {
     "}",
   ];
 
+  const htmlCode = [
+    '<div class="container">',
+    '  <div class="element-1">1-element</div>',
+    '  <div class="element-2">2-element</div>',
+    '  <div class="element-3">3-element</div>',
+    '</div>'
+  ];
+
   return (
     <div className="flex flex-col xl:flex-row gap-6">
       {/* Controls */}
@@ -1892,6 +1996,7 @@ function DisplaySection({ t, lang }: { t: CSSTranslations; lang: string }) {
         </CtrlGroup>
 
         <CSSCode lines={css} />
+        <HTMLCode code={htmlCode} />
       </div>
 
       {/* Preview */}
@@ -2016,6 +2121,8 @@ function BoxShadowSection({ t, lang }: { t: CSSTranslations; lang: string }) {
     "}",
   ];
 
+  const htmlCode = ['<div class="box">Box</div>'];
+
   return (
     <div className="flex flex-col xl:flex-row gap-6">
       {/* Controls */}
@@ -2061,6 +2168,7 @@ function BoxShadowSection({ t, lang }: { t: CSSTranslations; lang: string }) {
         </CtrlGroup>
 
         <CSSCode lines={css} />
+        <HTMLCode code={htmlCode} />
       </div>
 
       {/* Preview */}
@@ -2144,6 +2252,19 @@ function PseudoClassSection({ t, lang }: { t: CSSTranslations; lang: string }) {
 
   const explainMap: Record<string, string> = t.pseudoClassExplain;
 
+  const htmlLinesMap: Record<string, string[]> = {
+    hover:        ['<button class="btn">Hover Me</button>'],
+    focus:        ['<input class="input" placeholder="..." />'],
+    active:       ['<button class="btn">Click Me</button>'],
+    "first-child": ['<ul class="list">', '  <li>1-element</li>', '  <li>2-element</li>', '  <li>3-element</li>', '  <li>4-element</li>', '  <li>5-element</li>', '</ul>'],
+    "last-child":  ['<ul class="list">', '  <li>1-element</li>', '  <li>2-element</li>', '  <li>3-element</li>', '  <li>4-element</li>', '  <li>5-element</li>', '</ul>'],
+    "nth-child":   ['<ul class="list">', '  <li>1-element</li>', '  <li>2-element</li>', '  <li>3-element</li>', '  <li>4-element</li>', '  <li>5-element</li>', '</ul>'],
+    not:           ['<ul class="list">', '  <li>1-element</li>', '  <li>2-element</li>', '  <li class="active">3-element</li>', '  <li>4-element</li>', '  <li>5-element</li>', '</ul>'],
+    disabled:      ['<button class="btn">Enabled</button>', '<button class="btn" disabled>Disabled</button>'],
+    checked:       ['<input type="checkbox" id="chk-1" />', '<label for="chk-1">1-element</label>'],
+  };
+  const htmlCode = htmlLinesMap[selected] || [];
+
   return (
     <div className="flex flex-col xl:flex-row gap-6">
       {/* Controls */}
@@ -2156,6 +2277,7 @@ function PseudoClassSection({ t, lang }: { t: CSSTranslations; lang: string }) {
           ))}
         </CtrlGroup>
         <CSSCode lines={cssLines[selected] || []} />
+        <HTMLCode code={htmlCode} />
       </div>
 
       {/* Preview */}
@@ -2339,6 +2461,16 @@ function PseudoElementSection({ t, lang }: { t: CSSTranslations; lang: string })
     selection:      [".text::selection {","  background: #ec4899;","  color: white;","}"],
   };
 
+  const htmlLinesMap: Record<string, string[]> = {
+    before:         ['<div class="badge">Eslatma</div>'],
+    after:          ['<a class="tag">Home</a>'],
+    "first-letter": ['<p class="paragraph">', `  ${lt.flLetter}${lt.flText}`, '</p>'],
+    "first-line":   ['<p class="paragraph">', `  ${lt.flLineFirst} ${lt.flLineRest}`, '</p>'],
+    placeholder:    ['<input class="input" placeholder="..." />'],
+    selection:      ['<p class="text">', `  ${lt.selText}`, '</p>'],
+  };
+  const htmlCode = htmlLinesMap[selected] || [];
+
   return (
     <div className="flex flex-col xl:flex-row gap-6">
       {/* Controls */}
@@ -2351,6 +2483,7 @@ function PseudoElementSection({ t, lang }: { t: CSSTranslations; lang: string })
           ))}
         </CtrlGroup>
         <CSSCode lines={cssLines[selected] || []} />
+        <HTMLCode code={htmlCode} />
       </div>
 
       {/* Preview */}
