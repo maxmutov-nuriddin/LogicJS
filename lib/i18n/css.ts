@@ -60,10 +60,16 @@ export interface CSSTranslations {
   responsiveExplain: Record<string, string>;
   displayDesc: string;
   boxShadowDesc: string;
+  pseudoClassDesc: string;
+  pseudoElementDesc: string;
   displayTips: { icon: string; title: string; desc: string }[];
   boxShadowTips: { icon: string; title: string; desc: string }[];
+  pseudoClassTips: { icon: string; title: string; desc: string }[];
+  pseudoElementTips: { icon: string; title: string; desc: string }[];
   displayExplain: Record<string, string>;
   boxShadowExplain: Record<string, string>;
+  pseudoClassExplain: Record<string, string>;
+  pseudoElementExplain: Record<string, string>;
 }
 
 // ─── Uzbek ────────────────────────────────────────────────────────────────────
@@ -226,6 +232,8 @@ const uz: CSSTranslations = {
   },
   displayDesc: "Ko'rinish turi",
   boxShadowDesc: "Element soyasi",
+  pseudoClassDesc: "Holat selektori",
+  pseudoElementDesc: "Virtual element",
   displayTips: [
     { icon: "👁️", title: "display: block", desc: "Yangi qatordan boshlanadi va to'liq kenglikni egallaydi." },
     { icon: "🔗", title: "display: inline", desc: "Matn ichida joylashadi, width va height xususiyatlari ta'sir qilmaydi." },
@@ -238,6 +246,18 @@ const uz: CSSTranslations = {
     { icon: "📐", title: "Spread radius", desc: "Soyaning kattaligi. Musbat qiymatlar kattalashtiradi, manfiylar kichiklashtiradi." },
     { icon: "📥", title: "inset", desc: "Soyani tashqariga emas, elementning ichki tomoniga yo'naltiradi." }
   ],
+  pseudoClassTips: [
+    { icon: "🖱️", title: ":hover", desc: "Sichqoncha element ustiga kelganda ishlaydi. Hover effektlari uchun eng ko'p ishlatiladi." },
+    { icon: "🎯", title: ":focus", desc: "Element fokusga olganda ishlaydi. Input, button va boshqa interaktiv elementlar uchun." },
+    { icon: "🔗", title: ":nth-child()", desc: "Elementni tartib raqami bo'yicha tanlaydi. odd, even yoki aniq raqam berilishi mumkin." },
+    { icon: "🚫", title: ":not()", desc: "Ko'rsatilgan selektor bilan mos kelmaydigan elementlarni tanlaydi." },
+  ],
+  pseudoElementTips: [
+    { icon: "✨", title: "::before / ::after", desc: "HTML o'zgartirmasdan element oldiga/keyin content qo'shadi. content: '' bo'lishi shart." },
+    { icon: "🔤", title: "::first-letter", desc: "Blokning birinchi harfini alohida stillashtiradi. Kitob sarlavhalariga o'xshash effekt." },
+    { icon: "📝", title: "::placeholder", desc: "Input ichidagi placeholder matn rangini va stilini o'zgartiradi." },
+    { icon: "🎨", title: "::selection", desc: "Foydalanuvchi matnni belgilaganda ko'rinadigan rang va stilni belgilaydi." },
+  ],
   displayExplain: {
     block: "block — element yangi qatorga tushadi, eniga 100% egallaydi.",
     inline: "inline — element yonma-yon turadi, eni va bo'yi ta'sir qilmaydi.",
@@ -246,6 +266,25 @@ const uz: CSSTranslations = {
   },
   boxShadowExplain: {
     shadow: "box-shadow: element atrofida yoki ichida soya hosil qiladi."
+  },
+  pseudoClassExplain: {
+    hover:         ":hover — sichqoncha element ustida turganda ishlaydi. Fon, rang, o'lcham o'zgartirilishi mumkin.",
+    focus:         ":focus — element klaviatura yoki sichqoncha bilan fokusga olganda. Input/button uchun muhim.",
+    active:        ":active — tugma bosilgan paytda ishlaydi. Bosish animatsiyasi uchun qulay.",
+    "first-child": ":first-child — ota elementning birinchi bolasini tanlaydi.",
+    "last-child":  ":last-child — ota elementning so'nggi bolasini tanlaydi.",
+    "nth-child":   ":nth-child(odd) — toq tartibli elementlarni tanlaydi (1, 3, 5...). even — juft.",
+    not:           ":not(.active) — .active klassiga ega bo'lmagan barcha elementlarni tanlaydi.",
+    disabled:      ":disabled — disabled atributi qo'yilgan elementlarni tanlaydi. Interaktivlikni ko'rsatadi.",
+    checked:       ":checked — belgilangan checkbox yoki radio input bilan yonidagi elementni stillashtiradi.",
+  },
+  pseudoElementExplain: {
+    before:         "::before — elementdan oldin virtual content qo'shadi. HTMLda ko'rinmaydi, faqat CSSda.",
+    after:          "::after — elementdan keyin virtual content qo'shadi. Dekorativ belgilar va effektlar uchun.",
+    "first-letter": "::first-letter — birinchi harfni alohida stillashtiradi. Kitob uslubidagi Drop Cap effekti.",
+    "first-line":   "::first-line — birinchi qatorni alohida stillashtiradi. Faqat blok elementlarga ta'sir qiladi.",
+    placeholder:    "::placeholder — input/textarea ichidagi ko'rsatma matnni stillashtiradi.",
+    selection:      "::selection — foydalanuvchi tomonidan belgilangan (highlight) matnni stillashtiradi.",
   },
 };
 
@@ -409,6 +448,8 @@ const en: CSSTranslations = {
   },
   displayDesc: "Display layout",
   boxShadowDesc: "Element shadow",
+  pseudoClassDesc: "State selector",
+  pseudoElementDesc: "Virtual element",
   displayTips: [
     { icon: "👁️", title: "display: block", desc: "Starts on a new line and takes up the full width." },
     { icon: "🔗", title: "display: inline", desc: "Flows inline with text, ignores width and height." },
@@ -421,6 +462,18 @@ const en: CSSTranslations = {
     { icon: "📐", title: "Spread radius", desc: "Size of the shadow. Positive expands, negative shrinks." },
     { icon: "📥", title: "inset", desc: "Changes the shadow from outer to inner shadow." }
   ],
+  pseudoClassTips: [
+    { icon: "🖱️", title: ":hover", desc: "Fires when the mouse is over the element. Most used for hover effects on color, size, and background." },
+    { icon: "🎯", title: ":focus", desc: "Fires when the element receives focus via keyboard or mouse. Critical for accessibility." },
+    { icon: "🔗", title: ":nth-child()", desc: "Selects elements by position. Use odd, even, or a specific number." },
+    { icon: "🚫", title: ":not()", desc: "Selects all elements that do NOT match the given selector." },
+  ],
+  pseudoElementTips: [
+    { icon: "✨", title: "::before / ::after", desc: "Inserts virtual content before/after an element without touching HTML. content: '' is required." },
+    { icon: "🔤", title: "::first-letter", desc: "Styles just the first letter of a block. Creates a Drop Cap effect like in books." },
+    { icon: "📝", title: "::placeholder", desc: "Styles the placeholder text inside input or textarea elements." },
+    { icon: "🎨", title: "::selection", desc: "Styles the color and background of user-selected (highlighted) text." },
+  ],
   displayExplain: {
     block: "block — starts on a new line, takes 100% container width.",
     inline: "inline — fits on the same line, width/height are ignored.",
@@ -429,6 +482,25 @@ const en: CSSTranslations = {
   },
   boxShadowExplain: {
     shadow: "box-shadow: creates soft or hard shadows around or inside an element."
+  },
+  pseudoClassExplain: {
+    hover:         ":hover — fires when the mouse is over the element. Used for background, color, and scale changes.",
+    focus:         ":focus — fires when the element is focused via keyboard or click. Critical for inputs and buttons.",
+    active:        ":active — fires while the element is being pressed. Great for click press animations.",
+    "first-child": ":first-child — selects the first child of its parent element.",
+    "last-child":  ":last-child — selects the last child of its parent element.",
+    "nth-child":   ":nth-child(odd) — selects odd-numbered children (1, 3, 5...). Use even for even ones.",
+    not:           ":not(.active) — selects all elements that do NOT have the .active class.",
+    disabled:      ":disabled — selects elements with the disabled attribute. Shows interactive state.",
+    checked:       ":checked — targets a checked checkbox or radio, and can style adjacent siblings.",
+  },
+  pseudoElementExplain: {
+    before:         "::before — inserts virtual content before the element. Not visible in HTML, only in CSS.",
+    after:          "::after — inserts virtual content after the element. Great for decorative markers and effects.",
+    "first-letter": "::first-letter — styles only the first letter. Creates a Drop Cap effect like in books.",
+    "first-line":   "::first-line — styles just the first line. Only affects block-level elements.",
+    placeholder:    "::placeholder — styles the hint text inside input and textarea elements.",
+    selection:      "::selection — styles highlighted text selected by the user.",
   },
 };
 
@@ -592,6 +664,8 @@ const ru: CSSTranslations = {
   },
   displayDesc: "Тип отображения",
   boxShadowDesc: "Тень элемента",
+  pseudoClassDesc: "Селектор состояния",
+  pseudoElementDesc: "Виртуальный элемент",
   displayTips: [
     { icon: "👁️", title: "display: block", desc: "Начинается с новой строки и занимает всю ширину." },
     { icon: "🔗", title: "display: inline", desc: "Располагается в строке с текстом, игнорирует ширину и высоту." },
@@ -604,6 +678,18 @@ const ru: CSSTranslations = {
     { icon: "📐", title: "Растяжение (Spread)", desc: "Размер тени. Положительные увеличивают тень, отрицательные уменьшают." },
     { icon: "📥", title: "inset", desc: "Направляет тень внутрь элемента вместо наружной." }
   ],
+  pseudoClassTips: [
+    { icon: "🖱️", title: ":hover", desc: "Срабатывает при наведении мыши. Чаще всего используется для изменения цвета, фона и размера." },
+    { icon: "🎯", title: ":focus", desc: "Срабатывает при получении фокуса через клавиатуру или мышь. Важно для доступности." },
+    { icon: "🔗", title: ":nth-child()", desc: "Выбирает элементы по позиции. Используйте odd, even или конкретное число." },
+    { icon: "🚫", title: ":not()", desc: "Выбирает все элементы, которые НЕ соответствуют указанному селектору." },
+  ],
+  pseudoElementTips: [
+    { icon: "✨", title: "::before / ::after", desc: "Вставляет виртуальный контент до/после элемента без изменения HTML. content: '' обязателен." },
+    { icon: "🔤", title: "::first-letter", desc: "Стилизует только первую букву блока. Создаёт эффект Drop Cap, как в книгах." },
+    { icon: "📝", title: "::placeholder", desc: "Стилизует текст-подсказку внутри input или textarea." },
+    { icon: "🎨", title: "::selection", desc: "Стилизует цвет и фон выделенного пользователем текста." },
+  ],
   displayExplain: {
     block: "block — начинается с новой строки, занимает 100% ширины.",
     inline: "inline — располагается в одной строке, ширина/высота игнорируются.",
@@ -612,6 +698,25 @@ const ru: CSSTranslations = {
   },
   boxShadowExplain: {
     shadow: "box-shadow: создает мягкие или жесткие тени вокруг или внутри элемента."
+  },
+  pseudoClassExplain: {
+    hover:         ":hover — срабатывает при наведении мыши. Используется для изменения фона, цвета и масштаба.",
+    focus:         ":focus — срабатывает при фокусировке элемента. Критически важно для input и button.",
+    active:        ":active — срабатывает при нажатии. Отлично для анимации нажатия кнопки.",
+    "first-child": ":first-child — выбирает первого дочернего элемента родителя.",
+    "last-child":  ":last-child — выбирает последнего дочернего элемента родителя.",
+    "nth-child":   ":nth-child(odd) — выбирает нечётные дочерние элементы (1, 3, 5...). even — чётные.",
+    not:           ":not(.active) — выбирает все элементы, у которых НЕТ класса .active.",
+    disabled:      ":disabled — выбирает элементы с атрибутом disabled. Показывает интерактивное состояние.",
+    checked:       ":checked — нацеливается на отмеченный checkbox или radio, может стилизовать соседей.",
+  },
+  pseudoElementExplain: {
+    before:         "::before — вставляет виртуальный контент перед элементом. В HTML не виден, только в CSS.",
+    after:          "::after — вставляет виртуальный контент после элемента. Для декоративных маркеров и эффектов.",
+    "first-letter": "::first-letter — стилизует только первую букву. Создаёт эффект Drop Cap, как в книгах.",
+    "first-line":   "::first-line — стилизует только первую строку. Работает только с блочными элементами.",
+    placeholder:    "::placeholder — стилизует текст-подсказку внутри input и textarea.",
+    selection:      "::selection — стилизует текст, выделенный пользователем.",
   },
 };
 

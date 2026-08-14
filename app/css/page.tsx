@@ -3,14 +3,14 @@
 import { useState, useId, CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Code2, Layers, LayoutGrid, Sparkles, ChevronRight, Square, MapPin, Zap, BarChart3, Monitor } from "lucide-react";
+import { Code2, Layers, LayoutGrid, Sparkles, ChevronRight, Square, MapPin, Zap, BarChart3, Monitor, MousePointer, Type } from "lucide-react";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLangStore } from "@/app/playground/store";
 import { CSS_UI, type CSSTranslations } from "@/lib/i18n/css";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Tab = "flex" | "grid" | "animation" | "boxmodel" | "position" | "transition" | "responsive" | "display" | "boxshadow";
+type Tab = "flex" | "grid" | "animation" | "boxmodel" | "position" | "transition" | "responsive" | "display" | "boxshadow" | "pseudoclass" | "pseudoelement";
 
 const LOCAL_TEXTS: Record<string, Record<string, string>> = {
   uz: {
@@ -38,6 +38,32 @@ const LOCAL_TEXTS: Record<string, Record<string, string>> = {
     colorPurple: "purple",
     colorPink: "pink",
     boxLabel: "Box",
+    liveDemo: "jonli demo",
+    hoverActive: ":hover faol ✓",
+    hoverInactive: "sichqonchani olib keling",
+    focusPlaceholder: "kiriting (focus uchun)",
+    focusHelper: "focus: ",
+    activeActive: ":active ✓",
+    activeInactive: "bosib turing",
+    enabledLabel: ":enabled (faol)",
+    disabledLabel: ":disabled",
+    notActiveHelp: " (.active — not ga tushmas)",
+    beforeBadge1: "Eslatma",
+    beforeBadge2: "Muhim",
+    beforeBadge3: "Yangilik",
+    beforeHelp: "«★» belgisi ::before orqali qo'shilgan — HTMLda yo'q",
+    afterBadge1: "Bosh sahifa",
+    afterBadge2: "Haqida",
+    afterBadge3: "Aloqa",
+    afterHelp: "«→» belgisi ::after orqali qo'shilgan — HTMLda yo'q",
+    flLetter: "H",
+    flText: "ar bir veb-sahifa CSS yordamida chiroyli ko'rinish kasb etishi mumkin. Birinchi harf ajralib tursa, o'qish yanada qiziqroq bo'ladi.",
+    flLineFirst: "CSS pseudo-elementlari — sahifani bezashning kuchli usuli.",
+    flLineRest: "Qolgan qatorlar odatiy ko'rinishda davom etadi. Birinchi qator boshqacha styled bo'lgan.",
+    phPlaceholder: "placeholder matn (binafsha rang)",
+    phHelp: "Placeholder matni ::placeholder bilan purple rangda",
+    selText: "Bu matnni sichqoncha bilan tanlang — belgilangan qism pushti rang oladi. ::selection CSS bilan boshqariladi.",
+    selHelp: "Matnni sichqoncha bilan tanlang va effektni ko'ring",
   },
   en: {
     selectedItem: "Selected item",
@@ -64,6 +90,32 @@ const LOCAL_TEXTS: Record<string, Record<string, string>> = {
     colorPurple: "purple",
     colorPink: "pink",
     boxLabel: "Box",
+    liveDemo: "live demo",
+    hoverActive: ":hover active ✓",
+    hoverInactive: "hover over me",
+    focusPlaceholder: "type here (for focus)",
+    focusHelper: "focus: ",
+    activeActive: ":active ✓",
+    activeInactive: "click and hold",
+    enabledLabel: ":enabled (active)",
+    disabledLabel: ":disabled",
+    notActiveHelp: " (.active — not matched)",
+    beforeBadge1: "Note",
+    beforeBadge2: "Important",
+    beforeBadge3: "News",
+    beforeHelp: "The '★' symbol is added via ::before — not in HTML",
+    afterBadge1: "Home",
+    afterBadge2: "About",
+    afterBadge3: "Contact",
+    afterHelp: "The '→' symbol is added via ::after — not in HTML",
+    flLetter: "E",
+    flText: "very webpage can look beautiful using CSS. Styling the first letter makes reading more engaging.",
+    flLineFirst: "CSS pseudo-elements are a powerful way to style web pages.",
+    flLineRest: "The remaining lines continue normally. Only the first line is styled.",
+    phPlaceholder: "placeholder text (purple)",
+    phHelp: "Placeholder text is styled purple with ::placeholder",
+    selText: "Select this text with your mouse — the highlighted part will turn pink. ::selection is controlled by CSS.",
+    selHelp: "Select the text to see the effect in action",
   },
   ru: {
     selectedItem: "Выбранный элемент",
@@ -90,6 +142,32 @@ const LOCAL_TEXTS: Record<string, Record<string, string>> = {
     colorPurple: "purple",
     colorPink: "pink",
     boxLabel: "Box",
+    liveDemo: "живое демо",
+    hoverActive: ":hover активен ✓",
+    hoverInactive: "наведите мышь",
+    focusPlaceholder: "введите текст (для фокуса)",
+    focusHelper: "focus: ",
+    activeActive: ":active ✓",
+    activeInactive: "нажмите и удерживайте",
+    enabledLabel: ":enabled (активна)",
+    disabledLabel: ":disabled",
+    notActiveHelp: " (.active — не совпадает с not)",
+    beforeBadge1: "Заметка",
+    beforeBadge2: "Важно",
+    beforeBadge3: "Новость",
+    beforeHelp: "Символ '★' добавлен через ::before — отсутствует в HTML",
+    afterBadge1: "Главная",
+    afterBadge2: "О нас",
+    afterBadge3: "Контакты",
+    afterHelp: "Символ '→' добавлен через ::after — отсутствует в HTML",
+    flLetter: "К",
+    flText: "аждая веб-страница может выглядеть красиво с помощью CSS. Выделение первой буквы делает чтение более интересным.",
+    flLineFirst: "CSS псевдоэлементы — это мощный способ стилизации страниц.",
+    flLineRest: "Остальные строки отображаются как обычно. Первая строка выделена стилем.",
+    phPlaceholder: "текст плейсхолдера (фиолетовый)",
+    phHelp: "Текст плейсхолдера стилизован фиолетовым цветом через ::placeholder",
+    selText: "Выделите этот текст мышкой — выделенная часть станет розовой. ::selection управляется через CSS.",
+    selHelp: "Выделите текст, чтобы увидеть эффект в действии",
   }
 };
 
@@ -2028,6 +2106,356 @@ function BoxShadowSection({ t, lang }: { t: CSSTranslations; lang: string }) {
   );
 }
 
+// ─── PSEUDO-CLASS SECTION ─────────────────────────────────────────────────────
+
+const PSEUDO_CLASSES = [
+  { id: "hover",        label: ":hover",          color: "#3b82f6" },
+  { id: "focus",        label: ":focus",          color: "#a855f7" },
+  { id: "active",       label: ":active",         color: "#ec4899" },
+  { id: "first-child",  label: ":first-child",    color: "#10b981" },
+  { id: "last-child",   label: ":last-child",     color: "#f97316" },
+  { id: "nth-child",    label: ":nth-child(odd)", color: "#eab308" },
+  { id: "not",          label: ":not(.active)",   color: "#06b6d4" },
+  { id: "disabled",     label: ":disabled",       color: "#6b7280" },
+  { id: "checked",      label: ":checked",        color: "#f43f5e" },
+];
+
+function PseudoClassSection({ t, lang }: { t: CSSTranslations; lang: string }) {
+  const lt = LOCAL_TEXTS[lang] || LOCAL_TEXTS.uz;
+  const [selected, setSelected] = useState("hover");
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+  const [checked, setChecked] = useState(false);
+
+  const pc = PSEUDO_CLASSES.find(p => p.id === selected)!;
+
+  const cssLines: Record<string, string[]> = {
+    hover:        [".btn {","  background: #1e293b;","  color: #94a3b8;","}","",".btn:hover {","  background: #3b82f6;","  color: white;","  transform: scale(1.05);","}"],
+    focus:        [".input {","  border: 2px solid #334155;","  outline: none;","}","",".input:focus {","  border-color: #a855f7;","  box-shadow: 0 0 0 3px rgba(168,85,247,0.3);","}"],
+    active:       [".btn:active {","  transform: scale(0.95);","  background: #ec4899;","}"],
+    "first-child": [".list li:first-child {","  color: #10b981;","  font-weight: bold;","  border-left: 3px solid #10b981;","}"],
+    "last-child":  [".list li:last-child {","  color: #f97316;","  font-weight: bold;","  border-left: 3px solid #f97316;","}"],
+    "nth-child":   [".list li:nth-child(odd) {","  background: rgba(234,179,8,0.1);","  color: #eab308;","}"],
+    not:           [".list li:not(.active) {","  opacity: 0.4;","  filter: grayscale(1);","}"],
+    disabled:      ["button:disabled {","  opacity: 0.4;","  cursor: not-allowed;","  background: #1e293b;","}"],
+    checked:       ["input[type='checkbox']:checked + label {","  color: #f43f5e;","  font-weight: bold;","  text-decoration: line-through;","}"],
+  };
+
+  const explainMap: Record<string, string> = t.pseudoClassExplain;
+
+  return (
+    <div className="flex flex-col xl:flex-row gap-6">
+      {/* Controls */}
+      <div className="xl:w-[380px] shrink-0 flex flex-col gap-4">
+        <CtrlGroup title="pseudo-class" color="blue">
+          {PSEUDO_CLASSES.map(p => (
+            <PropBtn key={p.id} active={selected === p.id} color="blue" onClick={() => setSelected(p.id)}>
+              {p.label}
+            </PropBtn>
+          ))}
+        </CtrlGroup>
+        <CSSCode lines={cssLines[selected] || []} />
+      </div>
+
+      {/* Preview */}
+      <div className="flex flex-col gap-4 flex-1 min-w-0">
+        {/* Explain banner */}
+        <AnimatePresence mode="wait">
+          <motion.div key={selected}
+            initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-4 py-3">
+            <p className="text-sm text-gray-300">
+              <code className="text-cyan-400 font-bold font-mono">{pc.label}</code>
+              {" — "}
+              {explainMap[selected] ?? ""}
+            </p>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Live demo */}
+        <div className="rounded-2xl border border-border bg-surface p-5 flex flex-col gap-5">
+          <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">{lt.liveDemo}</span>
+
+          {/* hover */}
+          {selected === "hover" && (
+            <div className="flex flex-col gap-3 items-start">
+              <button
+                onMouseEnter={() => setHovered(true)}
+                onMouseLeave={() => setHovered(false)}
+                className="px-6 py-3 rounded-xl font-mono font-bold text-sm transition-all duration-200"
+                style={{
+                  background: hovered ? "#3b82f6" : "#1e293b",
+                  color: hovered ? "white" : "#94a3b8",
+                  transform: hovered ? "scale(1.05)" : "scale(1)",
+                  border: "1px solid rgba(255,255,255,0.1)"
+                }}
+              >
+                {hovered ? lt.hoverActive : lt.hoverInactive}
+              </button>
+              <p className="text-xs text-gray-500 font-mono">hover: {hovered ? "true" : "false"}</p>
+            </div>
+          )}
+
+          {/* focus */}
+          {selected === "focus" && (
+            <div className="flex flex-col gap-3">
+              <input
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
+                className="w-full max-w-xs px-4 py-2.5 rounded-xl font-mono text-sm bg-[#0d1117] text-gray-200 outline-none transition-all duration-200"
+                style={{
+                  border: focused ? "2px solid #a855f7" : "2px solid #334155",
+                  boxShadow: focused ? "0 0 0 3px rgba(168,85,247,0.3)" : "none",
+                }}
+                placeholder={lt.focusPlaceholder}
+              />
+              <p className="text-xs text-gray-500 font-mono">focus: {focused ? "true" : "false"}</p>
+            </div>
+          )}
+
+          {/* active */}
+          {selected === "active" && (
+            <div className="flex flex-col gap-3 items-start">
+              <button
+                onMouseDown={() => setIsActive(true)}
+                onMouseUp={() => setIsActive(false)}
+                onMouseLeave={() => setIsActive(false)}
+                className="px-6 py-3 rounded-xl font-mono font-bold text-sm text-white border border-white/10 transition-all duration-75"
+                style={{
+                  background: isActive ? "#ec4899" : "#1e293b",
+                  transform: isActive ? "scale(0.95)" : "scale(1)",
+                }}
+              >
+                {isActive ? lt.activeActive : lt.activeInactive}
+              </button>
+              <p className="text-xs text-gray-500 font-mono">active: {isActive ? "true" : "false"}</p>
+            </div>
+          )}
+
+          {/* first-child / last-child / nth-child / not */}
+          {["first-child", "last-child", "nth-child", "not"].includes(selected) && (
+            <ul className="flex flex-col gap-1.5 w-full max-w-xs">
+              {[lt.el1, lt.el2, lt.el3, "4-element", "5-element"].map((item, i) => {
+                const isFirst = i === 0;
+                const isLast = i === 4;
+                const isOdd = i % 2 === 0;
+                const isNotActive = i !== 2;
+
+                let style: React.CSSProperties = {
+                  padding: "8px 14px",
+                  borderRadius: 8,
+                  fontFamily: "monospace",
+                  fontSize: 13,
+                  background: "#0d1117",
+                  color: "#64748b",
+                  borderLeft: "3px solid transparent",
+                  opacity: 1,
+                  transition: "all 0.15s",
+                };
+                if (selected === "first-child" && isFirst)  { style.color = "#10b981"; style.fontWeight = "bold"; style.borderLeft = "3px solid #10b981"; }
+                if (selected === "last-child"  && isLast)   { style.color = "#f97316"; style.fontWeight = "bold"; style.borderLeft = "3px solid #f97316"; }
+                if (selected === "nth-child"   && isOdd)    { style.background = "rgba(234,179,8,0.1)"; style.color = "#eab308"; }
+                if (selected === "not"         && isNotActive) { style.opacity = 0.35; }
+                return <li key={i} style={style}>{item}{i === 2 && selected === "not" ? lt.notActiveHelp : ""}</li>;
+              })}
+            </ul>
+          )}
+
+          {/* disabled */}
+          {selected === "disabled" && (
+            <div className="flex gap-3 items-center flex-wrap">
+              <button className="px-5 py-2.5 rounded-xl font-mono font-bold text-sm text-white bg-blue-600 border border-white/10">
+                {lt.enabledLabel}
+              </button>
+              <button disabled className="px-5 py-2.5 rounded-xl font-mono font-bold text-sm border border-white/10"
+                style={{ opacity: 0.4, cursor: "not-allowed", background: "#1e293b", color: "#64748b" }}>
+                {lt.disabledLabel}
+              </button>
+            </div>
+          )}
+
+          {/* checked */}
+          {selected === "checked" && (
+            <div className="flex flex-col gap-3">
+              {[lt.el1, lt.el2, lt.el3].map((item, i) => {
+                const id = `chk-${i}`;
+                const ch = i === 0 ? checked : i === 1;
+                return (
+                  <div key={i} className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id={id}
+                      checked={i === 0 ? checked : i === 1}
+                      onChange={i === 0 ? () => setChecked(c => !c) : undefined}
+                      className="w-4 h-4 accent-pink-500"
+                    />
+                    <label htmlFor={id} className="font-mono text-sm transition-all duration-150"
+                      style={{ color: ch ? "#f43f5e" : "#64748b", fontWeight: ch ? 700 : 400, textDecoration: ch ? "line-through" : "none" }}>
+                      {item}
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Tips */}
+        <div className="grid grid-cols-2 gap-2">
+          {t.pseudoClassTips.map(tip => <InfoCard key={tip.title} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── PSEUDO-ELEMENT SECTION ───────────────────────────────────────────────────
+
+const PSEUDO_ELEMENTS = [
+  { id: "before",       label: "::before" },
+  { id: "after",        label: "::after" },
+  { id: "first-letter", label: "::first-letter" },
+  { id: "first-line",   label: "::first-line" },
+  { id: "placeholder",  label: "::placeholder" },
+  { id: "selection",    label: "::selection" },
+];
+
+function PseudoElementSection({ t, lang }: { t: CSSTranslations; lang: string }) {
+  const lt = LOCAL_TEXTS[lang] || LOCAL_TEXTS.uz;
+  const [selected, setSelected] = useState("before");
+  const [selectionText, setSelectionText] = useState("");
+
+  const pe = PSEUDO_ELEMENTS.find(p => p.id === selected)!;
+  const explainMap: Record<string, string> = t.pseudoElementExplain;
+
+  const cssLines: Record<string, string[]> = {
+    before:         [".badge::before {","  content: '★ ';","  color: #eab308;","}"],
+    after:          [".tag::after {","  content: ' →';","  color: #a855f7;","  margin-left: 4px;","}"],
+    "first-letter": [".paragraph::first-letter {","  font-size: 3em;","  font-weight: bold;","  color: #3b82f6;","  float: left;","  line-height: 1;","  margin-right: 4px;","}"],
+    "first-line":   [".paragraph::first-line {","  color: #10b981;","  font-weight: bold;","  font-style: italic;","}"],
+    placeholder:    [".input::placeholder {","  color: #a855f7;","  font-style: italic;","  opacity: 0.8;","}"],
+    selection:      [".text::selection {","  background: #ec4899;","  color: white;","}"],
+  };
+
+  return (
+    <div className="flex flex-col xl:flex-row gap-6">
+      {/* Controls */}
+      <div className="xl:w-[380px] shrink-0 flex flex-col gap-4">
+        <CtrlGroup title="pseudo-element" color="purple">
+          {PSEUDO_ELEMENTS.map(p => (
+            <PropBtn key={p.id} active={selected === p.id} color="purple" onClick={() => setSelected(p.id)}>
+              {p.label}
+            </PropBtn>
+          ))}
+        </CtrlGroup>
+        <CSSCode lines={cssLines[selected] || []} />
+      </div>
+
+      {/* Preview */}
+      <div className="flex flex-col gap-4 flex-1 min-w-0">
+        {/* Explain banner */}
+        <AnimatePresence mode="wait">
+          <motion.div key={selected}
+            initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="rounded-xl border border-purple-500/20 bg-purple-500/5 px-4 py-3">
+            <p className="text-sm text-gray-300">
+              <code className="text-purple-400 font-bold font-mono">{pe.label}</code>
+              {" — "}
+              {explainMap[selected] ?? ""}
+            </p>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Live demo */}
+        <div className="rounded-2xl border border-border bg-surface p-5 flex flex-col gap-5">
+          <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">{lt.liveDemo}</span>
+
+          {/* ::before */}
+          {selected === "before" && (
+            <div className="flex flex-col gap-3">
+              {[lt.beforeBadge1, lt.beforeBadge2, lt.beforeBadge3].map(label => (
+                <div key={label} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0d1117] border border-white/5 font-mono text-sm text-gray-200 w-fit">
+                  <span className="text-yellow-400 font-bold">★</span>
+                  {label}
+                </div>
+              ))}
+              <p className="text-[11px] text-gray-600 font-mono mt-1">{lt.beforeHelp}</p>
+            </div>
+          )}
+
+          {/* ::after */}
+          {selected === "after" && (
+            <div className="flex flex-col gap-3">
+              {[lt.afterBadge1, lt.afterBadge2, lt.afterBadge3].map(label => (
+                <div key={label} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0d1117] border border-white/5 font-mono text-sm text-gray-200 w-fit">
+                  {label}
+                  <span className="text-purple-400 font-bold">→</span>
+                </div>
+              ))}
+              <p className="text-[11px] text-gray-600 font-mono mt-1">{lt.afterHelp}</p>
+            </div>
+          )}
+
+          {/* ::first-letter */}
+          {selected === "first-letter" && (
+            <div className="rounded-xl bg-[#0d1117] border border-white/5 p-5 max-w-sm">
+              <p className="text-gray-300 text-sm leading-relaxed font-serif">
+                <span className="text-blue-400 font-black text-5xl float-left leading-none mr-2">{lt.flLetter}</span>
+                {lt.flText}
+              </p>
+            </div>
+          )}
+
+          {/* ::first-line */}
+          {selected === "first-line" && (
+            <div className="rounded-xl bg-[#0d1117] border border-white/5 p-5 max-w-sm">
+              <p className="text-gray-300 text-sm leading-relaxed">
+                <span className="text-emerald-400 font-bold italic">{lt.flLineFirst}</span>
+                {" "}{lt.flLineRest}
+              </p>
+            </div>
+          )}
+
+          {/* ::placeholder */}
+          {selected === "placeholder" && (
+            <div className="flex flex-col gap-3">
+              <input
+                className="w-full max-w-xs px-4 py-3 rounded-xl bg-[#0d1117] border border-white/10 text-gray-200 font-mono text-sm outline-none focus:border-purple-500 transition-colors"
+                style={{ "--placeholder-color": "#a855f7" } as React.CSSProperties}
+                placeholder={lt.phPlaceholder}
+              />
+              <style>{`input.pseudo-ph::placeholder { color: #a855f7; font-style: italic; }`}</style>
+              <p className="text-[11px] text-gray-600 font-mono">{lt.phHelp}</p>
+            </div>
+          )}
+
+          {/* ::selection */}
+          {selected === "selection" && (
+            <div className="flex flex-col gap-3">
+              <div className="rounded-xl bg-[#0d1117] border border-white/5 p-5">
+                <style>{`.sel-text::selection { background: #ec4899; color: white; }`}</style>
+                <p className="sel-text text-gray-200 text-sm leading-relaxed font-mono select-text">
+                  {lt.selText}
+                </p>
+              </div>
+              <p className="text-[11px] text-gray-600 font-mono">{lt.selHelp}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Tips */}
+        <div className="grid grid-cols-2 gap-2">
+          {t.pseudoElementTips.map(tip => <InfoCard key={tip.title} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function CSSPage() {
@@ -2036,15 +2464,17 @@ export default function CSSPage() {
   const t = CSS_UI[lang];
 
   const TABS = [
-    { id: "flex" as Tab,        label: "Flexbox",    icon: <Layers size={16} />,     desc: t.flexDesc,        color: "blue"    },
-    { id: "grid" as Tab,        label: "Grid",       icon: <LayoutGrid size={16} />, desc: t.gridDesc,        color: "purple"  },
-    { id: "display" as Tab,     label: "Display",    icon: <Monitor size={16} />,    desc: t.displayDesc,     color: "emerald" },
-    { id: "boxshadow" as Tab,   label: "Box Shadow", icon: <Square size={16} />,     desc: t.boxShadowDesc,   color: "pink"    },
-    { id: "animation" as Tab,   label: "Animation",  icon: <Sparkles size={16} />,   desc: t.animDesc,        color: "yellow"  },
-    { id: "boxmodel" as Tab,    label: "Box Model",  icon: <Square size={16} />,     desc: t.boxDesc,         color: "orange"  },
-    { id: "position" as Tab,    label: "Position",   icon: <MapPin size={16} />,     desc: t.posDesc,         color: "emerald" },
-    { id: "transition" as Tab,  label: "Transition", icon: <Zap size={16} />,        desc: t.transDesc,       color: "pink"    },
-    { id: "responsive" as Tab,  label: "Responsive", icon: <Monitor size={16} />,    desc: t.responsiveDesc,  color: "cyan"    },
+    { id: "flex" as Tab,          label: "Flexbox",         icon: <Layers size={16} />,       desc: t.flexDesc,           color: "blue"    },
+    { id: "grid" as Tab,          label: "Grid",            icon: <LayoutGrid size={16} />,   desc: t.gridDesc,           color: "purple"  },
+    { id: "display" as Tab,       label: "Display",         icon: <Monitor size={16} />,      desc: t.displayDesc,        color: "emerald" },
+    { id: "boxshadow" as Tab,     label: "Box Shadow",      icon: <Square size={16} />,       desc: t.boxShadowDesc,      color: "pink"    },
+    { id: "pseudoclass" as Tab,   label: "Pseudo-class",   icon: <MousePointer size={16} />, desc: t.pseudoClassDesc,    color: "cyan"    },
+    { id: "pseudoelement" as Tab, label: "Pseudo-element", icon: <Type size={16} />,          desc: t.pseudoElementDesc,  color: "yellow"  },
+    { id: "animation" as Tab,     label: "Animation",       icon: <Sparkles size={16} />,     desc: t.animDesc,           color: "yellow"  },
+    { id: "boxmodel" as Tab,      label: "Box Model",       icon: <Square size={16} />,       desc: t.boxDesc,            color: "orange"  },
+    { id: "position" as Tab,      label: "Position",        icon: <MapPin size={16} />,       desc: t.posDesc,            color: "emerald" },
+    { id: "transition" as Tab,    label: "Transition",      icon: <Zap size={16} />,          desc: t.transDesc,          color: "pink"    },
+    { id: "responsive" as Tab,    label: "Responsive",      icon: <Monitor size={16} />,      desc: t.responsiveDesc,     color: "cyan"    },
   ];
 
   return (
@@ -2110,15 +2540,17 @@ export default function CSSPage() {
       <div className="max-w-7xl mx-auto px-4 pb-16">
         <AnimatePresence mode="wait">
           <motion.div key={tab} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-4}} transition={{duration:0.2}}>
-            {tab === "flex"        && <FlexSection t={t} lang={lang} />}
-            {tab === "grid"        && <GridSection t={t} lang={lang} />}
-            {tab === "display"     && <DisplaySection t={t} lang={lang} />}
-            {tab === "boxshadow"   && <BoxShadowSection t={t} lang={lang} />}
-            {tab === "animation"   && <AnimSection t={t} />}
-            {tab === "boxmodel"    && <BoxModelSection t={t} />}
-            {tab === "position"    && <PositionSection t={t} />}
-            {tab === "transition"  && <TransitionSection t={t} />}
-            {tab === "responsive"  && <ResponsiveSection t={t} />}
+            {tab === "flex"          && <FlexSection t={t} lang={lang} />}
+            {tab === "grid"          && <GridSection t={t} lang={lang} />}
+            {tab === "display"       && <DisplaySection t={t} lang={lang} />}
+            {tab === "boxshadow"     && <BoxShadowSection t={t} lang={lang} />}
+            {tab === "pseudoclass"   && <PseudoClassSection t={t} lang={lang} />}
+            {tab === "pseudoelement" && <PseudoElementSection t={t} lang={lang} />}
+            {tab === "animation"     && <AnimSection t={t} />}
+            {tab === "boxmodel"      && <BoxModelSection t={t} />}
+            {tab === "position"      && <PositionSection t={t} />}
+            {tab === "transition"    && <TransitionSection t={t} />}
+            {tab === "responsive"    && <ResponsiveSection t={t} />}
           </motion.div>
         </AnimatePresence>
       </div>
