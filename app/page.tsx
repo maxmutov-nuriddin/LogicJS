@@ -349,11 +349,15 @@ export default function HomePage() {
         <div className="max-w-7xl xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-6 h-14 flex items-center justify-between">
           <Logo />
           <div className="flex items-center gap-2">
-            <LanguageSwitcher />
             <Link href="/css"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
               <Layers size={13} />
               CSS
+            </Link>
+            <Link href="/playground"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
+              <Play size={13} />
+              JavaScript
             </Link>
             <Link href="/backend"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
@@ -365,11 +369,7 @@ export default function HomePage() {
               <BarChart3 size={13} />
               Resurs
             </Link>
-            <Link href="/playground"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-sm font-semibold transition-all duration-150 shadow-glow">
-              <Play size={13} />
-              JavaScript
-            </Link>
+            <LanguageSwitcher />
           </div>
         </div>
       </nav>

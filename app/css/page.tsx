@@ -3,7 +3,7 @@
 import { useState, useId, CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Code2, Layers, LayoutGrid, Sparkles, ChevronRight, Square, MapPin, Zap, BarChart3, Monitor, MousePointer, Type } from "lucide-react";
+import { Code2, Layers, LayoutGrid, Sparkles, ChevronRight, Square, MapPin, Zap, BarChart3, Monitor, MousePointer, Type, Server, Play } from "lucide-react";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLangStore } from "@/app/playground/store";
 import { CSS_UI, type CSSTranslations } from "@/lib/i18n/css";
@@ -2613,28 +2613,37 @@ export default function CSSPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-surface/80 backdrop-blur-sm sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 h-13 flex items-center justify-between gap-4 py-3">
-          <Link href="/" className="flex items-center gap-2.5 group">
+        <div className="max-w-7xl xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-6 h-14 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 font-mono tracking-tight text-white font-black">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0">
               <Code2 size={14} className="text-white" />
             </div>
-            <span className="font-black text-base text-white font-mono group-hover:opacity-80 transition-opacity">
+            <span>
               Logic<span className="text-primary-light">Lab</span>
             </span>
-            <ChevronRight size={14} className="text-gray-600" />
-            <span className="font-bold text-sm text-gray-300">CSS Vizualizator</span>
           </Link>
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher />
-            <Link href="/performance"
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border bg-surface-2 text-gray-400 hover:text-gray-200 transition-colors font-mono">
-              <BarChart3 size={12} />
-              Resurs
+          <div className="flex items-center gap-2">
+            <Link href="/css"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-white bg-surface-2 border border-border transition-all duration-150 font-medium">
+              <Layers size={13} />
+              CSS
             </Link>
             <Link href="/playground"
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border bg-surface-2 text-gray-400 hover:text-gray-200 transition-colors font-mono">
-              JS Playground
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
+              <Play size={13} />
+              JavaScript
             </Link>
+            <Link href="/backend"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
+              <Server size={13} />
+              Backend
+            </Link>
+            <Link href="/performance"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
+              <BarChart3 size={13} />
+              Resurs
+            </Link>
+            <LanguageSwitcher />
           </div>
         </div>
       </header>

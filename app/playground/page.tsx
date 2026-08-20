@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { Code2, AlertCircle, Home, Layers, BarChart3, ChevronRight } from "lucide-react";
+import { Code2, AlertCircle, Layers, BarChart3, Server, Play } from "lucide-react";
 import { usePlaygroundStore, useLangStore } from "./store";
 import { UI } from "@/lib/i18n/ui";
 import { CodeEditor } from "@/components/editor/CodeEditor";
@@ -30,45 +30,38 @@ export default function PlaygroundPage() {
     <div className="flex flex-col h-screen bg-background overflow-hidden">
       <AutoPlayController />
 
-      {/* Header */}
       <header className="shrink-0 border-b border-border bg-surface/80 backdrop-blur-sm z-20">
-        <div className="flex items-center justify-between px-4 h-12">
-          {/* Logo + breadcrumb */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-6 h-6 rounded bg-primary flex items-center justify-center">
-              <Code2 size={12} className="text-white" />
+        <div className="max-w-7xl xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-6 h-14 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 font-mono tracking-tight text-white font-black">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0">
+              <Code2 size={14} className="text-white" />
             </div>
-            <span className="font-bold text-sm text-white font-mono tracking-tight group-hover:opacity-80 transition-opacity">
+            <span>
               Logic<span className="text-primary-light">Lab</span>
             </span>
-            <ChevronRight size={13} className="text-gray-600" />
-            <span className="font-semibold text-sm text-gray-300">JS Playground</span>
           </Link>
-
-          {/* Right: language switcher + home */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Link href="/css"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
+              <Layers size={13} />
+              CSS
+            </Link>
+            <Link href="/playground"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-white bg-surface-2 border border-border transition-all duration-150 font-medium">
+              <Play size={13} />
+              JavaScript
+            </Link>
+            <Link href="/backend"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
+              <Server size={13} />
+              Backend
+            </Link>
+            <Link href="/performance"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
+              <BarChart3 size={13} />
+              Resurs
+            </Link>
             <LanguageSwitcher />
-            <Link
-              href="/performance"
-              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"
-            >
-              <BarChart3 size={12} />
-              <span className="hidden sm:block">Resurs</span>
-            </Link>
-            <Link
-              href="/css"
-              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"
-            >
-              <Layers size={12} />
-              <span className="hidden sm:block">CSS</span>
-            </Link>
-            <Link
-              href="/"
-              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"
-            >
-              <Home size={12} />
-              <span className="hidden sm:block">{lang === "ru" ? "Главная" : lang === "uz" ? "Asosiy" : "Home"}</span>
-            </Link>
           </div>
         </div>
       </header>

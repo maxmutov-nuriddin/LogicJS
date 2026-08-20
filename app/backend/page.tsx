@@ -4,8 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft, Globe, Database, Lock, Layers, Wifi, Shield,
-  Server, Monitor, ChevronRight, Zap, Play, Square,
+  ArrowLeft, Globe, Database, Server, Monitor, Zap, Play, Code2, Layers, BarChart3,
 } from "lucide-react";
 import { useLangStore } from "@/app/playground/store";
 import { BACKEND_I18N, BackendTranslations } from "@/lib/i18n/backend";
@@ -13,50 +12,95 @@ import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type TabId = "http" | "rest" | "database" | "auth" | "middleware" | "websocket" | "cors";
+type TabId = "basics" | "fs" | "eventloop" | "httpnative";
 
-const TABS: { id: TabId; icon: React.ReactNode; color: string; glow: string; border: string; tag: string }[] = [
-  { id: "http",       icon: <Globe size={15} />,    color: "text-blue-400",    glow: "shadow-[0_0_20px_rgba(59,130,246,0.3)]",   border: "border-blue-500/30",   tag: "blue" },
-  { id: "rest",       icon: <Server size={15} />,   color: "text-emerald-400", glow: "shadow-[0_0_20px_rgba(16,185,129,0.3)]",  border: "border-emerald-500/30", tag: "emerald" },
-  { id: "database",   icon: <Database size={15} />, color: "text-purple-400",  glow: "shadow-[0_0_20px_rgba(168,85,247,0.3)]", border: "border-purple-500/30",  tag: "purple" },
-  { id: "auth",       icon: <Lock size={15} />,     color: "text-yellow-400",  glow: "shadow-[0_0_20px_rgba(234,179,8,0.3)]",  border: "border-yellow-500/30",  tag: "yellow" },
-  { id: "middleware", icon: <Layers size={15} />,   color: "text-orange-400",  glow: "shadow-[0_0_20px_rgba(249,115,22,0.3)]", border: "border-orange-500/30",  tag: "orange" },
-  { id: "websocket",  icon: <Wifi size={15} />,     color: "text-pink-400",    glow: "shadow-[0_0_20px_rgba(236,72,153,0.3)]",  border: "border-pink-500/30",    tag: "pink" },
-  { id: "cors",       icon: <Shield size={15} />,   color: "text-cyan-400",    glow: "shadow-[0_0_20px_rgba(6,182,212,0.3)]",   border: "border-cyan-500/30",    tag: "cyan" },
+const ALL_TABS: { id: TabId; group: "core"; icon: React.ReactNode; color: string; glow: string; border: string; indexStr: string }[] = [
+  { id: "basics",     group: "core", icon: <Server size={14} />,   color: "text-blue-400",    glow: "shadow-[0_0_20px_rgba(59,130,246,0.3)]",   border: "border-blue-500/30",   indexStr: "01" },
+  { id: "fs",         group: "core", icon: <Database size={14} />, color: "text-emerald-400", glow: "shadow-[0_0_20px_rgba(16,185,129,0.3)]",  border: "border-emerald-500/30", indexStr: "02" },
+  { id: "eventloop",  group: "core", icon: <Zap size={14} />,      color: "text-yellow-400",  glow: "shadow-[0_0_20px_rgba(234,179,8,0.3)]",   border: "border-yellow-500/30",  indexStr: "03" },
+  { id: "httpnative", group: "core", icon: <Globe size={14} />,    color: "text-purple-400",  glow: "shadow-[0_0_20px_rgba(168,85,247,0.3)]", border: "border-purple-500/30",  indexStr: "04" },
 ];
+
+// ─── Postman i18n local dictionary ────────────────────────────────────────────
+
+const POSTMAN_I18N = {
+  en: {
+    clientTitle: "Postman Client",
+    queryParams: "URL Query Parameters (Request parameters)",
+    noQueryParamsPost: "POST requests normally do not require query parameters.\nData is sent securely inside the Request Body instead.",
+    pathParamId: "Path parameter specifies database key id:\nSplit query matches req.url.startsWith('/api/users/')",
+    requestHeaders: "HTTP Request Headers",
+    noBodyRequired: "HTTP {method} requests do not require a request body.\nThe server processes the request from path matching.",
+    requestBodyPayload: "Request Body Payload (JSON)",
+    keyLabel: "Key",
+    valueLabel: "Value"
+  },
+  uz: {
+    clientTitle: "Postman Mijoz",
+    queryParams: "URL so'rov parametrlari (Request parameters)",
+    noQueryParamsPost: "POST so'rovlarida parametrlar ishlatilmaydi.\nMa'lumotlar Body orqali xavfsiz yuboriladi.",
+    pathParamId: "ID parametri URL yo'lida (Path) yuboriladi:\nreq.url.startsWith('/api/users/') tekshiruvi orqali.",
+    requestHeaders: "HTTP so'rov sarlavhalari (Request Headers)",
+    noBodyRequired: "HTTP {method} so'rovlarida tana (body) yuborilmaydi.\nServer ma'lumotni URL yo'lidan tahlil qiladi.",
+    requestBodyPayload: "So'rov tanasi (JSON Body)",
+    keyLabel: "Kalit",
+    valueLabel: "Qiymat"
+  },
+  ru: {
+    clientTitle: "Postman Клиент",
+    queryParams: "Параметры URL-запроса (Query Parameters)",
+    noQueryParamsPost: "POST-запросы обычно не требуют параметров запроса.\nДанные отправляются внутри тела запроса (Request Body).",
+    pathParamId: "Параметр ID передается в пути URL (Path):\nreq.url.startsWith('/api/users/') для обработки.",
+    requestHeaders: "Заголовки HTTP-запроса (Headers)",
+    noBodyRequired: "HTTP {method}-запросы не требуют тела запроса.\nСервер обрабатывает запрос на основе пути URL.",
+    requestBodyPayload: "Тело запроса (JSON Body)",
+    keyLabel: "Ключ",
+    valueLabel: "Значение"
+  }
+};
+
+// ─── Event Loop Speed Control i18n dictionary ─────────────────────────────────
+
+const SPEED_I18N = {
+  en: {
+    speedLabel: "Animation Speed",
+  },
+  uz: {
+    speedLabel: "Animatsiya tezligi",
+  },
+  ru: {
+    speedLabel: "Скорость анимации",
+  }
+};
 
 // ─── JS Code component ────────────────────────────────────────────────────────
 
-function JSCode({ lines }: { lines: string[] }) {
+function JSCode({ lines, filename = "server.js" }: { lines: string[]; filename?: string }) {
   const keywords = ["const", "let", "var", "function", "async", "await", "return", "if", "else", "new", "require", "import", "from", "export"];
   return (
-    <div className="rounded-xl bg-[#0d1117] border border-border overflow-hidden">
-      <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border/50 bg-[#161b22]">
+    <div className="rounded-xl bg-[#0d1117] border border-border overflow-hidden flex flex-col h-full">
+      <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border/50 bg-[#161b22] shrink-0">
         <div className="w-2 h-2 rounded-full bg-rose-500/60" />
         <div className="w-2 h-2 rounded-full bg-yellow-500/60" />
         <div className="w-2 h-2 rounded-full bg-emerald-500/60" />
-        <span className="ml-2 text-[10px] text-gray-600 font-mono">server.js</span>
+        <span className="ml-2 text-[10px] text-gray-600 font-mono">{filename}</span>
       </div>
-      <div className="p-4 font-mono text-[12px] leading-[1.7] overflow-x-auto">
+      <div className="p-4 font-mono text-[12px] leading-[1.7] overflow-x-auto flex-1 bg-[#0d1117]">
         {lines.map((line, i) => {
           const parts: { text: string; cls: string }[] = [];
           let remaining = line;
 
-          // Simple tokenizer
           const addPart = (text: string, cls: string) => parts.push({ text, cls });
 
-          // Comment
-          if (remaining.trim().startsWith("//")) {
+          if (remaining.trim().startsWith("//") || remaining.trim().startsWith("--")) {
             addPart(remaining, "text-gray-600 italic");
           } else {
-            // Strings
             const strRe = /('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g;
             let lastIdx = 0;
             let m: RegExpExecArray | null;
             while ((m = strRe.exec(remaining)) !== null) {
               const before = remaining.slice(lastIdx, m.index);
               if (before) {
-                // Tokenize before for keywords/numbers
                 before.split(/(\b(?:const|let|var|function|async|await|return|if|else|new|require|import|from|export)\b|\b\d+\b)/).forEach(tok => {
                   if (keywords.includes(tok)) addPart(tok, "text-blue-400 font-semibold");
                   else if (/^\d+$/.test(tok)) addPart(tok, "text-orange-400");
@@ -91,30 +135,662 @@ function JSCode({ lines }: { lines: string[] }) {
 
 function InfoCard({ icon, title, desc }: { icon: string; title: string; desc: string }) {
   return (
-    <div className="rounded-xl border border-border bg-[#0d1117]/60 p-3 flex gap-3">
+    <div className="rounded-xl border border-border bg-[#0d1117]/60 p-3.5 flex gap-3">
       <span className="text-xl shrink-0">{icon}</span>
       <div>
-        <p className="text-xs font-bold text-gray-200 font-mono mb-0.5">{title}</p>
+        <p className="text-xs font-bold text-gray-200 font-mono mb-1">{title}</p>
         <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
       </div>
     </div>
   );
 }
 
-// ─── HTTP SECTION ─────────────────────────────────────────────────────────────
+// ─── BASICS & ESM SECTION ─────────────────────────────────────────────────────
 
-function HTTPSection({ t }: { t: BackendTranslations }) {
-  const [method, setMethod] = useState<"GET"|"POST"|"PUT"|"DELETE">("GET");
-  const [phase, setPhase] = useState<"idle"|"request"|"db"|"response"|"done">("idle");
-  const [statusCode, setStatusCode] = useState("");
-  const [responseTime, setResponseTime] = useState(0);
+function BasicsSection({ t }: { t: BackendTranslations }) {
+  const [format, setFormat] = useState<"commonjs" | "esm">("commonjs");
 
-  const statusMap: Record<string, { code: string; color: string }> = {
-    GET:    { code: "200 OK",         color: "text-emerald-400" },
-    POST:   { code: "201 Created",    color: "text-blue-400" },
-    PUT:    { code: "200 OK",         color: "text-emerald-400" },
-    DELETE: { code: "204 No Content", color: "text-orange-400" },
+  const codeFiles = {
+    commonjs: {
+      math: [
+        "// math.js",
+        "const add = (a, b) => a + b;",
+        "const sub = (a, b) => a - b;",
+        "",
+        "module.exports = {",
+        "  add,",
+        "  sub"
+      ],
+      app: [
+        "// app.js",
+        "const math = require('./math');",
+        "",
+        "console.log(math.add(5, 3)); // 8",
+        "console.log(math.sub(5, 3)); // 2"
+      ]
+    },
+    esm: {
+      math: [
+        "// math.js",
+        "export const add = (a, b) => a + b;",
+        "export const sub = (a, b) => a - b;"
+      ],
+      app: [
+        "// app.js",
+        "import { add, sub } from './math.js';",
+        "",
+        "console.log(add(5, 3)); // 8",
+        "console.log(sub(5, 3)); // 2"
+      ]
+    }
   };
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Top controls and code side-by-side */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="rounded-xl border border-border bg-[#0d1117]/60 p-5 flex flex-col justify-between gap-4">
+          <div>
+            <p className="text-xs text-gray-500 font-mono mb-3">Module System</p>
+            <div className="flex gap-2">
+              <button onClick={() => setFormat("commonjs")}
+                className={`flex-1 py-2.5 rounded-lg text-xs font-bold font-mono border transition-all duration-150 ${
+                  format === "commonjs"
+                    ? "bg-blue-500/20 text-blue-300 border-blue-500/40"
+                    : "bg-surface-2 text-gray-500 border-border"
+                }`}>
+                CommonJS (CJS)
+              </button>
+              <button onClick={() => setFormat("esm")}
+                className={`flex-1 py-2.5 rounded-lg text-xs font-bold font-mono border transition-all duration-150 ${
+                  format === "esm"
+                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                    : "bg-surface-2 text-gray-500 border-border"
+                }`}>
+                ES Modules (ESM)
+              </button>
+            </div>
+          </div>
+          <div className="rounded-lg border border-blue-500/25 bg-blue-500/5 px-4 py-3 flex-1 flex items-center">
+            <p className="text-xs text-gray-300 leading-relaxed">
+              <code className="text-blue-400 font-bold font-mono">{format === "commonjs" ? "require()" : "import"}</code>{" — "}
+              {t.basicsExplain[format]}
+            </p>
+          </div>
+        </div>
+
+        <JSCode lines={codeFiles[format].app} filename="app.js" />
+      </div>
+
+      {/* Full-width Diagram */}
+      <div className="rounded-2xl border border-border bg-[#0d1117] p-8 flex flex-col justify-center min-h-[220px]">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-12 relative max-w-3xl mx-auto w-full">
+          <motion.div layout className="w-56 rounded-xl border border-gray-700 bg-surface-2/45 p-4 flex flex-col gap-2 relative z-10">
+            <div className="flex items-center gap-2 border-b border-border pb-1.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
+              <span className="text-xs font-mono font-bold text-gray-300">math.js</span>
+            </div>
+            <div className="font-mono text-[10px] text-gray-500">
+              {format === "commonjs" ? "module.exports = { add, sub }" : "export const add, sub"}
+            </div>
+          </motion.div>
+
+          <div className="flex-1 flex items-center justify-center relative w-full md:w-auto h-12 md:h-auto">
+            <div className="w-full md:w-44 h-0.5 bg-border relative">
+              <motion.div key={format} initial={{ left: 0 }} animate={{ left: "100%" }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                className={`absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full ${
+                  format === "commonjs" ? "bg-blue-400 shadow-glow" : "bg-emerald-400 shadow-glow-accent"
+                }`} />
+            </div>
+            <span className="absolute -top-6 text-[10px] font-mono text-gray-500">
+              {format === "commonjs" ? "Sync require()" : "Static Import"}
+            </span>
+          </div>
+
+          <motion.div layout className="w-56 rounded-xl border border-gray-700 bg-surface-2/45 p-4 flex flex-col gap-2 relative z-10">
+            <div className="flex items-center gap-2 border-b border-border pb-1.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+              <span className="text-xs font-mono font-bold text-gray-300">app.js</span>
+            </div>
+            <div className="font-mono text-[10px] text-gray-500">
+              {format === "commonjs" ? "const math = require('./math')" : "import { add, sub }"}
+            </div>
+          </motion.div>
+        </div>
+      </div>
+      
+      {/* Tips */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {t.basicsTips.map((tip, idx) => <InfoCard key={idx} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
+      </div>
+    </div>
+  );
+}
+
+// ─── FS SECTION ───────────────────────────────────────────────────────────────
+
+function FSSection({ t }: { t: BackendTranslations }) {
+  const [mode, setMode] = useState<"sync" | "async" | "promises">("sync");
+  const [stack, setStack] = useState<string[]>([]);
+  const [threads, setThreads] = useState<{ id: number; task: string | null }[]>([
+    { id: 1, task: null },
+    { id: 2, task: null },
+    { id: 3, task: null },
+    { id: 4, task: null },
+  ]);
+  const [output, setOutput] = useState<string[]>([]);
+  const [running, setRunning] = useState(false);
+  const [loopActive, setLoopActive] = useState(false);
+
+  const codeFiles = {
+    sync: [
+      "const fs = require('fs');",
+      "console.log('Start');",
+      "",
+      "// Blocks the call stack!",
+      "const data = fs.readFileSync('file.txt');",
+      "console.log(data.toString());",
+      "",
+      "console.log('End');"
+    ],
+    async: [
+      "const fs = require('fs');",
+      "console.log('Start');",
+      "",
+      "// Offloads to Thread Pool",
+      "fs.readFile('file.txt', (err, data) => {",
+      "  console.log(data.toString());",
+      "});",
+      "",
+      "console.log('End');"
+    ],
+    promises: [
+      "const fs = require('fs').promises;",
+      "console.log('Start');",
+      "",
+      "async function run() {",
+      "  const data = await fs.readFile('file.txt');",
+      "  console.log(data.toString());",
+      "}",
+      "run();",
+      "console.log('End');"
+    ]
+  };
+
+  const execute = async () => {
+    if (running) return;
+    setRunning(true);
+    setStack([]);
+    setOutput([]);
+    setThreads([
+      { id: 1, task: null },
+      { id: 2, task: null },
+      { id: 3, task: null },
+      { id: 4, task: null },
+    ]);
+
+    setStack(["console.log('Start')"]);
+    await new Promise(r => setTimeout(r, 600));
+    setOutput(o => [...o, "Start"]);
+    setStack([]);
+    await new Promise(r => setTimeout(r, 400));
+
+    if (mode === "sync") {
+      setStack(["fs.readFileSync() [Blocking...]"]);
+      await new Promise(r => setTimeout(r, 1200));
+      setOutput(o => [...o, "File data contents"]);
+      setStack([]);
+      await new Promise(r => setTimeout(r, 400));
+
+      setStack(["console.log('End')"]);
+      await new Promise(r => setTimeout(r, 600));
+      setOutput(o => [...o, "End"]);
+      setStack([]);
+    } else {
+      const callStr = mode === "async" ? "fs.readFile()" : "run()";
+      setStack([callStr]);
+      await new Promise(r => setTimeout(r, 500));
+      
+      setThreads(prev => prev.map((t, idx) => idx === 0 ? { ...t, task: "Reading file.txt" } : t));
+      setStack([]);
+      await new Promise(r => setTimeout(r, 400));
+
+      setStack(["console.log('End')"]);
+      await new Promise(r => setTimeout(r, 600));
+      setOutput(o => [...o, "End"]);
+      setStack([]);
+      await new Promise(r => setTimeout(r, 600));
+
+      setThreads(prev => prev.map((t, idx) => idx === 0 ? { ...t, task: "Finished (Ready)" } : t));
+      await new Promise(r => setTimeout(r, 500));
+
+      setLoopActive(true);
+      await new Promise(r => setTimeout(r, 400));
+      setLoopActive(false);
+
+      setStack(["callback(data)"]);
+      await new Promise(r => setTimeout(r, 600));
+      setOutput(o => [...o, "File data contents"]);
+      setStack([]);
+      setThreads(prev => prev.map((t, idx) => idx === 0 ? { ...t, task: null } : t));
+    }
+
+    setRunning(false);
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Top controls and code side-by-side */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="rounded-xl border border-border bg-[#0d1117]/60 p-5 flex flex-col justify-between gap-4">
+          <div className="flex flex-col gap-3">
+            <p className="text-xs text-gray-500 font-mono">FS Read Mode</p>
+            <div className="flex flex-col gap-2">
+              {(["sync", "async", "promises"] as const).map(m => (
+                <button key={m} onClick={() => { setMode(m); setStack([]); setOutput([]); }}
+                  className={`py-2 px-3 rounded-lg text-xs font-bold font-mono border text-left transition-all duration-150 ${
+                    mode === m
+                      ? mode === "sync" ? "bg-red-500/20 text-red-300 border-red-500/40" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                      : "bg-surface-2 text-gray-500 border-border"
+                  }`}>
+                  {m === "sync" ? "fs.readFileSync (Sync)" : m === "async" ? "fs.readFile (Async)" : "fs.promises.readFile"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button onClick={execute} disabled={running}
+            className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-sm transition-all flex items-center justify-center gap-2">
+            <Play size={14} />Execute Code
+          </button>
+        </div>
+
+        <JSCode lines={codeFiles[mode]} filename="file-system.js" />
+      </div>
+
+      <div className={`rounded-xl border px-4 py-3 ${mode === "sync" ? "border-red-500/20 bg-red-500/5" : "border-emerald-500/20 bg-emerald-500/5"}`}>
+        <p className="text-sm text-gray-300">
+          <code className="text-emerald-400 font-bold font-mono">{mode === "sync" ? "readFileSync" : "readFile"}</code>{" — "}
+          {t.fsExplain[mode]}
+        </p>
+      </div>
+
+      {/* Full-width Diagram */}
+      <div className="rounded-2xl border border-border bg-[#0d1117] p-6 flex-1">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-xl border border-border bg-surface-2/30 p-4 flex flex-col gap-3">
+            <span className="text-[10px] text-gray-500 font-mono font-bold">Main Call Stack</span>
+            <div className="flex-1 flex flex-col-reverse gap-2 min-h-[140px] justify-start">
+              <AnimatePresence>
+                {stack.map((item) => (
+                  <motion.div key={item} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                    className={`p-2.5 rounded-lg border text-xs font-mono font-bold ${
+                      mode === "sync" ? "border-red-500/40 bg-red-500/10 text-red-300" : "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+                    }`}>{item}</motion.div>
+                ))}
+              </AnimatePresence>
+              {stack.length === 0 && <div className="text-gray-600 text-xs italic font-mono text-center my-auto">Stack Empty</div>}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-surface-2/30 p-4 flex flex-col gap-3">
+            <span className="text-[10px] text-gray-500 font-mono font-bold flex items-center gap-1.5">
+              <motion.div animate={loopActive ? { rotate: 360 } : {}} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="w-3.5 h-3.5 rounded-full border-2 border-dashed border-gray-600 flex items-center justify-center font-bold text-[8px]">↻</motion.div>
+              Libuv Thread Pool
+            </span>
+            <div className="flex flex-col gap-2">
+              {threads.map(thr => (
+                <div key={thr.id} className="flex items-center justify-between p-2 rounded bg-[#161b22] border border-border/50 text-[10px] font-mono">
+                  <span className="text-gray-500">Thread #{thr.id}</span>
+                  <span className={thr.task ? "text-yellow-400 font-bold" : "text-gray-600"}>{thr.task || "Idle"}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-surface-2/30 p-4 flex flex-col gap-3">
+            <span className="text-[10px] text-gray-500 font-mono font-bold">Console Output</span>
+            <div className="flex-1 bg-[#161b22] rounded-lg p-3 font-mono text-xs text-gray-400 space-y-1 min-h-[140px]">
+              {output.map((out, idx) => (
+                <div key={idx} className="text-green-400 font-mono">{`> ${out}`}</div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Tips */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {t.fsTips.map((tip, idx) => <InfoCard key={idx} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
+      </div>
+    </div>
+  );
+}
+
+// ─── EVENT LOOP SECTION ───────────────────────────────────────────────────────
+
+function EventLoopSection({ t }: { t: BackendTranslations }) {
+  const [stack, setStack] = useState<string[]>([]);
+  const [nextTickQueue, setNextTickQueue] = useState<string[]>([]);
+  const [promiseQueue, setPromiseQueue] = useState<string[]>([]);
+  const [timerQueue, setTimerQueue] = useState<string[]>([]);
+  const [output, setOutput] = useState<string[]>([]);
+  const [running, setRunning] = useState(false);
+  const [highlightedPhase, setHighlightedPhase] = useState<string | null>(null);
+  const [speed, setSpeed] = useState<1 | 0.5 | 0.3>(1);
+  const { lang } = useLangStore();
+
+  const sp = SPEED_I18N[lang as "uz" | "en" | "ru"] ?? SPEED_I18N.en;
+
+  const codeLines = [
+    "console.log('Start');",
+    "setTimeout(() => console.log('Timeout'), 0);",
+    "Promise.resolve().then(() => console.log('Promise'));",
+    "process.nextTick(() => console.log('nextTick'));",
+    "console.log('End');"
+  ];
+
+  const execute = async () => {
+    if (running) return;
+    setRunning(true);
+    setStack([]);
+    setNextTickQueue([]);
+    setPromiseQueue([]);
+    setTimerQueue([]);
+    setOutput([]);
+    setHighlightedPhase(null);
+
+    const runDelay = (ms: number) => new Promise(r => setTimeout(r, ms * (1 / speed)));
+
+    setStack(["console.log('Start')"]);
+    await runDelay(600);
+    setOutput(o => [...o, "Start"]);
+    setStack([]);
+    await runDelay(450);
+
+    setStack(["setTimeout(cb, 0)"]);
+    await runDelay(600);
+    setTimerQueue(["cb (Timeout)"]);
+    setStack([]);
+    await runDelay(450);
+
+    setStack(["Promise.resolve().then(cb)"]);
+    await runDelay(600);
+    setPromiseQueue(["cb (Promise)"]);
+    setStack([]);
+    await runDelay(450);
+
+    setStack(["process.nextTick(cb)"]);
+    await runDelay(600);
+    setNextTickQueue(["cb (nextTick)"]);
+    setStack([]);
+    await runDelay(450);
+
+    setStack(["console.log('End')"]);
+    await runDelay(600);
+    setOutput(o => [...o, "End"]);
+    setStack([]);
+    await runDelay(600);
+
+    setHighlightedPhase("microtasks");
+    await runDelay(500);
+
+    if (nextTickQueue.length > 0) {
+      setStack(["cb (nextTick)"]);
+      setNextTickQueue([]);
+      await runDelay(600);
+      setOutput(o => [...o, "nextTick"]);
+      setStack([]);
+      await runDelay(500);
+    }
+
+    if (promiseQueue.length > 0) {
+      setStack(["cb (Promise)"]);
+      setPromiseQueue([]);
+      await runDelay(600);
+      setOutput(o => [...o, "Promise"]);
+      setStack([]);
+      await runDelay(500);
+    }
+
+    setHighlightedPhase("timers");
+    await runDelay(500);
+
+    if (timerQueue.length > 0) {
+      setStack(["cb (Timeout)"]);
+      setTimerQueue([]);
+      await runDelay(600);
+      setOutput(o => [...o, "Timeout"]);
+      setStack([]);
+      await runDelay(500);
+    }
+
+    setHighlightedPhase(null);
+    setRunning(false);
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Top controls and code side-by-side */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="rounded-xl border border-border bg-[#0d1117]/60 p-5 flex flex-col justify-between gap-4">
+          <div className="flex flex-col gap-3">
+            <p className="text-xs text-gray-500 font-mono">Event Loop Simulation</p>
+            <p className="text-xs text-gray-400 leading-relaxed">{t.eventloopSubtitle}</p>
+            
+            {/* Speed selection controls */}
+            <div className="mt-2">
+              <p className="text-[10px] text-gray-500 font-mono mb-2">{sp.speedLabel}</p>
+              <div className="flex gap-1.5">
+                {([1, 0.5, 0.3] as const).map(s => {
+                  const labelMap = {
+                    1: "1.0x",
+                    0.5: "0.5x",
+                    0.3: "0.3x"
+                  };
+                  const active = speed === s;
+                  return (
+                    <button key={s} onClick={() => setSpeed(s)} disabled={running}
+                      className={`flex-1 py-1.5 rounded text-[10px] font-mono font-bold border transition-colors ${
+                        active
+                          ? "bg-purple-500/20 text-purple-300 border-purple-500/40"
+                          : "bg-surface-2 text-gray-500 border-border hover:border-gray-600 disabled:opacity-50"
+                      }`}>
+                      {labelMap[s]}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          <button onClick={execute} disabled={running}
+            className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-bold text-sm transition-all flex items-center justify-center gap-2">
+            <Play size={14} />Run Code
+          </button>
+        </div>
+
+        <JSCode lines={codeLines} filename="event-loop.js" />
+      </div>
+
+      {/* Full-width Diagram */}
+      <div className="rounded-2xl border border-border bg-[#0d1117] p-6 flex flex-col gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="rounded-xl border border-border bg-surface-2/20 p-3 min-h-[120px] flex flex-col">
+            <span className="text-[10px] text-gray-500 font-mono font-bold mb-2">Call Stack</span>
+            <div className="flex-1 flex flex-col-reverse gap-1.5">
+              {stack.map((item, idx) => (
+                <div key={idx} className="p-2 rounded bg-purple-500/20 border border-purple-500/30 text-[10px] font-mono font-bold text-purple-300">{item}</div>
+              ))}
+            </div>
+          </div>
+
+          <div className={`rounded-xl border p-3 min-h-[120px] flex flex-col ${highlightedPhase === "microtasks" ? "border-yellow-500/50 bg-yellow-500/5" : "border-border bg-surface-2/20"}`}>
+            <span className="text-[10px] text-gray-500 font-mono font-bold mb-2">nextTick Queue</span>
+            <div className="flex-1 flex flex-col gap-1.5">
+              {nextTickQueue.map((item, idx) => (
+                <div key={idx} className="p-2 rounded bg-yellow-500/10 border border-yellow-500/20 text-[10px] font-mono text-yellow-400">{item}</div>
+              ))}
+            </div>
+          </div>
+
+          <div className={`rounded-xl border p-3 min-h-[120px] flex flex-col ${highlightedPhase === "microtasks" ? "border-emerald-500/50 bg-emerald-500/5" : "border-border bg-surface-2/20"}`}>
+            <span className="text-[10px] text-gray-500 font-mono font-bold mb-2">Promise Queue</span>
+            <div className="flex-1 flex flex-col gap-1.5">
+              {promiseQueue.map((item, idx) => (
+                <div key={idx} className="p-2 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono text-emerald-400">{item}</div>
+              ))}
+            </div>
+          </div>
+
+          <div className={`rounded-xl border p-3 min-h-[120px] flex flex-col ${highlightedPhase === "timers" ? "border-blue-500/50 bg-blue-500/5" : "border-border bg-surface-2/20"}`}>
+            <span className="text-[10px] text-gray-500 font-mono font-bold mb-2">Timers (Macrotask)</span>
+            <div className="flex-1 flex flex-col gap-1.5">
+              {timerQueue.map((item, idx) => (
+                <div key={idx} className="p-2 rounded bg-blue-500/10 border border-blue-500/20 text-[10px] font-mono text-blue-400">{item}</div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-[#161b22] p-4 flex flex-col gap-2">
+          <span className="text-[9px] text-gray-500 font-mono font-bold">Console Output</span>
+          <div className="font-mono text-xs text-gray-400 min-h-[60px] space-y-1">
+            {output.map((out, idx) => <div key={idx} className="text-green-400 font-mono">{`> ${out}`}</div>)}
+          </div>
+        </div>
+      </div>
+      
+      {/* Tips */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {t.eventloopTips.map((tip, idx) => <InfoCard key={idx} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
+      </div>
+    </div>
+  );
+}
+
+// ─── HTTP NATIVE & POSTMAN SECTION ───────────────────────────────────────────
+
+function HTTPNativeSection({ t }: { t: BackendTranslations }) {
+  const [method, setMethod] = useState<"GET" | "POST" | "PUT" | "DELETE">("GET");
+  const [url, setUrl] = useState("/api/users");
+  const [body, setBody] = useState('{\n  "name": "Ali Valiyev",\n  "email": "ali@example.com"\n}');
+  const [response, setResponse] = useState<{ status: string; body: string; headers: Record<string, string> } | null>(null);
+  const [phase, setPhase] = useState<"idle" | "request" | "server" | "db" | "response" | "done">("idle");
+  const [postmanTab, setPostmanTab] = useState<"params" | "headers" | "body">("params");
+  const { lang } = useLangStore();
+
+  const pm = POSTMAN_I18N[lang as "uz" | "en" | "ru"] ?? POSTMAN_I18N.en;
+
+  const serverCode = [
+    "const http = require('http');",
+    "",
+    "const server = http.createServer((req, res) => {",
+    "  if (req.method === 'GET' && req.url === '/api/users') {",
+    "    res.writeHead(200, { 'Content-Type': 'application/json' });",
+    "    res.end(JSON.stringify([{ id: 1, name: 'Ali' }]));",
+    "  } else if (req.method === 'POST' && req.url === '/api/users') {",
+    "    let body = '';",
+    "    req.on('data', chunk => { body += chunk; });",
+    "    req.on('end', () => {",
+    "      // Simulates Database Query internally",
+    "      res.writeHead(201, { 'Content-Type': 'application/json' });",
+    "      res.end(JSON.stringify({ created: true, id: 42 }));",
+    "    });",
+    "  } else if (req.method === 'PUT' && req.url.startsWith('/api/users/')) {",
+    "    let body = '';",
+    "    req.on('data', chunk => { body += chunk; });",
+    "    req.on('end', () => {",
+    "      res.writeHead(200, { 'Content-Type': 'application/json' });",
+    "      res.end(JSON.stringify({ updated: true }));",
+    "    });",
+    "  } else if (req.method === 'DELETE' && req.url.startsWith('/api/users/')) {",
+    "    res.writeHead(204);",
+    "    res.end();",
+    "  } else {",
+    "    res.writeHead(404);",
+    "    res.end();",
+    "  }",
+    "});",
+    "server.listen(3000);"
+  ];
+
+  const triggerRequest = async () => {
+    setPhase("request");
+    setResponse(null);
+    await new Promise(r => setTimeout(r, 800));
+    setPhase("server");
+    await new Promise(r => setTimeout(r, 600));
+    
+    setPhase("db");
+    await new Promise(r => setTimeout(r, 800));
+    setPhase("server");
+    await new Promise(r => setTimeout(r, 400));
+    
+    setPhase("response");
+    await new Promise(r => setTimeout(r, 800));
+
+    if (method === "GET" && url === "/api/users") {
+      setResponse({
+        status: "200 OK",
+        headers: { "Content-Type": "application/json", "Connection": "keep-alive" },
+        body: JSON.stringify([
+          { id: 1, name: "Ali Valiyev", email: "ali@example.com" },
+          { id: 2, name: "Vali Karimov", email: "vali@example.com" }
+        ], null, 2)
+      });
+    } else if (method === "POST" && url === "/api/users") {
+      try {
+        const parsed = JSON.parse(body);
+        setResponse({
+          status: "201 Created",
+          headers: { "Content-Type": "application/json", "Connection": "keep-alive" },
+          body: JSON.stringify({ created: true, id: 42, data: parsed }, null, 2)
+        });
+      } catch (err) {
+        setResponse({
+          status: "400 Bad Request",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ error: "Invalid JSON format" }, null, 2)
+        });
+      }
+    } else if (method === "PUT" && url.startsWith("/api/users/")) {
+      try {
+        const parsed = JSON.parse(body);
+        setResponse({
+          status: "200 OK",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ updated: true, data: parsed }, null, 2)
+        });
+      } catch (err) {
+        setResponse({
+          status: "400 Bad Request",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ error: "Invalid JSON format" }, null, 2)
+        });
+      }
+    } else if (method === "DELETE" && url.startsWith("/api/users/")) {
+      setResponse({
+        status: "204 No Content",
+        headers: { "Connection": "close" },
+        body: "// 204 No Content - Empty response body"
+      });
+    } else {
+      setResponse({
+        status: "404 Not Found",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Endpoint not matched" }, null, 2)
+      });
+    }
+
+    setPhase("done");
+  };
+
+  const steps = [
+    { id: "request",   label: "1. Request Sent",       desc: "Client -> Server (HTTP Packet)", color: "text-orange-400" },
+    { id: "server",    label: "2. Server Route Match", desc: "Checks req.method & req.url",     color: "text-blue-400" },
+    { id: "db",        label: "3. Database Logic",     desc: "Queries/Writes mock SQL table",   color: "text-purple-400" },
+    { id: "response",  label: "4. Response Returned",   desc: "writeHead() & res.end() packet",  color: "text-emerald-400" },
+  ];
 
   const methodColors: Record<string, string> = {
     GET: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
@@ -123,1020 +799,250 @@ function HTTPSection({ t }: { t: BackendTranslations }) {
     DELETE: "bg-red-500/20 text-red-300 border-red-500/40",
   };
 
-  const codeLines: Record<string, string[]> = {
-    GET:    ["const express = require('express');", "const app = express();", "", "// GET — fetch all users", "app.get('/api/users', async (req, res) => {", "  const users = await db.query(", "    'SELECT * FROM users'", "  );", "  res.status(200).json(users);", "});"],
-    POST:   ["// POST — create a new user", "app.post('/api/users', async (req, res) => {", "  const { name, email } = req.body;", "  const result = await db.query(", "    'INSERT INTO users (name, email) VALUES (?, ?)',", "    [name, email]", "  );", "  res.status(201).json({ id: result.insertId });", "});"],
-    PUT:    ["// PUT — update user by id", "app.put('/api/users/:id', async (req, res) => {", "  const { name, email } = req.body;", "  await db.query(", "    'UPDATE users SET name=?, email=? WHERE id=?',", "    [name, email, req.params.id]", "  );", "  res.status(200).json({ updated: true });", "});"],
-    DELETE: ["// DELETE — remove user by id", "app.delete('/api/users/:id', async (req, res) => {", "  await db.query(", "    'DELETE FROM users WHERE id = ?',", "    [req.params.id]", "  );", "  res.status(204).send();", "});"],
-  };
-
-  const sendRequest = async () => {
-    const start = Date.now();
-    setPhase("request");
-    setStatusCode("");
-    await new Promise(r => setTimeout(r, 700));
-    setPhase("db");
-    await new Promise(r => setTimeout(r, 600));
-    setPhase("response");
-    await new Promise(r => setTimeout(r, 500));
-    setStatusCode(statusMap[method].code);
-    setResponseTime(Date.now() - start);
-    setPhase("done");
-  };
-
-  const FlowDot = ({ active, color }: { active: boolean; color: string }) => (
-    <motion.div
-      className={`w-2.5 h-2.5 rounded-full ${color}`}
-      animate={active ? { opacity: [0.4, 1, 0.4], scale: [0.8, 1.2, 0.8] } : { opacity: 0.25 }}
-      transition={{ duration: 0.6, repeat: active ? Infinity : 0 }}
-    />
-  );
-
   return (
-    <div className="flex flex-col xl:flex-row gap-6">
-      <div className="xl:w-[380px] shrink-0 flex flex-col gap-4">
-        {/* Method selector */}
-        <div className="rounded-xl border border-border bg-surface p-4">
-          <p className="text-xs text-gray-500 font-mono mb-3">{t.httpMethod}</p>
-          <div className="flex flex-wrap gap-2">
-            {(["GET", "POST", "PUT", "DELETE"] as const).map(m => (
-              <button key={m}
-                onClick={() => { setMethod(m); setPhase("idle"); setStatusCode(""); }}
-                className={`px-4 py-2 rounded-lg text-xs font-bold font-mono border transition-all duration-150 ${
-                  method === m ? methodColors[m] : "bg-surface-2 text-gray-500 border-border hover:border-gray-600"
-                }`}>
-                {m}
-              </button>
-            ))}
-          </div>
-          <div className="mt-3 text-xs text-gray-600 font-mono">
-            {t.httpEndpoint}: <span className="text-blue-400">/api/users{method === "PUT" || method === "DELETE" ? "/:id" : ""}</span>
-          </div>
-        </div>
-
-        {/* Send button */}
-        <button onClick={sendRequest} disabled={phase !== "idle" && phase !== "done"}
-          className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2">
-          <Play size={14} />
-          {t.httpSend}
-        </button>
-
-        {/* Status */}
-        {statusCode && (
-          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl border border-border bg-surface p-3 flex items-center gap-3">
-            <div className={`text-sm font-bold font-mono ${statusMap[method].color}`}>{statusCode}</div>
-            <div className="text-xs text-gray-500">{responseTime}ms</div>
-          </motion.div>
-        )}
-
-        {/* Code */}
-        <JSCode lines={codeLines[method]} />
-      </div>
-
-      <div className="flex flex-col gap-4 flex-1 min-w-0">
-        {/* Explain */}
-        <AnimatePresence mode="wait">
-          <motion.div key={method} initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="rounded-xl border border-blue-500/20 bg-blue-500/5 px-4 py-3">
-            <p className="text-sm text-gray-300">
-              <code className="text-blue-400 font-bold font-mono">{method}</code>{" — "}{t.httpExplain[method]}
-            </p>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Flow diagram */}
-        <div className="rounded-2xl border border-border bg-[#0d1117] p-6 flex-1">
-          <div className="flex flex-col gap-6 justify-center h-full">
-            {/* Client → Server */}
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col items-center gap-1.5 w-24 shrink-0">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center">
-                  <Monitor size={20} className="text-blue-400" />
-                </div>
-                <span className="text-[10px] text-gray-500 font-mono">{t.httpClient}</span>
-              </div>
-              <div className="flex-1 flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <FlowDot active={phase === "request"} color="bg-blue-400" />
-                  <div className="flex-1 h-px bg-gradient-to-r from-blue-500/60 to-transparent" />
-                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${ methodColors[method]} `}>{method}</span>
-                  <div className="flex-1 h-px bg-gradient-to-l from-blue-500/60 to-transparent" />
-                </div>
-                <div className="text-[10px] text-gray-600 font-mono text-center">/api/users</div>
-              </div>
-              <div className="flex flex-col items-center gap-1.5 w-24 shrink-0">
-                <div className={`w-12 h-12 rounded-xl border flex items-center justify-center transition-all duration-300 ${
-                  phase === "done" ? "bg-emerald-500/10 border-emerald-500/40" : "bg-surface-2 border-border"
-                }`}>
-                  <Server size={20} className={phase === "done" ? "text-emerald-400" : "text-gray-500"} />
-                </div>
-                <span className="text-[10px] text-gray-500 font-mono">{t.httpServer}</span>
-                {phase === "done" && (
-                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    className={`text-[9px] font-mono font-bold ${statusMap[method].color}`}>
-                    {statusMap[method].code}
-                  </motion.span>
-                )}
-              </div>
-            </div>
-
-            {/* Server ↕ DB */}
-            <div className="flex justify-center">
-              <div className="flex flex-col items-center gap-2 w-24">
-                <div className="flex flex-col items-center gap-1">
-                  <FlowDot active={phase === "db"} color="bg-purple-400" />
-                  <div className="w-px h-6 bg-gradient-to-b from-purple-500/60 to-purple-500/20" />
-                  <FlowDot active={phase === "db"} color="bg-purple-400" />
-                </div>
-              </div>
-            </div>
-
-            {/* DB */}
-            <div className="flex justify-center">
-              <div className="flex flex-col items-center gap-1.5">
-                <div className={`w-12 h-12 rounded-xl border flex items-center justify-center transition-all duration-300 ${
-                  phase === "db" || phase === "response" || phase === "done" ? "bg-purple-500/10 border-purple-500/40" : "bg-surface-2 border-border"
-                }`}>
-                  <Database size={20} className={phase === "db" || phase === "done" ? "text-purple-400" : "text-gray-500"} />
-                </div>
-                <span className="text-[10px] text-gray-500 font-mono">{t.httpDatabase}</span>
-              </div>
-            </div>
-
-            {/* Response */}
-            {phase === "done" && (
-              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] text-gray-500 font-mono">{t.httpResponse}</span>
-                  <span className={`text-xs font-bold font-mono ${statusMap[method].color}`}>{statusMap[method].code}</span>
-                </div>
-                <div className="font-mono text-[11px] text-gray-400 space-y-0.5">
-                  {method === "GET" && (
-                    <><div><span className="text-gray-600">[</span></div>
-                    <div className="pl-3"><span className="text-gray-600">{"{ "}</span><span className="text-yellow-300">id</span><span className="text-gray-600">: </span><span className="text-orange-400">1</span><span className="text-gray-600">, </span><span className="text-yellow-300">name</span><span className="text-gray-600">: </span><span className="text-green-400">"Ali"</span><span className="text-gray-600">{" }"}</span></div>
-                    <div><span className="text-gray-600">]</span></div></>
-                  )}
-                  {method === "POST" && (
-                    <><div><span className="text-gray-600">{"{ "}</span><span className="text-yellow-300">id</span><span className="text-gray-600">: </span><span className="text-orange-400">42</span><span className="text-gray-600">, </span><span className="text-yellow-300">created</span><span className="text-gray-600">: </span><span className="text-green-400">true</span><span className="text-gray-600">{" }"}</span></div></>
-                  )}
-                  {method === "PUT" && (
-                    <><div><span className="text-gray-600">{"{ "}</span><span className="text-yellow-300">updated</span><span className="text-gray-600">: </span><span className="text-green-400">true</span><span className="text-gray-600">{" }"}</span></div></>
-                  )}
-                  {method === "DELETE" && (
-                    <div className="text-gray-500 italic">// 204 No Content — no body</div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </div>
-        </div>
-
-        {/* Tips */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          {t.httpTips.map(tip => <InfoCard key={tip.title} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── REST SECTION ─────────────────────────────────────────────────────────────
-
-function RESTSection({ t }: { t: BackendTranslations }) {
-  const [method, setMethod] = useState<"GET"|"POST"|"PUT"|"DELETE">("GET");
-
-  const methodConfig = {
-    GET:    { color: "emerald", status: "200 OK",         icon: "📥", desc: "Read" },
-    POST:   { color: "blue",    status: "201 Created",    icon: "📤", desc: "Create" },
-    PUT:    { color: "yellow",  status: "200 OK",         icon: "✏️", desc: "Update" },
-    DELETE: { color: "red",     status: "204 No Content", icon: "🗑️", desc: "Delete" },
-  };
-
-  const requestBodies: Record<string, { title: string; lines: string[] } | null> = {
-    GET:    null,
-    POST:   { title: "Request Body (JSON)", lines: ['{ "name": "Ali", "email": "ali@example.com" }'] },
-    PUT:    { title: "Request Body (JSON)", lines: ['{ "name": "Ali Updated", "email": "new@example.com" }'] },
-    DELETE: null,
-  };
-
-  const responseBodies: Record<string, string[]> = {
-    GET:    ['[', '  { "id": 1, "name": "Ali", "email": "ali@example.com" },', '  { "id": 2, "name": "Vali", "email": "vali@example.com" }', ']'],
-    POST:   ['{ "id": 42, "name": "Ali", "email": "ali@example.com", "createdAt": "2024-01-01" }'],
-    PUT:    ['{ "id": 1, "name": "Ali Updated", "email": "new@example.com" }'],
-    DELETE: ['// 204 No Content — empty response body'],
-  };
-
-  const codeLines: Record<string, string[]> = {
-    GET:    ["// GET /api/users", "app.get('/api/users', async (req, res) => {", "  const users = await User.findAll();", "  res.status(200).json(users);", "});"],
-    POST:   ["// POST /api/users", "app.post('/api/users', async (req, res) => {", "  const user = await User.create(req.body);", "  res.status(201).json(user);", "});"],
-    PUT:    ["// PUT /api/users/:id", "app.put('/api/users/:id', async (req, res) => {", "  const user = await User.findByIdAndUpdate(", "    req.params.id, req.body, { new: true }", "  );", "  res.status(200).json(user);", "});"],
-    DELETE: ["// DELETE /api/users/:id", "app.delete('/api/users/:id', async (req, res) => {", "  await User.findByIdAndDelete(req.params.id);", "  res.status(204).send();", "});"],
-  };
-
-  const mc = methodConfig[method];
-
-  return (
-    <div className="flex flex-col xl:flex-row gap-6">
-      <div className="xl:w-[380px] shrink-0 flex flex-col gap-4">
-        {/* Method buttons */}
-        <div className="grid grid-cols-2 gap-2">
-          {(["GET", "POST", "PUT", "DELETE"] as const).map(m => {
-            const cfg = methodConfig[m];
-            const isActive = method === m;
-            return (
-              <button key={m} onClick={() => setMethod(m)}
-                className={`p-4 rounded-xl border text-left transition-all duration-200 ${
-                  isActive
-                    ? `bg-${cfg.color}-500/15 border-${cfg.color}-500/40 shadow-[0_0_15px_rgba(0,0,0,0.2)]`
-                    : "bg-surface border-border hover:border-gray-600"
-                }`}>
-                <div className="text-2xl mb-1">{cfg.icon}</div>
-                <div className={`font-mono font-bold text-sm ${
-                  isActive ? (m === "GET" ? "text-emerald-400" : m === "POST" ? "text-blue-400" : m === "PUT" ? "text-yellow-400" : "text-red-400") : "text-gray-400"
-                }`}>{m}</div>
-                <div className="text-[10px] text-gray-600">{cfg.desc}</div>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* URL */}
-        <div className="rounded-xl border border-border bg-[#0d1117] p-3 font-mono text-[11px]">
-          <div className="text-gray-600 mb-1">{t.restHeaders}:</div>
-          <div className="space-y-1">
-            <div><span className="text-gray-500">Content-Type: </span><span className="text-orange-300">application/json</span></div>
-            <div><span className="text-gray-500">Authorization: </span><span className="text-green-400">Bearer eyJhbGc...</span></div>
-          </div>
-          <div className="mt-2 pt-2 border-t border-border/50">
-            <div className="text-gray-600 mb-1">URL:</div>
-            <div>
-              <span className={`font-bold text-xs ${
-                method === "GET" ? "text-emerald-400" : method === "POST" ? "text-blue-400" : method === "PUT" ? "text-yellow-400" : "text-red-400"
-              }`}>{method}</span>
-              <span className="text-gray-500"> /api/users{method === "PUT" || method === "DELETE" ? "/1" : ""}</span>
+    <div className="flex flex-col gap-6">
+      {/* Top Postman controls & server.js Code side-by-side */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+        <div className="lg:col-span-2 rounded-xl border border-border bg-[#0d1117] overflow-hidden flex flex-col">
+          <div className="px-3 py-2 border-b border-border/50 bg-[#161b22] flex items-center justify-between shrink-0">
+            <span className="text-[10px] font-mono font-bold text-orange-400">{pm.clientTitle}</span>
+            <div className="flex gap-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-gray-600" />
+              <div className="w-1.5 h-1.5 rounded-full bg-gray-600" />
             </div>
           </div>
-        </div>
-
-        {/* Code */}
-        <JSCode lines={codeLines[method]} />
-      </div>
-
-      <div className="flex flex-col gap-4 flex-1 min-w-0">
-        {/* Explain */}
-        <AnimatePresence mode="wait">
-          <motion.div key={method} initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
-            <p className="text-sm text-gray-300">
-              <code className={`font-bold font-mono ${
-                method === "GET" ? "text-emerald-400" : method === "POST" ? "text-blue-400" : method === "PUT" ? "text-yellow-400" : "text-red-400"
-              }`}>{method}</code>{" — "}{t.restExplain[method]}
-            </p>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Request + Response panels */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
-          {/* Request */}
-          <div className="rounded-xl border border-border bg-[#0d1117] overflow-hidden">
-            <div className="px-3 py-2 border-b border-border/50 bg-[#161b22] flex items-center justify-between">
-              <span className="text-[10px] text-gray-600 font-mono">{t.httpRequest}</span>
-              <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded ${
-                method === "GET" ? "bg-emerald-500/20 text-emerald-300" : method === "POST" ? "bg-blue-500/20 text-blue-300" : method === "PUT" ? "bg-yellow-500/20 text-yellow-300" : "bg-red-500/20 text-red-300"
-              }`}>{method}</span>
-            </div>
-            <div className="p-3 font-mono text-[11px] text-gray-400 space-y-1">
-              {requestBodies[method] ? (
-                <>
-                  <div className="text-gray-600 text-[10px] mb-1">{requestBodies[method]!.title}:</div>
-                  {requestBodies[method]!.lines.map((l, i) => <div key={i} className="text-green-400">{l}</div>)}
-                </>
-              ) : (
-                <div className="text-gray-600 italic">// No request body</div>
-              )}
+          <div className="p-4 border-b border-border/40 shrink-0 bg-[#0d1117]">
+            <div className="flex gap-2">
+              <select value={method} onChange={e => {
+                const m = e.target.value as "GET"|"POST"|"PUT"|"DELETE";
+                setMethod(m);
+                setUrl(m === "GET" || m === "POST" ? "/api/users" : "/api/users/1");
+                if (m === "PUT") {
+                  setBody('{\n  "name": "Ali Valiyev (Updated)",\n  "email": "new.ali@example.com"\n}');
+                } else {
+                  setBody('{\n  "name": "Ali Valiyev",\n  "email": "ali@example.com"\n}');
+                }
+              }} className="bg-surface border border-border rounded-lg text-xs font-mono px-2 py-1.5 text-gray-300 outline-none">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+              </select>
+              <input value={url} onChange={e => setUrl(e.target.value)}
+                className="flex-1 bg-surface border border-border rounded-lg text-xs font-mono px-3 py-1.5 text-gray-300 outline-none" />
             </div>
           </div>
-          {/* Response */}
-          <div className="rounded-xl border border-border bg-[#0d1117] overflow-hidden">
-            <div className="px-3 py-2 border-b border-border/50 bg-[#161b22] flex items-center justify-between">
-              <span className="text-[10px] text-gray-600 font-mono">{t.httpResponse}</span>
-              <span className="text-[10px] font-bold font-mono text-emerald-400">{mc.status}</span>
-            </div>
-            <div className="p-3 font-mono text-[11px] text-gray-400 space-y-1">
-              {responseBodies[method].map((l, i) => (
-                <div key={i} className={l.startsWith("//") ? "text-gray-600 italic" : l.includes('"') ? "text-green-400" : "text-gray-500"}>{l}</div>
-              ))}
-            </div>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          {t.restTips.map((tip: any) => <InfoCard key={tip.title} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── DATABASE SECTION ─────────────────────────────────────────────────────────
-
-const INITIAL_ROWS = [
-  { id: 1, name: "Ali Valiyev",   email: "ali@example.com",  role: "admin" },
-  { id: 2, name: "Vali Karimov",  email: "vali@example.com", role: "user" },
-  { id: 3, name: "Zulfiya Usmon", email: "zulfiya@ex.com",   role: "user" },
-  { id: 4, name: "Jasur Toshev",  email: "jasur@ex.com",     role: "mod" },
-];
-
-function DatabaseSection({ t }: { t: BackendTranslations }) {
-  const [op, setOp] = useState<"SELECT"|"INSERT"|"UPDATE"|"DELETE">("SELECT");
-  const [rows, setRows] = useState(INITIAL_ROWS);
-  const [highlighted, setHighlighted] = useState<number[]>([]);
-  const [newRow, setNewRow] = useState<typeof INITIAL_ROWS[0] | null>(null);
-  const [affected, setAffected] = useState<number | null>(null);
-
-  const codeLines: Record<string, string[]> = {
-    SELECT: ["-- SELECT: Read all users", "SELECT id, name, email, role", "FROM users", "WHERE role = 'user'", "ORDER BY id ASC;"],
-    INSERT: ["-- INSERT: Add new user", "INSERT INTO users (name, email, role)", "VALUES (", "  'Nodira Rahimova',", "  'nodira@ex.com',", "  'user'", ");"],
-    UPDATE: ["-- UPDATE: Change role", "UPDATE users", "SET role = 'admin'", "WHERE id = 2;"],
-    DELETE: ["-- DELETE: Remove user", "DELETE FROM users", "WHERE id = 4;"],
-  };
-
-  const runQuery = async () => {
-    setHighlighted([]);
-    setNewRow(null);
-    setAffected(null);
-
-    if (op === "SELECT") {
-      setHighlighted([2, 3]);
-      setAffected(2);
-    } else if (op === "INSERT") {
-      const next = { id: rows.length + 1, name: "Nodira Rahimova", email: "nodira@ex.com", role: "user" };
-      await new Promise(r => setTimeout(r, 300));
-      setNewRow(next);
-      setRows(r => [...r, next]);
-      setAffected(1);
-    } else if (op === "UPDATE") {
-      setHighlighted([2]);
-      await new Promise(r => setTimeout(r, 400));
-      setRows(r => r.map(row => row.id === 2 ? { ...row, role: "admin" } : row));
-      setAffected(1);
-    } else if (op === "DELETE") {
-      setHighlighted([4]);
-      await new Promise(r => setTimeout(r, 500));
-      setRows(r => r.filter(row => row.id !== 4));
-      setHighlighted([]);
-      setAffected(1);
-    }
-  };
-
-  const reset = () => { setRows(INITIAL_ROWS); setHighlighted([]); setNewRow(null); setAffected(null); };
-
-  const opColors: Record<string, string> = {
-    SELECT: "text-emerald-400", INSERT: "text-blue-400", UPDATE: "text-yellow-400", DELETE: "text-red-400",
-  };
-
-  return (
-    <div className="flex flex-col xl:flex-row gap-6">
-      <div className="xl:w-[380px] shrink-0 flex flex-col gap-4">
-        <div className="rounded-xl border border-border bg-surface p-4">
-          <p className="text-xs text-gray-500 font-mono mb-3">SQL Operation</p>
-          <div className="grid grid-cols-2 gap-2">
-            {(["SELECT", "INSERT", "UPDATE", "DELETE"] as const).map(o => (
-              <button key={o} onClick={() => { setOp(o); reset(); }}
-                className={`py-2 px-3 rounded-lg text-xs font-bold font-mono border transition-all duration-150 ${
-                  op === o
-                    ? o === "SELECT" ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                    : o === "INSERT" ? "bg-blue-500/20 text-blue-300 border-blue-500/40"
-                    : o === "UPDATE" ? "bg-yellow-500/20 text-yellow-300 border-yellow-500/40"
-                    : "bg-red-500/20 text-red-300 border-red-500/40"
-                    : "bg-surface-2 text-gray-500 border-border"
-                }`}>{o}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <button onClick={runQuery}
-          className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm transition-all flex items-center justify-center gap-2">
-          <Play size={14} />
-          Run Query
-        </button>
-        <button onClick={reset} className="w-full py-2 rounded-xl border border-border text-gray-500 text-xs hover:text-gray-300 transition-colors">
-          Reset table
-        </button>
-
-        <JSCode lines={codeLines[op]} />
-      </div>
-
-      <div className="flex flex-col gap-4 flex-1 min-w-0">
-        <AnimatePresence mode="wait">
-          <motion.div key={op} initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="rounded-xl border border-purple-500/20 bg-purple-500/5 px-4 py-3">
-            <p className="text-sm text-gray-300">
-              <code className={`font-bold font-mono ${opColors[op]}`}>{op}</code>{" — "}{t.dbExplain[op]}
-            </p>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Table */}
-        <div className="rounded-2xl border border-border bg-[#0d1117] overflow-hidden flex-1">
-          <div className="px-4 py-2 border-b border-border/50 bg-[#161b22] flex items-center justify-between">
-            <span className="text-[11px] text-gray-500 font-mono">{t.dbTable}</span>
-            {affected !== null && (
-              <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                className={`text-[10px] font-mono font-bold ${opColors[op]}`}>
-                {affected} {t.dbRows}
-              </motion.span>
-            )}
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full font-mono text-[11px]">
-              <thead>
-                <tr className="border-b border-border/50">
-                  {["id", "name", "email", "role"].map(h => (
-                    <th key={h} className="text-left px-4 py-2 text-gray-600">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <AnimatePresence>
-                  {rows.map(row => (
-                    <motion.tr key={row.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{
-                        opacity: 1, x: 0,
-                        backgroundColor: highlighted.includes(row.id)
-                          ? op === "SELECT" ? "rgba(16,185,129,0.08)" : op === "UPDATE" ? "rgba(234,179,8,0.08)" : "rgba(239,68,68,0.08)"
-                          : "transparent",
-                      }}
-                      exit={{ opacity: 0, x: 20 }}
-                      transition={{ duration: 0.3 }}
-                      className="border-b border-border/30">
-                      <td className="px-4 py-2.5 text-orange-400">{row.id}</td>
-                      <td className="px-4 py-2.5 text-gray-300">{row.name}</td>
-                      <td className="px-4 py-2.5 text-blue-400">{row.email}</td>
-                      <td className="px-4 py-2.5">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          row.role === "admin" ? "bg-yellow-500/20 text-yellow-300" :
-                          row.role === "mod"   ? "bg-blue-500/20 text-blue-300" :
-                          "bg-gray-500/20 text-gray-400"
-                        }`}>{row.role}</span>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          {t.dbTips.map((tip: any) => <InfoCard key={tip.title} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── AUTH (JWT) SECTION ───────────────────────────────────────────────────────
-
-function AuthSection({ t }: { t: BackendTranslations }) {
-  const [phase, setPhase] = useState<"idle"|"sign"|"send"|"verify">("idle");
-  const [tokenState, setTokenState] = useState<"valid"|"invalid"|"expired"|null>(null);
-
-  const TOKEN_PARTS = {
-    header:    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
-    payload:   "eyJ1c2VySWQiOjEsIm5hbWUiOiJBbGkiLCJpYXQiOjE2MzQ5OTk5OTksImV4cCI6MTYzNTAwMzU5OX0",
-    signature: "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-  };
-
-  const codeLines = [
-    "const jwt = require('jsonwebtoken');",
-    "",
-    "// 1. Sign token on login",
-    "const token = jwt.sign(",
-    "  { userId: 1, name: 'Ali' },",
-    "  process.env.JWT_SECRET,",
-    "  { expiresIn: '15m' }",
-    ");",
-    "",
-    "// 2. Verify token on request",
-    "const decoded = jwt.verify(",
-    "  token,",
-    "  process.env.JWT_SECRET",
-    ");",
-    "// decoded → { userId: 1, name: 'Ali', iat: ..., exp: ... }",
-  ];
-
-  const runPhase = async (p: "sign" | "send" | "verify") => {
-    setPhase(p);
-    setTokenState(null);
-    if (p === "verify") {
-      await new Promise(r => setTimeout(r, 800));
-      setTokenState("valid");
-    }
-  };
-
-  return (
-    <div className="flex flex-col xl:flex-row gap-6">
-      <div className="xl:w-[380px] shrink-0 flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          {(["sign", "send", "verify"] as const).map((p, i) => (
-            <button key={p} onClick={() => runPhase(p)}
-              className={`w-full py-3 px-4 rounded-xl border text-sm font-bold transition-all duration-200 flex items-center gap-3 ${
-                phase === p
-                  ? "bg-yellow-500/15 border-yellow-500/40 text-yellow-300"
-                  : "bg-surface border-border text-gray-400 hover:border-gray-600"
-              }`}>
-              <span className="w-5 h-5 rounded-full bg-surface-2 border border-border text-[10px] flex items-center justify-center font-mono">{i + 1}</span>
-              {p === "sign" ? `1. ${t.authLogin} → jwt.sign()` : p === "send" ? `2. Bearer Token →` : `3. jwt.verify() →`}
-            </button>
-          ))}
-        </div>
-
-        {tokenState && (
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            className={`rounded-xl border px-4 py-3 text-sm font-bold ${
-              tokenState === "valid" ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" :
-              tokenState === "invalid" ? "border-red-500/40 bg-red-500/10 text-red-300" :
-              "border-yellow-500/40 bg-yellow-500/10 text-yellow-300"
-            }`}>
-            {tokenState === "valid" ? t.authValid : tokenState === "invalid" ? t.authInvalid : t.authExpired}
-          </motion.div>
-        )}
-
-        <JSCode lines={codeLines} />
-      </div>
-
-      <div className="flex flex-col gap-4 flex-1 min-w-0">
-        {/* Explain */}
-        <AnimatePresence mode="wait">
-          <motion.div key={phase} initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 px-4 py-3">
-            <p className="text-sm text-gray-300">
-              {phase === "idle" ? t.authSubtitle : t.authExplain[phase]}
-            </p>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* JWT Token display */}
-        <div className="rounded-2xl border border-border bg-[#0d1117] p-5 flex-1">
-          <p className="text-[10px] text-gray-600 font-mono mb-3">{t.authToken}:</p>
-          <div className="font-mono text-[11px] break-all leading-6 mb-4">
-            <motion.span animate={{ opacity: phase === "idle" ? 0.3 : 1 }} className="text-red-400">{TOKEN_PARTS.header}</motion.span>
-            <span className="text-gray-600">.</span>
-            <motion.span animate={{ opacity: phase === "sign" || phase === "idle" ? 0.3 : 1 }} className="text-yellow-400">{TOKEN_PARTS.payload}</motion.span>
-            <span className="text-gray-600">.</span>
-            <motion.span animate={{ opacity: phase === "verify" ? 1 : 0.3 }} className="text-blue-400">{TOKEN_PARTS.signature}</motion.span>
-          </div>
-
-          <div className="flex gap-2 mb-4">
-            {[
-              { label: t.authHeader,    color: "bg-red-500/20 text-red-300 border-red-500/30" },
-              { label: t.authPayload,   color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
-              { label: t.authSignature, color: "bg-blue-500/20 text-blue-300 border-blue-500/30" },
-            ].map(part => (
-              <div key={part.label} className={`px-2 py-1 rounded border text-[10px] font-mono ${part.color}`}>{part.label}</div>
-            ))}
-          </div>
-
-          {/* Decoded payload */}
-          {(phase === "send" || phase === "verify") && (
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-3">
-              <p className="text-[10px] text-gray-500 font-mono mb-2">{t.authPayload} (decoded):</p>
-              <div className="font-mono text-[11px] space-y-0.5">
-                <div><span className="text-yellow-300">userId</span><span className="text-gray-500">: </span><span className="text-orange-400">1</span></div>
-                <div><span className="text-yellow-300">name</span><span className="text-gray-500">: </span><span className="text-green-400">"Ali"</span></div>
-                <div><span className="text-yellow-300">iat</span><span className="text-gray-500">: </span><span className="text-orange-400">1634999999</span></div>
-                <div><span className="text-yellow-300">exp</span><span className="text-gray-500">: </span><span className="text-orange-400">1635000899</span><span className="text-gray-600"> // +15min</span></div>
-              </div>
-            </motion.div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          {t.authTips.map((tip: any) => <InfoCard key={tip.title} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── MIDDLEWARE SECTION ───────────────────────────────────────────────────────
-
-const MW_STEPS = [
-  { id: "logger",    label: "Logger",     icon: "📝", color: "blue" },
-  { id: "auth",      label: "Auth",       icon: "🔐", color: "yellow" },
-  { id: "ratelimit", label: "Rate Limit", icon: "⏱️", color: "orange" },
-  { id: "handler",   label: "Handler",   icon: "⚡", color: "emerald" },
-];
-
-function MiddlewareSection({ t }: { t: BackendTranslations }) {
-  const [activeStep, setActiveStep] = useState(-1);
-  const [blocked, setBlocked] = useState<string | null>(null);
-  const [blockAt, setBlockAt] = useState<"auth" | "ratelimit" | null>(null);
-  const [running, setRunning] = useState(false);
-
-  const codeLines = [
-    "const app = express();",
-    "",
-    "// Middleware chain",
-    "app.use(loggerMiddleware);",
-    "app.use(authMiddleware);",
-    "app.use(rateLimitMiddleware);",
-    "",
-    "// Route handler",
-    "app.get('/api/data', (req, res) => {",
-    "  res.json({ data: 'Protected data!' });",
-    "});",
-  ];
-
-  const run = async (stopAt?: "auth" | "ratelimit") => {
-    setRunning(true);
-    setActiveStep(-1);
-    setBlocked(null);
-    setBlockAt(stopAt || null);
-
-    for (let i = 0; i < MW_STEPS.length; i++) {
-      setActiveStep(i);
-      await new Promise(r => setTimeout(r, 600));
-      if (stopAt && MW_STEPS[i].id === stopAt) {
-        setBlocked(stopAt);
-        setRunning(false);
-        return;
-      }
-    }
-    setRunning(false);
-  };
-
-  const colorMap: Record<string, string> = {
-    blue: "border-blue-500/40 bg-blue-500/10 text-blue-300",
-    yellow: "border-yellow-500/40 bg-yellow-500/10 text-yellow-300",
-    orange: "border-orange-500/40 bg-orange-500/10 text-orange-300",
-    emerald: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
-  };
-
-  return (
-    <div className="flex flex-col xl:flex-row gap-6">
-      <div className="xl:w-[380px] shrink-0 flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <button onClick={() => run()} disabled={running}
-            className="w-full py-3 rounded-xl bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white font-bold text-sm transition-all flex items-center justify-center gap-2">
-            <Play size={14} />Request passes through
-          </button>
-          <button onClick={() => run("auth")} disabled={running}
-            className="w-full py-3 rounded-xl border border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/20 disabled:opacity-50 font-bold text-sm transition-all flex items-center justify-center gap-2">
-            <Shield size={14} />Blocked at Auth (401)
-          </button>
-          <button onClick={() => run("ratelimit")} disabled={running}
-            className="w-full py-3 rounded-xl border border-yellow-500/40 bg-yellow-500/10 text-yellow-300 hover:bg-yellow-500/20 disabled:opacity-50 font-bold text-sm transition-all flex items-center justify-center gap-2">
-            <Zap size={14} />Blocked at Rate Limit (429)
-          </button>
-        </div>
-        <JSCode lines={codeLines} />
-      </div>
-
-      <div className="flex flex-col gap-4 flex-1 min-w-0">
-        {/* Flow */}
-        <div className="rounded-2xl border border-border bg-[#0d1117] p-6 flex-1">
-          {/* Incoming request */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="px-3 py-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-300 text-xs font-mono font-bold">
-              {t.mwRequest}
-            </div>
-            <ChevronRight size={14} className="text-gray-600" />
-          </div>
-
-          {/* Steps */}
-          <div className="flex flex-col gap-3">
-            {MW_STEPS.map((step, i) => {
-              const isActive = activeStep === i;
-              const isPassed = activeStep > i && blocked !== step.id;
-              const isBlocked = blocked === step.id;
+          {/* Postman Tabs Bar */}
+          <div className="flex border-b border-border bg-[#161b22]/30 text-[10px] font-mono shrink-0">
+            {(["params", "headers", "body"] as const).map(t => {
+              const isActive = postmanTab === t;
               return (
-                <motion.div key={step.id}
-                  animate={{
-                    borderColor: isBlocked ? "rgba(239,68,68,0.5)" : isActive ? "rgba(255,255,255,0.2)" : isPassed ? "rgba(16,185,129,0.3)" : "rgba(255,255,255,0.05)",
-                  }}
-                  className="rounded-xl border bg-surface p-3 flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl border transition-all duration-300 ${
-                    isBlocked ? "border-red-500/40 bg-red-500/10" :
-                    isPassed  ? "border-emerald-500/40 bg-emerald-500/10" :
-                    isActive  ? colorMap[step.color] :
-                    "border-border bg-surface-2"
-                  }`}>{step.icon}</div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-gray-200">{step.label}</span>
-                      {isActive && !isBlocked && <motion.div animate={{ opacity: [0.5,1,0.5] }} transition={{ duration:0.8, repeat:Infinity }} className="w-1.5 h-1.5 rounded-full bg-white" />}
-                    </div>
-                    <p className="text-xs text-gray-500 mt-0.5">{t.mwExplain[step.id]}</p>
-                  </div>
-                  <div className="text-sm">
-                    {isBlocked ? <span className="text-red-400 font-mono text-xs font-bold">{t.mwBlocked}</span> :
-                     isPassed  ? <span className="text-emerald-400">✓</span> :
-                     isActive  ? <span className="text-white font-mono text-[10px]">{t.mwNext}</span> : null}
-                  </div>
-                </motion.div>
+                <button key={t} onClick={() => setPostmanTab(t)}
+                  className={`px-4 py-2 border-r border-border font-bold uppercase transition-colors ${
+                    isActive ? "bg-[#0d1117] text-orange-400 border-t border-t-orange-500" : "text-gray-500 hover:text-gray-300"
+                  }`}>
+                  {t}
+                </button>
               );
             })}
           </div>
 
-          {/* Response */}
-          {activeStep === 3 && !blocked && (
+          {/* Postman Interactive Content Workspace */}
+          <div className="p-4 flex flex-col gap-4 bg-[#0d1117]">
+            <div className="font-mono text-[11px] leading-relaxed text-gray-400 min-h-[110px] flex flex-col justify-start">
+              {postmanTab === "params" && (
+                <div className="space-y-2.5">
+                  <div className="text-[10px] text-gray-500 italic">// {pm.queryParams}</div>
+                  {method === "GET" ? (
+                    <>
+                      <div className="flex gap-2">
+                        <div className="flex-1 bg-surface border border-border/50 rounded px-2.5 py-1 text-[10px]">{pm.keyLabel}: <span className="text-yellow-300">limit</span></div>
+                        <div className="flex-1 bg-surface border border-border/50 rounded px-2.5 py-1 text-[10px]">{pm.valueLabel}: <span className="text-orange-300">10</span></div>
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="flex-1 bg-surface border border-border/50 rounded px-2.5 py-1 text-[10px]">{pm.keyLabel}: <span className="text-yellow-300">role</span></div>
+                        <div className="flex-1 bg-surface border border-border/50 rounded px-2.5 py-1 text-[10px]">{pm.valueLabel}: <span className="text-orange-300">user</span></div>
+                      </div>
+                    </>
+                  ) : method === "POST" ? (
+                    <div className="text-gray-500 italic text-[10px] py-1 whitespace-pre-line">
+                      {pm.noQueryParamsPost}
+                    </div>
+                  ) : (
+                    <div className="text-gray-500 italic text-[10px] py-1 whitespace-pre-line">
+                      {pm.pathParamId}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {postmanTab === "headers" && (
+                <div className="space-y-1.5 text-[10px] text-gray-400">
+                  <div className="text-[10px] text-gray-500 italic mb-1">// {pm.requestHeaders}</div>
+                  {(method === "POST" || method === "PUT") && (
+                    <div><span className="text-gray-500">Content-Type:</span> <span className="text-green-400">application/json</span></div>
+                  )}
+                  <div><span className="text-gray-500">Accept:</span> <span className="text-green-400">application/json</span></div>
+                  <div><span className="text-gray-500">Authorization:</span> <span className="text-green-400">Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</span></div>
+                  <div><span className="text-gray-500">User-Agent:</span> <span className="text-green-400">PostmanClient/1.0</span></div>
+                  <div><span className="text-gray-500">Host:</span> <span className="text-green-400">localhost:3000</span></div>
+                </div>
+              )}
+
+              {postmanTab === "body" && (
+                <div className="flex flex-col flex-1 gap-1 w-full">
+                  {method === "GET" || method === "DELETE" ? (
+                    <div className="text-gray-500 italic text-[10px] py-1 whitespace-pre-line">
+                      {pm.noBodyRequired.replace("{method}", method)}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="text-[10px] text-gray-500 italic mb-1">// {pm.requestBodyPayload}</div>
+                      <textarea value={body} onChange={e => setBody(e.target.value)} rows={5}
+                        className="w-full bg-surface border border-border rounded-lg text-[10px] font-mono p-2 text-gray-300 outline-none resize-none min-h-[90px]" />
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <button onClick={triggerRequest} disabled={phase !== "idle" && phase !== "done"}
+              className="w-full py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 mt-2 shrink-0">
+              <Play size={12} />Send Request
+            </button>
+          </div>
+        </div>
+
+        <div className="lg:col-span-3">
+          <JSCode lines={serverCode} filename="server.js" />
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 px-4 py-3">
+        <p className="text-sm text-gray-300">{t.httpnativeSubtitle}</p>
+      </div>
+
+      {/* Middle: Request Flow Diagram (Left) & Response Box (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 rounded-2xl border border-border bg-[#0d1117] p-6 flex flex-col gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-surface-2/40 p-3 rounded-xl border border-border/50">
+            {steps.map(s => {
+              const isActive = phase === s.id;
+              const isPast = (
+                (s.id === "request" && phase !== "idle" && phase !== "request") ||
+                (s.id === "server" && phase !== "idle" && phase !== "request" && phase !== "server") ||
+                (s.id === "db" && phase !== "idle" && phase !== "request" && phase !== "server" && phase !== "db") ||
+                (s.id === "response" && phase === "done")
+              );
+              
+              return (
+                <div key={s.id} className={`flex flex-col p-2 rounded-lg border transition-all duration-200 ${
+                  isActive ? "bg-white/5 border-yellow-500/40" : isPast ? "border-emerald-500/20 bg-emerald-500/5" : "border-transparent opacity-40"
+                }`}>
+                  <span className={`text-[10px] font-mono font-bold ${isActive ? s.color : isPast ? "text-emerald-400" : "text-gray-500"}`}>
+                    {s.label} {isPast && "✓"}
+                  </span>
+                  <span className="text-[9px] text-gray-500 font-mono mt-0.5">{s.desc}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex flex-col justify-center gap-8 relative min-h-[220px] bg-[#161b22]/40 rounded-xl p-6 border border-border/30">
+            <div className="flex items-center justify-between relative">
+              <div className="flex flex-col items-center gap-1.5 z-10">
+                <div className="w-14 h-14 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center">
+                  <Monitor size={22} className="text-orange-400" />
+                </div>
+                <span className="text-[10px] text-gray-500 font-mono">Client</span>
+              </div>
+
+              <div className="flex flex-col items-center gap-1.5 z-10">
+                <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center transition-all duration-300 ${
+                  phase === "server" || phase === "db" ? "bg-blue-500/10 border-blue-500/40" : "bg-surface-2 border-border"
+                }`}>
+                  <Server size={22} className={phase === "server" || phase === "db" ? "text-blue-400" : "text-gray-500"} />
+                </div>
+                <span className="text-[10px] text-gray-500 font-mono">Server</span>
+              </div>
+
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none px-12">
+                <div className="w-full h-0.5 bg-border/40 relative">
+                  <AnimatePresence>
+                    {phase === "request" && (
+                      <motion.div initial={{ left: 0 }} animate={{ left: "100%" }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}
+                        className={`absolute top-1/2 -translate-y-1/2 w-10 h-5 rounded border ${methodColors[method]} flex items-center justify-center text-[8px] font-mono font-bold shadow-glow`}>
+                        {method}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  
+                  <AnimatePresence>
+                    {phase === "response" && (
+                      <motion.div initial={{ right: 0 }} animate={{ right: "100%" }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}
+                        className="absolute top-1/2 -translate-y-1/2 w-10 h-5 rounded border border-emerald-500/40 bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-[7px] font-mono font-bold shadow-glow-accent">
+                        {method === "POST" ? "201" : method === "DELETE" ? "204" : "200"}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center gap-1.5 relative">
+              <div className="absolute top-[-30px] w-0.5 h-8 bg-border/40 left-1/2 -translate-x-1/2">
+                <AnimatePresence>
+                  {phase === "db" && (
+                    <motion.div initial={{ top: 0 }} animate={{ top: ["0%", "100%", "0%"] }} transition={{ duration: 0.8, repeat: 0 }}
+                      className="absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-purple-400 shadow-glow" />
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center transition-all duration-300 mt-6 ${
+                phase === "db" ? "bg-purple-500/10 border-purple-500/40" : "bg-surface-2 border-border"
+              }`}>
+                <Database size={22} className={phase === "db" ? "text-purple-400" : "text-gray-500"} />
+              </div>
+              <span className="text-[10px] text-gray-500 font-mono">Database</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:col-span-1 h-full flex flex-col justify-stretch">
+          {response ? (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-              className="mt-4 flex items-center gap-3">
-              <ChevronRight size={14} className="text-gray-600" />
-              <div className="px-3 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs font-mono font-bold">
-                {t.mwResponse} — 200 OK
+              className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 flex flex-col h-full justify-between gap-3">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] text-gray-500 font-mono">Response Headers:</span>
+                  <span className="text-xs font-mono font-bold text-emerald-400">{response.status}</span>
+                </div>
+                <div className="font-mono text-[10px] text-gray-500">
+                  {Object.entries(response.headers).map(([k, v]) => (
+                    <div key={k}>{k}: <span className="text-orange-300">{v}</span></div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-500 font-mono mb-2">Response Body:</p>
+                <pre className="font-mono text-[11px] text-green-400 whitespace-pre bg-[#161b22] p-3 rounded-lg border border-border/40 overflow-x-auto">
+                  {response.body}
+                </pre>
               </div>
             </motion.div>
+          ) : (
+            <div className="rounded-2xl border border-border bg-[#0d1117]/30 p-6 flex items-center justify-center h-full text-xs text-gray-600 italic font-mono min-h-[200px]">
+              Waiting for request...
+            </div>
           )}
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          {t.mwTips.map((tip: any) => <InfoCard key={tip.title} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
-        </div>
       </div>
-    </div>
-  );
-}
-
-// ─── WEBSOCKET SECTION ────────────────────────────────────────────────────────
-
-interface WSMessage { from: "client" | "server"; text: string; time: string; }
-
-function WebSocketSection({ t }: { t: BackendTranslations }) {
-  const [connected, setConnected] = useState(false);
-  const [messages, setMessages] = useState<WSMessage[]>([]);
-  const [input, setInput] = useState("");
-  const bottomRef = useRef<HTMLDivElement>(null);
-
-  const codeLines = [
-    "// Server (Node.js + ws)",
-    "const WebSocket = require('ws');",
-    "const wss = new WebSocket.Server({ port: 8080 });",
-    "",
-    "wss.on('connection', (ws) => {",
-    "  ws.send('Hello from server!');",
-    "",
-    "  ws.on('message', (msg) => {",
-    "    // Broadcast to all clients",
-    "    wss.clients.forEach(c => c.send(msg));",
-    "  });",
-    "});",
-  ];
-
-  const now = () => new Date().toLocaleTimeString("en", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-
-  const connect = () => {
-    setConnected(true);
-    setMessages([{ from: "server", text: "✅ WebSocket connected!", time: now() },
-                 { from: "server", text: "👋 Hello from server!", time: now() }]);
-  };
-
-  const disconnect = () => {
-    setConnected(false);
-    setMessages(m => [...m, { from: "server", text: "🔌 Connection closed.", time: now() }]);
-  };
-
-  const sendMsg = () => {
-    if (!input.trim() || !connected) return;
-    const msg = input.trim();
-    setInput("");
-    setMessages(m => [...m, { from: "client", text: msg, time: now() }]);
-    setTimeout(() => {
-      setMessages(m => [...m, { from: "server", text: `Echo: ${msg}`, time: now() }]);
-    }, 300);
-  };
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  return (
-    <div className="flex flex-col xl:flex-row gap-6">
-      <div className="xl:w-[380px] shrink-0 flex flex-col gap-4">
-        <div className="rounded-xl border border-border bg-surface p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <div className={`w-2 h-2 rounded-full ${connected ? "bg-emerald-400 animate-pulse" : "bg-gray-600"}`} />
-            <span className={`text-sm font-mono font-bold ${connected ? "text-emerald-400" : "text-gray-500"}`}>
-              {connected ? t.wsConnected : t.wsDisconnected}
-            </span>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={connect} disabled={connected}
-              className="flex-1 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-xs font-bold transition-all">
-              {t.wsConnect}
-            </button>
-            <button onClick={disconnect} disabled={!connected}
-              className="flex-1 py-2 rounded-lg border border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/20 disabled:opacity-40 text-xs font-bold transition-all">
-              {t.wsDisconnect}
-            </button>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-pink-500/20 bg-pink-500/5 px-4 py-3">
-          <p className="text-xs text-gray-400 leading-relaxed">{t.wsExplain}</p>
-        </div>
-
-        <JSCode lines={codeLines} />
-      </div>
-
-      <div className="flex flex-col gap-4 flex-1 min-w-0">
-        {/* Chat panels */}
-        <div className="grid grid-cols-2 gap-3 flex-1">
-          {/* Client panel */}
-          <div className="rounded-2xl border border-blue-500/20 bg-[#0d1117] overflow-hidden flex flex-col">
-            <div className="px-3 py-2 border-b border-border/50 bg-[#161b22] flex items-center gap-2">
-              <Monitor size={12} className="text-blue-400" />
-              <span className="text-[10px] font-mono text-gray-500">{t.wsClient}</span>
-            </div>
-            <div className="flex-1 p-3 flex flex-col gap-2 overflow-y-auto max-h-48">
-              {messages.filter(m => m.from === "client").map((m, i) => (
-                <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
-                  className="bg-blue-500/15 border border-blue-500/20 rounded-lg px-3 py-1.5">
-                  <div className="text-xs text-blue-300">{m.text}</div>
-                  <div className="text-[9px] text-gray-600 mt-0.5">{m.time}</div>
-                </motion.div>
-              ))}
-            </div>
-            <div className="p-2 border-t border-border/50 flex gap-1">
-              <input value={input} onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && sendMsg()}
-                disabled={!connected}
-                className="flex-1 bg-surface-2 border border-border rounded-lg px-2 py-1 text-xs text-gray-300 placeholder-gray-600 disabled:opacity-40"
-                placeholder={connected ? "Type a message..." : "Connect first"} />
-              <button onClick={sendMsg} disabled={!connected || !input.trim()}
-                className="px-2 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white text-xs transition-all">
-                {t.wsSend}
-              </button>
-            </div>
-          </div>
-
-          {/* Server panel */}
-          <div className="rounded-2xl border border-pink-500/20 bg-[#0d1117] overflow-hidden flex flex-col">
-            <div className="px-3 py-2 border-b border-border/50 bg-[#161b22] flex items-center gap-2">
-              <Server size={12} className="text-pink-400" />
-              <span className="text-[10px] font-mono text-gray-500">{t.wsServer}</span>
-            </div>
-            <div className="flex-1 p-3 flex flex-col gap-2 overflow-y-auto max-h-48">
-              {messages.filter(m => m.from === "server").map((m, i) => (
-                <motion.div key={i} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }}
-                  className="bg-pink-500/15 border border-pink-500/20 rounded-lg px-3 py-1.5">
-                  <div className="text-xs text-pink-300">{m.text}</div>
-                  <div className="text-[9px] text-gray-600 mt-0.5">{m.time}</div>
-                </motion.div>
-              ))}
-              <div ref={bottomRef} />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          {t.wsTips.map((tip: any) => <InfoCard key={tip.title} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── CORS SECTION ─────────────────────────────────────────────────────────────
-
-function CORSSection({ t }: { t: BackendTranslations }) {
-  const [scenario, setScenario] = useState<"same"|"allowed"|"blocked"|"options">("same");
-
-  const scenarios = [
-    { id: "same",    label: "Same Origin",   icon: "🟢", from: "https://myapp.com", to: "https://myapp.com/api" },
-    { id: "allowed", label: "CORS Allowed",  icon: "✅", from: "https://frontend.com", to: "https://api.com/data" },
-    { id: "blocked", label: "CORS Blocked",  icon: "❌", from: "https://evil.com", to: "https://api.com/data" },
-    { id: "options", label: "Preflight",     icon: "🔄", from: "https://frontend.com", to: "OPTIONS https://api.com" },
-  ] as const;
-
-  const isAllowed = scenario === "same" || scenario === "allowed" || scenario === "options";
-
-  const codeLines = [
-    "const cors = require('cors');",
-    "",
-    "// Allow specific origins",
-    "app.use(cors({",
-    "  origin: ['https://frontend.com',",
-    "           'https://app.mysite.com'],",
-    "  methods: ['GET', 'POST', 'PUT', 'DELETE'],",
-    "  allowedHeaders: ['Content-Type', 'Authorization'],",
-    "}));",
-    "",
-    "// Response headers added:",
-    "// Access-Control-Allow-Origin: https://frontend.com",
-    "// Access-Control-Allow-Methods: GET, POST, PUT, DELETE",
-  ];
-
-  const sc = scenarios.find(s => s.id === scenario)!;
-
-  return (
-    <div className="flex flex-col xl:flex-row gap-6">
-      <div className="xl:w-[380px] shrink-0 flex flex-col gap-4">
-        <div className="rounded-xl border border-border bg-surface p-4">
-          <p className="text-xs text-gray-500 font-mono mb-3">Scenario</p>
-          <div className="flex flex-col gap-2">
-            {scenarios.map(s => (
-              <button key={s.id} onClick={() => setScenario(s.id)}
-                className={`w-full py-2 px-3 rounded-lg border text-xs font-bold text-left flex items-center gap-2 transition-all ${
-                  scenario === s.id
-                    ? s.id === "blocked" ? "border-red-500/40 bg-red-500/10 text-red-300"
-                    : s.id === "options" ? "border-blue-500/40 bg-blue-500/10 text-blue-300"
-                    : "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-                    : "border-border bg-surface-2 text-gray-400"
-                }`}>
-                <span>{s.icon}</span>{s.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <JSCode lines={codeLines} />
-      </div>
-
-      <div className="flex flex-col gap-4 flex-1 min-w-0">
-        {/* Explain */}
-        <AnimatePresence mode="wait">
-          <motion.div key={scenario} initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className={`rounded-xl border px-4 py-3 ${
-              isAllowed ? "border-emerald-500/20 bg-emerald-500/5" : "border-red-500/20 bg-red-500/5"
-            }`}>
-            <p className="text-sm text-gray-300">{t.corsExplain[scenario]}</p>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Diagram */}
-        <div className="rounded-2xl border border-border bg-[#0d1117] p-6 flex-1">
-          <div className="flex flex-col gap-6">
-            {/* Browser → API */}
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col items-center gap-1">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center">
-                  <Monitor size={20} className="text-blue-400" />
-                </div>
-                <span className="text-[9px] text-gray-600 font-mono">{sc.from}</span>
-              </div>
-              <div className="flex-1 flex flex-col items-center gap-1">
-                <motion.div
-                  animate={{ x: [0, 20, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                  className={`text-sm ${scenario === "options" ? "text-blue-400" : "text-gray-300"}`}>
-                  {scenario === "options" ? "OPTIONS →" : `${scenario === "blocked" ? "GET" : "GET"} →`}
-                </motion.div>
-                <div className="w-full h-px bg-gradient-to-r from-blue-500/40 via-gray-600/40 to-transparent" />
-              </div>
-              <div className="flex flex-col items-center gap-1">
-                <div className={`w-12 h-12 rounded-xl border flex items-center justify-center ${
-                  isAllowed ? "bg-emerald-500/10 border-emerald-500/30" : "bg-red-500/10 border-red-500/30"
-                }`}>
-                  <Server size={20} className={isAllowed ? "text-emerald-400" : "text-red-400"} />
-                </div>
-                <span className="text-[9px] text-gray-600 font-mono">{sc.to}</span>
-              </div>
-            </div>
-
-            {/* Response headers */}
-            <div className={`rounded-xl border p-4 ${
-              isAllowed ? "border-emerald-500/20 bg-emerald-500/5" : "border-red-500/20 bg-red-500/5"
-            }`}>
-              <p className="text-[10px] text-gray-500 font-mono mb-2">Response Headers:</p>
-              <div className="font-mono text-[11px] space-y-1">
-                {isAllowed ? (
-                  <>
-                    <div><span className="text-yellow-300">Access-Control-Allow-Origin</span><span className="text-gray-500">: </span><span className="text-green-400">{scenario === "allowed" ? "https://frontend.com" : "*"}</span></div>
-                    {scenario === "options" && (
-                      <>
-                        <div><span className="text-yellow-300">Access-Control-Allow-Methods</span><span className="text-gray-500">: </span><span className="text-green-400">GET, POST, PUT, DELETE</span></div>
-                        <div><span className="text-yellow-300">Access-Control-Max-Age</span><span className="text-gray-500">: </span><span className="text-orange-400">86400</span></div>
-                      </>
-                    )}
-                    <div><span className="text-yellow-300">Content-Type</span><span className="text-gray-500">: </span><span className="text-green-400">application/json</span></div>
-                  </>
-                ) : (
-                  <div className="text-red-400">// CORS headers missing → Browser blocks response</div>
-                )}
-              </div>
-            </div>
-
-            {/* Result */}
-            <motion.div key={scenario}
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-              className={`rounded-xl border px-4 py-3 text-center font-bold text-sm ${
-                isAllowed ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" : "border-red-500/40 bg-red-500/10 text-red-300"
-              }`}>
-              {isAllowed ? t.corsAllowed : t.corsBlocked}
-            </motion.div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          {t.corsTips.map((tip: any) => <InfoCard key={tip.title} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
-        </div>
+      
+      {/* Tips */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {t.httpnativeTips.map((tip, idx) => <InfoCard key={idx} icon={tip.icon} title={tip.title} desc={tip.desc} />)}
       </div>
     </div>
   );
@@ -1147,25 +1053,45 @@ function CORSSection({ t }: { t: BackendTranslations }) {
 export default function BackendPage() {
   const { lang } = useLangStore();
   const t = BACKEND_I18N[lang as "uz" | "en" | "ru"] ?? BACKEND_I18N.en;
-  const [activeTab, setActiveTab] = useState<TabId>("http");
+  const [activeTab, setActiveTab] = useState<TabId>("basics");
 
-  const activeTabCfg = TABS.find(tb => tb.id === activeTab)!;
+  const activeTabCfg = ALL_TABS.find(tb => tb.id === activeTab)!;
 
   const renderSection = () => {
     switch (activeTab) {
-      case "http":       return <HTTPSection t={t as any} />;
-      case "rest":       return <RESTSection t={t} />;
-      case "database":   return <DatabaseSection t={t} />;
-      case "auth":       return <AuthSection t={t} />;
-      case "middleware": return <MiddlewareSection t={t} />;
-      case "websocket":  return <WebSocketSection t={t} />;
-      case "cors":       return <CORSSection t={t} />;
+      case "basics":     return <BasicsSection t={t} />;
+      case "fs":         return <FSSection t={t} />;
+      case "eventloop":  return <EventLoopSection t={t} />;
+      case "httpnative": return <HTTPNativeSection t={t} />;
     }
+  };
+
+  const renderHeader = () => {
+    let title = "";
+    let subtitle = "";
+    if (activeTab === "basics") { title = t.basicsTitle; subtitle = t.basicsSubtitle; }
+    else if (activeTab === "fs") { title = t.fsTitle; subtitle = t.fsSubtitle; }
+    else if (activeTab === "eventloop") { title = t.eventloopTitle; subtitle = t.eventloopSubtitle; }
+    else if (activeTab === "httpnative") { title = t.httpnativeTitle; subtitle = t.httpnativeSubtitle; }
+
+    return (
+      <div className="mb-6 border-b border-border/40 pb-4">
+        <div className="flex items-center gap-2 mb-1">
+          <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded border ${activeTabCfg.border} bg-white/5`}>
+            {activeTabCfg.indexStr}
+          </span>
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            {activeTabCfg.icon}
+            {title}
+          </h2>
+        </div>
+        <p className="text-xs text-gray-500 leading-relaxed pl-8">{subtitle}</p>
+      </div>
+    );
   };
 
   return (
     <main className="min-h-screen bg-background">
-      {/* Background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 opacity-[0.02]"
           style={{ backgroundImage: "linear-gradient(#3b82f6 1px,transparent 1px),linear-gradient(to right,#3b82f6 1px,transparent 1px)", backgroundSize: "48px 48px" }} />
@@ -1173,62 +1099,107 @@ export default function BackendPage() {
         <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-purple-500/4 rounded-full blur-[100px]" />
       </div>
 
-      {/* Nav */}
-      <nav className="z-10 border-b border-border/50 backdrop-blur-sm bg-background/80 sticky top-0">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-1.5 text-gray-500 hover:text-gray-300 text-sm transition-colors">
-              <ArrowLeft size={14} />
-              <span className="hidden sm:block">LogicLab</span>
-            </Link>
-            <span className="text-gray-700">/</span>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                <Server size={12} className="text-white" />
-              </div>
-              <span className="font-bold text-sm text-white">{t.pageTitle}</span>
+      <nav className="z-10 border-b border-border/50 backdrop-blur-sm bg-background/80 sticky top-0 shrink-0">
+        <div className="max-w-7xl xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-6 h-14 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 font-mono tracking-tight text-white font-black">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0">
+              <Code2 size={14} className="text-white" />
             </div>
+            <span>
+              Logic<span className="text-primary-light">Lab</span>
+            </span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/css"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
+              <Layers size={13} />
+              CSS
+            </Link>
+            <Link href="/playground"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
+              <Play size={13} />
+              JavaScript
+            </Link>
+            <Link href="/backend"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-white bg-surface-2 border border-border transition-all duration-150 font-medium">
+              <Server size={13} />
+              Backend
+            </Link>
+            <Link href="/performance"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
+              <BarChart3 size={13} />
+              Resurs
+            </Link>
+            <LanguageSwitcher />
           </div>
-          <LanguageSwitcher />
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/5 text-emerald-400 text-xs font-semibold mb-4">
+      <div className="max-w-7xl xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-6 py-8">
+        <div className="mb-8 border-b border-border/30 pb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/5 text-emerald-400 text-xs font-semibold mb-3">
             <Zap size={11} />
             Backend Visualizer
           </div>
-          <h1 className="text-3xl md:text-4xl font-black text-white mb-2">{t.pageTitle}</h1>
-          <p className="text-gray-500 max-w-2xl leading-relaxed">{t.pageSubtitle}</p>
+          <h1 className="text-3xl font-black text-white">{t.pageTitle}</h1>
+          <p className="text-gray-500 text-sm mt-1">{t.pageSubtitle}</p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          {TABS.map(tab => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 ${
-                activeTab === tab.id
-                  ? `${tab.color} ${tab.border} bg-white/5 ${tab.glow}`
-                  : "text-gray-500 border-transparent hover:text-gray-300 hover:bg-surface-2"
-              }`}>
-              {tab.icon}
-              {t.tabs[tab.id]}
-            </button>
-          ))}
-        </div>
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          {/* Mobile navigation */}
+          <div className="lg:hidden w-full mb-4">
+            <label className="text-[10px] text-gray-500 font-mono font-bold uppercase tracking-wider mb-1.5 block">Select Topic</label>
+            <div className="relative">
+              <select value={activeTab} onChange={e => setActiveTab(e.target.value as TabId)}
+                className="w-full bg-[#0d1117] border border-border rounded-xl px-4 py-3 text-xs font-semibold text-gray-300 outline-none appearance-none cursor-pointer">
+                <optgroup label="Node.js Core">
+                  {ALL_TABS.map(tb => (
+                    <option key={tb.id} value={tb.id}>{tb.indexStr}. {t.tabs[tb.id]}</option>
+                  ))}
+                </optgroup>
+              </select>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs">▼</div>
+            </div>
+          </div>
 
-        {/* Content */}
-        <AnimatePresence mode="wait">
-          <motion.div key={activeTab}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25 }}>
-            {renderSection()}
-          </motion.div>
-        </AnimatePresence>
+          {/* Desktop Navigation */}
+          <aside className="hidden lg:flex flex-col gap-6 w-64 xl:w-72 shrink-0 sticky top-20">
+            <div className="rounded-2xl border border-border bg-[#0d1117]/60 p-4 w-full">
+              <p className="text-[9px] text-gray-500 font-mono font-bold uppercase tracking-wider mb-3">Node.js Core</p>
+              <div className="flex flex-col gap-1">
+                {ALL_TABS.map(tab => {
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs font-semibold border transition-all duration-200 ${
+                        isActive
+                          ? `${tab.color} ${tab.border} bg-white/5 ${tab.glow}`
+                          : "text-gray-500 border-transparent hover:text-gray-300 hover:bg-surface-2"
+                      }`}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[9px] font-mono text-gray-600">{tab.indexStr}</span>
+                        {tab.icon}
+                        <span>{t.tabs[tab.id]}</span>
+                      </div>
+                      {isActive && <div className="w-1.5 h-1.5 rounded-full bg-current" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </aside>
+
+          {/* Active Visualizer Space */}
+          <div className="flex-1 min-w-0 w-full">
+            {renderHeader()}
+            
+            <AnimatePresence mode="wait">
+              <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+                {renderSection()}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
     </main>
   );
