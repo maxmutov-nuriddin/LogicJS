@@ -22,6 +22,7 @@ export interface UITranslations {
   callStack: string;
   explanation: string;
   loopLabel: string;
+  navCodes: string;
 
   // Status
   stepOf: (current: number, total: number) => string;
@@ -173,6 +174,7 @@ const en: UITranslations = {
   callStack: "Call Stack",
   explanation: "Explanation",
   loopLabel: "Loop",
+  navCodes: "Codes",
 
   stepOf: (c, t) => `Step ${c} of ${t}`,
   variable: (n) => `${n} var${n !== 1 ? "s" : ""}`,
@@ -323,6 +325,7 @@ const uz: UITranslations = {
   callStack: "Chaqiruv stek",
   explanation: "Tushuntirish",
   loopLabel: "Tsikl",
+  navCodes: "Kodlar",
 
   stepOf: (c, t) => `Qadam ${c} / ${t}`,
   variable: (n) => `${n} o'zgaruvchi`,
@@ -473,6 +476,7 @@ const ru: UITranslations = {
   callStack: "Стек вызовов",
   explanation: "Объяснение",
   loopLabel: "Цикл",
+  navCodes: "Справочник",
 
   stepOf: (c, t) => `Шаг ${c} из ${t}`,
   variable: (n) => `${n} перем.`,

@@ -8,11 +8,12 @@ import {
   Code2, Home, BarChart3, GitBranch, Repeat, FunctionSquare,
   Layers, Trophy, ChevronDown, ChevronUp, ChevronRight, Zap, Activity,
   Database, Target, Info, ArrowRight, CheckCircle2,
-  MemoryStick, Hash, AlignJustify, Copy, Check, Terminal, Server, Play,
+  MemoryStick, Hash, AlignJustify, Copy, Check, Terminal, Server, Play, BookOpen,
 } from "lucide-react";
 import { runCode } from "@/lib/steps";
 import type { ExecutionStep } from "@/lib/types";
 import { useLangStore } from "@/app/playground/store";
+import { UI } from "@/lib/i18n/ui";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
 // ─── Performance page translations ───────────────────────────────────────────
@@ -1177,6 +1178,15 @@ export default function PerformancePage() {
             </span>
           </Link>
           <div className="flex items-center gap-2">
+            <a
+              href={lang === "uz" ? "https://help-code-language.netlify.app/uz" : "https://help-code-language.netlify.app/ru"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium"
+            >
+              <BookOpen size={13} />
+              {UI[lang].navCodes}
+            </a>
             <Link href="/css"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
               <Layers size={13} />

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { Code2, AlertCircle, Layers, BarChart3, Server, Play } from "lucide-react";
+import { Code2, AlertCircle, Layers, BarChart3, Server, Play, BookOpen } from "lucide-react";
 import { usePlaygroundStore, useLangStore } from "./store";
 import { UI } from "@/lib/i18n/ui";
 import { CodeEditor } from "@/components/editor/CodeEditor";
@@ -41,6 +41,15 @@ export default function PlaygroundPage() {
             </span>
           </Link>
           <div className="flex items-center gap-2">
+            <a
+              href={lang === "uz" ? "https://help-code-language.netlify.app/uz" : "https://help-code-language.netlify.app/ru"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium"
+            >
+              <BookOpen size={13} />
+              {t.navCodes}
+            </a>
             <Link href="/css"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
               <Layers size={13} />

@@ -3,10 +3,11 @@
 import { useState, useId, CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Code2, Layers, LayoutGrid, Sparkles, ChevronRight, Square, MapPin, Zap, BarChart3, Monitor, MousePointer, Type, Server, Play } from "lucide-react";
+import { Code2, Layers, LayoutGrid, Sparkles, ChevronRight, Square, MapPin, Zap, BarChart3, Monitor, MousePointer, Type, Server, Play, BookOpen } from "lucide-react";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLangStore } from "@/app/playground/store";
 import { CSS_UI, type CSSTranslations } from "@/lib/i18n/css";
+import { UI } from "@/lib/i18n/ui";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -2623,6 +2624,15 @@ export default function CSSPage() {
             </span>
           </Link>
           <div className="flex items-center gap-2">
+            <a
+              href={lang === "uz" ? "https://help-code-language.netlify.app/uz" : "https://help-code-language.netlify.app/ru"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium"
+            >
+              <BookOpen size={13} />
+              {UI[lang].navCodes}
+            </a>
             <Link href="/css"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-white bg-surface-2 border border-border transition-all duration-150 font-medium">
               <Layers size={13} />

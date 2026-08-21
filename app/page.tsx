@@ -349,6 +349,15 @@ export default function HomePage() {
         <div className="max-w-7xl xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-6 h-14 flex items-center justify-between">
           <Logo />
           <div className="flex items-center gap-2">
+            <a
+              href={lang === "uz" ? "https://help-code-language.netlify.app/uz" : "https://help-code-language.netlify.app/ru"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium"
+            >
+              <BookOpen size={13} />
+              {UI[lang].navCodes}
+            </a>
             <Link href="/css"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-surface-2 border border-transparent hover:border-border transition-all duration-150 font-medium">
               <Layers size={13} />
